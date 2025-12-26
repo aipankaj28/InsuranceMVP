@@ -1,0 +1,109 @@
+import os
+import secrets
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from datetime import datetime, timedelta
+import jwt
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# Configuration
+SECRET_KEY = os.getenv("JWT_SECRET", "super-secret-key-change-me")
+ALGORITHM = "HS256"
+OTP_EXPIRY_MINUTES = 5
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 # 24 hours
+
+# In-memory OTP storage: { email: { "otp": "123456", "expires_at": datetime } }
+otp_store = {}
+
+def generate_otp():
+    """Generate a 6-digit numeric OTP."""
+    return "".join([str(secrets.randbelow(10)) for _ in range(6)])
+
+def send_otp_email(email: str, otp: str):
+    """Send OTP to user email via Gmail SMTP."""
+    smtp_host = os.getenv("SMTP_HOST")
+    smtp_port = int(os.getenv("SMTP_PORT", 587))
+    smtp_user = os.getenv("SMTP_USERNAME")
+    smtp_pass = os.getenv("SMTP_PASSWORD")
+    from_email = os.getenv("SMTP_FROM_EMAIL")
+
+    if not all([smtp_host, smtp_user, smtp_pass]):
+        print("CRITICAL: SMTP configuration is missing!")
+        return False
+
+    msg = MIMEMultipart()
+    msg['From'] = from_email
+    msg['To'] = email
+    msg['Subject'] = f"{otp} is your Insurance Wizard verification code"
+
+    body = f"""
+    <html>
+    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+        <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+            <h2 style="color: #6366f1;">Insurance Wizard Authentication</h2>
+            <p>Hello,</p>
+            <p>Your verification code is below. It will expire in {OTP_EXPIRY_MINUTES} minutes.</p>
+            <div style="background: #f4f4f5; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;">
+                <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #1e293b;">{otp}</span>
+            </div>
+            <p>If you didn't request this code, you can safely ignore this email.</p>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+            <p style="font-size: 12px; color: #94a3b8;">This is an automated message. Please do not reply.</p>
+        </div>
+    </body>
+    </html>
+    """
+    msg.attach(MIMEText(body, 'html'))
+
+    try:
+        with smtplib.SMTP(smtp_host, smtp_port) as server:
+            server.starttls()
+            server.login(smtp_user, smtp_pass)
+            server.send_message(msg)
+        return True
+    except Exception as e:
+        print(f"Error sending email: {e}")
+        return False
+
+def store_otp(email: str, otp: str):
+    """Store OTP with expiry timestamp."""
+    expires_at = datetime.now() + timedelta(minutes=OTP_EXPIRY_MINUTES)
+    otp_store[email] = {"otp": otp, "expires_at": expires_at}
+
+def verify_otp_logic(email: str, code: str):
+    """Verify OTP and check for expiry."""
+    data = otp_store.get(email)
+    if not data:
+        return False, "No OTP found for this email."
+    
+    if datetime.now() > data["expires_at"]:
+        del otp_store[email]
+        return False, "OTP has expired."
+    
+    if data["otp"] != code:
+        return False, "Invalid verification code."
+    
+    # Success
+    del otp_store[email]
+    return True, "Verified"
+
+def create_access_token(data: dict):
+    """Generate JWT token."""
+    to_encode = data.copy()
+    expire = datetime.now() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+def decode_access_token(token: str):
+    """Decode and validate JWT token."""
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
+    except jwt.ExpiredSignatureError:
+        return None
+    except jwt.InvalidTokenError:
+        return None

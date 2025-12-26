@@ -1,0 +1,61 @@
+from sqlalchemy import create_engine, Column, Integer, String, Boolean, JSON, ForeignKey, DateTime
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker, relationship
+from datetime import datetime
+import os
+
+# Database Configuration
+DB_PATH = os.path.join(os.path.dirname(__file__), "insurance_wizard.db")
+SQLALCHEMY_DATABASE_URL = f"sqlite:///{DB_PATH}"
+
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+Base = declarative_base()
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True)
+    first_name = Column(String)
+    last_name = Column(String)
+    dob = Column(String)
+    mobile = Column(String)
+    income_level = Column(String)
+    city = Column(String)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # JSON field for dependents structure
+    dependents_data = Column(JSON)
+    num_children = Column(Integer, default=0)
+
+    recommendations = relationship("Recommendation", back_populates="user")
+
+class Recommendation(Base):
+    __tablename__ = "recommendations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    life_cover = Column(String)
+    health_cover = Column(String)
+    details = Column(String)
+    icon = Column(String)
+    mode = Column(String) # AI or RULE
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User", back_populates="recommendations")
+
+# Create tables
+def init_db():
+    Base.metadata.create_all(bind=engine)
+
+# Dependency to get db session
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
