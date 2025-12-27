@@ -65,7 +65,10 @@ def send_otp_email(email: str, otp: str):
             log_now("Email sent successfully via Resend.")
             return True
         except Exception as e:
-            log_now(f"CRITICAL: Resend API Error: {str(e)}")
+            error_msg = str(e)
+            log_now(f"CRITICAL: Resend API Error: {error_msg}")
+            if "domain is not verified" in error_msg.lower():
+                log_now("TIP: You must use 'onboarding@resend.dev' as SMTP_FROM_EMAIL unless you verify your own domain on Resend.com.")
             log_now("Falling back to SMTP...")
     
     # --- LOCAL/FALLBACK: USE SMTP ---
