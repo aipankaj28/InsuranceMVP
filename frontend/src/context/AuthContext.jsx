@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -18,7 +20,7 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = async (email) => {
-        const response = await fetch('http://localhost:8000/api/auth/login', {
+        const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email }),
@@ -32,7 +34,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     const verify = async (email, otp) => {
-        const response = await fetch('http://localhost:8000/api/auth/verify', {
+        const response = await fetch(`${API_BASE_URL}/api/auth/verify`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, otp }),

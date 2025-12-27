@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 import { ArrowRight, ArrowLeft, Shield, Briefcase, User, Heart, Sparkles, Check } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
 
@@ -40,7 +42,7 @@ export default function Wizard() {
                 const token = localStorage.getItem('auth_token');
                 if (!token) return;
 
-                const response = await fetch('http://localhost:8000/api/user/profile', {
+                const response = await fetch(`${API_BASE_URL}/api/user/profile`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await response.json();
@@ -78,7 +80,7 @@ export default function Wizard() {
         setLoading(true);
         try {
             const token = localStorage.getItem('auth_token');
-            const response = await fetch('http://localhost:8000/api/recommend', {
+            const response = await fetch(`${API_BASE_URL}/api/recommend`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
