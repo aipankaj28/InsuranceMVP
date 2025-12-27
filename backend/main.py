@@ -51,8 +51,17 @@ origins = [
     "http://localhost:5173",
     "http://localhost:5174",
 ]
-frontend_url = os.getenv("FRONTEND_URL", "").strip()
-if frontend_url:
+raw_frontend_url = os.getenv("FRONTEND_URL", "").strip()
+if raw_frontend_url:
+    # AUTOMATICALLY FIX MISSING PROTOCOL
+    if not raw_frontend_url.startswith('http'):
+        frontend_url = f"https://{raw_frontend_url}"
+    else:
+        frontend_url = raw_frontend_url
+    
+    # Remove trailing slash for Starlette compatibility
+    frontend_url = frontend_url.rstrip('/')
+    
     origins.append(frontend_url)
     log_now(f"Added CORS origin: {frontend_url}")
 else:
@@ -65,6 +74,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+log_now(f"CORS configured with origins: {origins}")
 log_now("CORS configuration complete.")
 
 class UserData(BaseModel):
