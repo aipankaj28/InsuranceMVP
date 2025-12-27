@@ -63,12 +63,12 @@ def send_otp_email(email: str, otp: str):
             }
             resend.Emails.send(params)
             log_now("Email sent successfully via Resend.")
-            return True
+            return True, "Sent"
         except Exception as e:
             error_msg = str(e)
             log_now(f"CRITICAL: Resend API Error: {error_msg}")
             if "domain is not verified" in error_msg.lower():
-                log_now("TIP: You must use 'onboarding@resend.dev' as SMTP_FROM_EMAIL unless you verify your own domain on Resend.com.")
+                return False, "Resend Domain Error: Please set SMTP_FROM_EMAIL to 'onboarding@resend.dev' in Railway."
             log_now("Falling back to SMTP...")
     
     # --- LOCAL/FALLBACK: USE SMTP ---
@@ -79,8 +79,9 @@ def send_otp_email(email: str, otp: str):
     from_email = os.getenv("SMTP_FROM_EMAIL", "onboarding@resend.dev")
 
     if not all([smtp_host, smtp_user, smtp_pass]):
-        print(f"CRITICAL: SMTP configuration is missing! host={smtp_host}, user={smtp_user}, pass={'SET' if smtp_pass else 'MISSING'}")
-        return False
+        missing = f"host={smtp_host}, user={smtp_user}, pass={'SET' if smtp_pass else 'MISSING'}"
+        log_now(f"CRITICAL: SMTP configuration is missing! {missing}")
+        return False, f"Email server not configured. {missing}"
 
     msg = MIMEMultipart()
     msg['From'] = from_email
@@ -106,11 +107,11 @@ def send_otp_email(email: str, otp: str):
     """
     msg.attach(MIMEText(body, 'html'))
 
-    # Cloud platforms often block 587. We'll try the configured port, and fallback to 465 (SSL).
     ports_to_try = [smtp_port]
     if smtp_port != 465:
         ports_to_try.append(465)
 
+    last_error = "Unknown Error"
     for port in ports_to_try:
         try:
             if port == 465:
@@ -126,18 +127,19 @@ def send_otp_email(email: str, otp: str):
                 server.login(smtp_user, smtp_pass)
                 server.send_message(msg)
                 log_now("Email sent successfully.")
-            return True
+            return True, "Sent"
         except smtplib.SMTPAuthenticationError:
             log_now(f"CRITICAL: SMTP Authentication Failed on port {port}. Check your App Password.")
-            return False
+            return False, "SMTP Authentication Failed. Check App Password."
         except Exception as e:
-            log_now(f"Connection failed on port {port}: {str(e)}")
+            last_error = str(e)
+            log_now(f"Connection failed on port {port}: {last_error}")
             if port == ports_to_try[-1]:
                 log_now("All SMTP ports exhausted. Failed to send email.")
-                return False
+                return False, f"Email delivery failed: {last_error}"
             log_now("Attempting fallback to Port 465...")
 
-    return False
+    return False, f"Email delivery failed: {last_error}"
 
 def store_otp(email: str, otp: str):
     """Store OTP with expiry timestamp."""

@@ -115,9 +115,9 @@ async def login(request: LoginRequest):
     otp = generate_otp()
     
     # Send email
-    success = send_otp_email(email, otp)
+    success, error_msg = send_otp_email(email, otp)
     if not success:
-        raise HTTPException(status_code=500, detail="Failed to send OTP email")
+        raise HTTPException(status_code=500, detail=error_msg)
     
     # Store for verification
     store_otp(email, otp)
