@@ -25,13 +25,13 @@ except Exception as e:
     traceback.print_exc()
     sys.exit(1)
 
-app = FastAPI()
+from contextlib import asynccontextmanager
 
-# Initialize Database on Startup
-@app.on_event("startup")
-async def startup_event():
+# Initialize Database on Startup using modern lifespan
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    log_now("Starting startup lifespan sequence...")
     try:
-        log_now("Starting startup event sequence...")
         log_now("Initializing database...")
         init_db()
         log_now("Database initialized successfully.")
@@ -39,10 +39,12 @@ async def startup_event():
         log_now(f"FATAL: Database initialization failed: {str(e)}")
         traceback.print_exc()
         sys.exit(1)
-
-@app.on_event("shutdown")
-async def shutdown_event():
+    
+    yield # Application runs here
+    
     log_now("--- BACKEND SHUTTING DOWN ---")
+
+app = FastAPI(lifespan=lifespan)
 
 log_now("Configuring CORS...")
 origins = [
