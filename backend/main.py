@@ -40,6 +40,10 @@ async def startup_event():
         traceback.print_exc()
         sys.exit(1)
 
+@app.on_event("shutdown")
+async def shutdown_event():
+    log_now("--- BACKEND SHUTTING DOWN ---")
+
 log_now("Configuring CORS...")
 origins = [
     "http://localhost:5173",
