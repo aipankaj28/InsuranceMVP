@@ -1,19 +1,29 @@
 # FORCE UNBUFFERED PRINT FOR RAILWAY LOGS
 import sys
+import os
+import logging
+import traceback
+from typing import Dict, Optional
+
 def log_now(msg):
     print(f"--- [STARTUP LOG] {msg}", file=sys.stdout, flush=True)
 
 log_now("--- BACKEND MODULE LOADING ---")
 
-import os
-from fastapi import FastAPI, HTTPException, Depends, Header
-from fastapi.middleware.cors import CORSMiddleware
-from logic import calculate_recommendation
-from pydantic import BaseModel
-from auth import generate_otp, store_otp, send_otp_email, verify_otp_logic, create_access_token, decode_access_token
-
-from database import init_db, get_db, User, Recommendation
-from sqlalchemy.orm import Session
+try:
+    from fastapi import FastAPI, HTTPException, Depends, Header
+    from fastapi.middleware.cors import CORSMiddleware
+    from pydantic import BaseModel
+    from sqlalchemy.orm import Session
+    
+    from logic import calculate_recommendation
+    from auth import generate_otp, store_otp, send_otp_email, verify_otp_logic, create_access_token, decode_access_token
+    from database import init_db, get_db, User, Recommendation
+    log_now("Modules imported successfully.")
+except Exception as e:
+    log_now(f"FATAL: Module import failed: {str(e)}")
+    traceback.print_exc()
+    sys.exit(1)
 
 app = FastAPI()
 
@@ -21,30 +31,35 @@ app = FastAPI()
 @app.on_event("startup")
 async def startup_event():
     try:
+        log_now("Starting startup event sequence...")
         log_now("Initializing database...")
         init_db()
         log_now("Database initialized successfully.")
     except Exception as e:
         log_now(f"FATAL: Database initialization failed: {str(e)}")
-        import traceback
         traceback.print_exc()
-        # On Railway, we might want to exit explicitly on fatal start errors
         sys.exit(1)
 
 log_now("Configuring CORS...")
+origins = [
+    "http://localhost:5173",
+    "http://localhost:5174",
+]
+frontend_url = os.getenv("FRONTEND_URL", "").strip()
+if frontend_url:
+    origins.append(frontend_url)
+    log_now(f"Added CORS origin: {frontend_url}")
+else:
+    log_now("No FRONTEND_URL found, using defaults.")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://localhost:5174",
-        os.getenv("FRONTEND_URL", "").strip()
-    ],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-from typing import Dict, Optional
+log_now("CORS configuration complete.")
 
 class UserData(BaseModel):
     first_name: str
