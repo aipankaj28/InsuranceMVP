@@ -9,6 +9,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+def log_now(msg):
+    import sys
+    print(f"--- [AUTH LOG] {msg}", file=sys.stdout, flush=True)
+
 # Configuration
 SECRET_KEY = os.getenv("JWT_SECRET", "super-secret-key-change-me")
 ALGORITHM = "HS256"
@@ -59,10 +63,19 @@ def send_otp_email(email: str, otp: str):
     msg.attach(MIMEText(body, 'html'))
 
     try:
-        with smtplib.SMTP(smtp_host, smtp_port) as server:
+        if smtp_port == 465:
+            log_now(f"Connecting to SMTP SSL {smtp_host}:{smtp_port}...")
+            server = smtplib.SMTP_SSL(smtp_host, smtp_port, timeout=10)
+        else:
+            log_now(f"Connecting to SMTP {smtp_host}:{smtp_port}...")
+            server = smtplib.SMTP(smtp_host, smtp_port, timeout=10)
             server.starttls()
+        
+        with server:
+            log_now("SMTP connected. Logging in...")
             server.login(smtp_user, smtp_pass)
             server.send_message(msg)
+            log_now("Email sent successfully.")
         return True
     except smtplib.SMTPAuthenticationError:
         print("CRITICAL: SMTP Authentication Failed. Check your App Password.")
