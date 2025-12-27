@@ -1,5 +1,16 @@
 import os
 import logging
+import sys
+
+# EXTREMELY IMPORTANT: Force unbuffered logging for Railway
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    stream=sys.stdout
+)
+logger = logging.getLogger(__name__)
+logger.info("--- BACKEND STARTING UP ---")
+
 from fastapi import FastAPI, HTTPException, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
 from logic import calculate_recommendation
@@ -8,14 +19,6 @@ from auth import generate_otp, store_otp, send_otp_email, verify_otp_logic, crea
 
 from database import init_db, get_db, User, Recommendation
 from sqlalchemy.orm import Session
-import logging
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
-logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
@@ -25,9 +28,10 @@ try:
     init_db()
     logger.info("Database initialized successfully.")
 except Exception as e:
-    logger.error(f"FATAL: Database initialization failed: {e}")
-    # Still call it to allow standard crash behavior if preferred, 
-    # but now it's logged.
+    logger.error(f"FATAL: Database initialization failed: {str(e)}")
+    # Log the full error to stdout for Railway
+    import traceback
+    traceback.print_exc()
     raise
 
 app.add_middleware(
