@@ -1,4 +1,5 @@
 import os
+import logging
 from fastapi import FastAPI, HTTPException, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
 from logic import calculate_recommendation
@@ -7,11 +8,27 @@ from auth import generate_otp, store_otp, send_otp_email, verify_otp_logic, crea
 
 from database import init_db, get_db, User, Recommendation
 from sqlalchemy.orm import Session
+import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
 # Initialize Database
-init_db()
+try:
+    logger.info("Initializing database...")
+    init_db()
+    logger.info("Database initialized successfully.")
+except Exception as e:
+    logger.error(f"FATAL: Database initialization failed: {e}")
+    # Still call it to allow standard crash behavior if preferred, 
+    # but now it's logged.
+    raise
 
 app.add_middleware(
     CORSMiddleware,

@@ -5,7 +5,13 @@ from datetime import datetime
 import os
 
 # Database Configuration
-DB_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "Data", "insurance_wizard.db")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# Ensure a 'data' directory exists within the backend folder
+DATA_DIR = os.path.join(BASE_DIR, "data")
+if not os.path.exists(DATA_DIR):
+    os.makedirs(DATA_DIR, exist_ok=True)
+
+DB_PATH = os.path.join(DATA_DIR, "insurance_wizard.db")
 SQLALCHEMY_DATABASE_URL = f"sqlite:///{DB_PATH}"
 
 engine = create_engine(
