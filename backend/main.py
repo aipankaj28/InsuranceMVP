@@ -189,3 +189,10 @@ def get_user_profile(user_payload = Depends(get_current_user), db: Session = Dep
             } for rec in all_recs
         ]
     }
+
+if __name__ == "__main__":
+    import uvicorn
+    # Use the port assigned by Railway or default to 8000
+    port = int(os.getenv("PORT", 8000))
+    log_now(f"Starting Uvicorn manual runner on port {port}...")
+    uvicorn.run(app, host="0.0.0.0", port=port)
