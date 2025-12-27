@@ -28,5 +28,6 @@ antigravity/
 
 # Temporary files
 *.txt
+!requirements.txt
 *.log
 !README.md
