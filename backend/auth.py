@@ -62,29 +62,38 @@ def send_otp_email(email: str, otp: str):
     """
     msg.attach(MIMEText(body, 'html'))
 
-    try:
-        if smtp_port == 465:
-            log_now(f"Connecting to SMTP SSL {smtp_host}:{smtp_port}...")
-            server = smtplib.SMTP_SSL(smtp_host, smtp_port, timeout=10)
-        else:
-            log_now(f"Connecting to SMTP {smtp_host}:{smtp_port}...")
-            server = smtplib.SMTP(smtp_host, smtp_port, timeout=10)
-            server.starttls()
-        
-        with server:
-            log_now("SMTP connected. Logging in...")
-            server.login(smtp_user, smtp_pass)
-            server.send_message(msg)
-            log_now("Email sent successfully.")
-        return True
-    except smtplib.SMTPAuthenticationError:
-        print("CRITICAL: SMTP Authentication Failed. Check your App Password.")
-        return False
-    except Exception as e:
-        print(f"CRITICAL: SMTP Error sending email: {str(e)}")
-        import traceback
-        traceback.print_exc()
-        return False
+    # Cloud platforms often block 587. We'll try the configured port, and fallback to 465 (SSL).
+    ports_to_try = [smtp_port]
+    if smtp_port != 465:
+        ports_to_try.append(465)
+
+    for port in ports_to_try:
+        try:
+            if port == 465:
+                log_now(f"Connecting to SMTP SSL {smtp_host}:{port}...")
+                server = smtplib.SMTP_SSL(smtp_host, port, timeout=10)
+            else:
+                log_now(f"Connecting to SMTP {smtp_host}:{port}...")
+                server = smtplib.SMTP(smtp_host, port, timeout=10)
+                server.starttls()
+            
+            with server:
+                log_now(f"SMTP connected on port {port}. Logging in...")
+                server.login(smtp_user, smtp_pass)
+                server.send_message(msg)
+                log_now("Email sent successfully.")
+            return True
+        except smtplib.SMTPAuthenticationError:
+            log_now(f"CRITICAL: SMTP Authentication Failed on port {port}. Check your App Password.")
+            return False
+        except Exception as e:
+            log_now(f"Connection failed on port {port}: {str(e)}")
+            if port == ports_to_try[-1]:
+                log_now("All SMTP ports exhausted. Failed to send email.")
+                return False
+            log_now("Attempting fallback to Port 465...")
+
+    return False
 
 def store_otp(email: str, otp: str):
     """Store OTP with expiry timestamp."""
