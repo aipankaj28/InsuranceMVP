@@ -29,12 +29,14 @@ def generate_otp():
 def send_otp_email(email: str, otp: str):
     """Send OTP to user email via Resend API (Production) or SMTP (Local)."""
     resend_api_key = os.getenv("RESEND_API_KEY")
+    log_now(f"Checking for RESEND_API_KEY... Found: {resend_api_key is not None and len(resend_api_key.strip()) > 0}")
     
     # --- PROD: USE RESEND API ---
     if resend_api_key:
+        log_now(f"RESEND_API_KEY detected (Length: {len(resend_api_key.strip())}). Attempting to use Resend...")
         try:
             import resend
-            resend.api_key = resend_api_key
+            resend.api_key = resend_api_key.strip()
             
             log_now("Sending email via Resend API...")
             params = {
