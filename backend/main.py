@@ -1,16 +1,11 @@
-import os
-import logging
+# FORCE UNBUFFERED PRINT FOR RAILWAY LOGS
 import sys
+def log_now(msg):
+    print(f"--- [STARTUP LOG] {msg}", file=sys.stdout, flush=True)
 
-# EXTREMELY IMPORTANT: Force unbuffered logging for Railway
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    stream=sys.stdout
-)
-logger = logging.getLogger(__name__)
-logger.info("--- BACKEND STARTING UP ---")
+log_now("--- BACKEND MODULE LOADING ---")
 
+import os
 from fastapi import FastAPI, HTTPException, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
 from logic import calculate_recommendation
@@ -22,18 +17,21 @@ from sqlalchemy.orm import Session
 
 app = FastAPI()
 
-# Initialize Database
-try:
-    logger.info("Initializing database...")
-    init_db()
-    logger.info("Database initialized successfully.")
-except Exception as e:
-    logger.error(f"FATAL: Database initialization failed: {str(e)}")
-    # Log the full error to stdout for Railway
-    import traceback
-    traceback.print_exc()
-    raise
+# Initialize Database on Startup
+@app.on_event("startup")
+async def startup_event():
+    try:
+        log_now("Initializing database...")
+        init_db()
+        log_now("Database initialized successfully.")
+    except Exception as e:
+        log_now(f"FATAL: Database initialization failed: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        # On Railway, we might want to exit explicitly on fatal start errors
+        sys.exit(1)
 
+log_now("Configuring CORS...")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
