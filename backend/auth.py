@@ -27,12 +27,51 @@ def generate_otp():
     return "".join([str(secrets.randbelow(10)) for _ in range(6)])
 
 def send_otp_email(email: str, otp: str):
-    """Send OTP to user email via Gmail SMTP."""
+    """Send OTP to user email via Resend API (Production) or SMTP (Local)."""
+    resend_api_key = os.getenv("RESEND_API_KEY")
+    
+    # --- PROD: USE RESEND API ---
+    if resend_api_key:
+        try:
+            import resend
+            resend.api_key = resend_api_key
+            
+            log_now("Sending email via Resend API...")
+            params = {
+                "from": os.getenv("SMTP_FROM_EMAIL", "onboarding@resend.dev"),
+                "to": [email],
+                "subject": f"{otp} is your Insurance Wizard verification code",
+                "html": f"""
+                <html>
+                <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                    <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+                        <h2 style="color: #6366f1;">Insurance Wizard Authentication</h2>
+                        <p>Hello,</p>
+                        <p>Your verification code is below. It will expire in {OTP_EXPIRY_MINUTES} minutes.</p>
+                        <div style="background: #f4f4f5; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;">
+                            <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #1e293b;">{otp}</span>
+                        </div>
+                        <p>If you didn't request this code, you can safely ignore this email.</p>
+                        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+                        <p style="font-size: 12px; color: #94a3b8;">This is an automated message. Please do not reply.</p>
+                    </div>
+                </body>
+                </html>
+                """
+            }
+            resend.Emails.send(params)
+            log_now("Email sent successfully via Resend.")
+            return True
+        except Exception as e:
+            log_now(f"CRITICAL: Resend API Error: {str(e)}")
+            log_now("Falling back to SMTP...")
+    
+    # --- LOCAL/FALLBACK: USE SMTP ---
     smtp_host = os.getenv("SMTP_HOST")
     smtp_port = int(os.getenv("SMTP_PORT", 587))
     smtp_user = os.getenv("SMTP_USERNAME")
     smtp_pass = os.getenv("SMTP_PASSWORD")
-    from_email = os.getenv("SMTP_FROM_EMAIL")
+    from_email = os.getenv("SMTP_FROM_EMAIL", "onboarding@resend.dev")
 
     if not all([smtp_host, smtp_user, smtp_pass]):
         print(f"CRITICAL: SMTP configuration is missing! host={smtp_host}, user={smtp_user}, pass={'SET' if smtp_pass else 'MISSING'}")
