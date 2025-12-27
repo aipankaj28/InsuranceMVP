@@ -67,8 +67,18 @@ def send_otp_email(email: str, otp: str):
         except Exception as e:
             error_msg = str(e)
             log_now(f"CRITICAL: Resend API Error: {error_msg}")
+            
+            # Specific handling for the domain/recipient restriction
             if "domain is not verified" in error_msg.lower():
-                return False, "Resend Domain Error: Please set SMTP_FROM_EMAIL to 'onboarding@resend.dev' in Railway."
+                return False, "Resend Error: Please set SMTP_FROM_EMAIL to 'onboarding@resend.dev' in Railway."
+            if "restricted" in error_msg.lower() or "unauthorized" in error_msg.lower():
+                return False, "Resend Restriction: You can only send to your own email address until you verify your domain on Resend.com."
+            
+            # If we have a Resend key, we should NOT fall back to SMTP unless STMP is fully configured.
+            # This avoids the "Email server not configured" error which is confusing.
+            if not os.getenv("SMTP_HOST"):
+                return False, f"Resend API Error: {error_msg}. (SMTP fallback disabled because SMTP_HOST is not set)"
+            
             log_now("Falling back to SMTP...")
     
     # --- LOCAL/FALLBACK: USE SMTP ---
