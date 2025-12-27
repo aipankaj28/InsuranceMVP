@@ -31,7 +31,7 @@ def send_otp_email(email: str, otp: str):
     from_email = os.getenv("SMTP_FROM_EMAIL")
 
     if not all([smtp_host, smtp_user, smtp_pass]):
-        print("CRITICAL: SMTP configuration is missing!")
+        print(f"CRITICAL: SMTP configuration is missing! host={smtp_host}, user={smtp_user}, pass={'SET' if smtp_pass else 'MISSING'}")
         return False
 
     msg = MIMEMultipart()
@@ -64,8 +64,13 @@ def send_otp_email(email: str, otp: str):
             server.login(smtp_user, smtp_pass)
             server.send_message(msg)
         return True
+    except smtplib.SMTPAuthenticationError:
+        print("CRITICAL: SMTP Authentication Failed. Check your App Password.")
+        return False
     except Exception as e:
-        print(f"Error sending email: {e}")
+        print(f"CRITICAL: SMTP Error sending email: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return False
 
 def store_otp(email: str, otp: str):
