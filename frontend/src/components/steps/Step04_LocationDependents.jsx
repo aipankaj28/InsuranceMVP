@@ -33,7 +33,7 @@ export default function Step04_LocationDependents({ formData, updateField }) {
 
             <div className="space-y-6">
                 <div>
-                    <label className="block text-sm font-semibold text-slate-300 mb-2">City of Residence</label>
+                    <label className="block text-sm font-semibold text-slate-300 mb-2">City of Residence <span className="text-red-500">*</span></label>
                     <div className="relative">
                         <select
                             value={formData.city}
@@ -46,6 +46,26 @@ export default function Step04_LocationDependents({ formData, updateField }) {
                             ))}
                         </select>
                         <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/50">▼</div>
+                    </div>
+                </div>
+
+                <div className="pt-2">
+                    <label className="block text-sm font-semibold text-slate-300 mb-3">Do you smoke or use tobacco? 🚬</label>
+                    <div className="flex gap-4">
+                        <button
+                            type="button"
+                            onClick={() => updateField('is_smoker', true)}
+                            className={`flex-1 p-4 rounded-xl border transition-all duration-200 font-medium ${formData.is_smoker ? 'bg-brand-accent text-brand-dark border-brand-accent shadow-[0_0_20px_rgba(16,185,129,0.2)]' : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'}`}
+                        >
+                            Yes, I smoke
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => updateField('is_smoker', false)}
+                            className={`flex-1 p-4 rounded-xl border transition-all duration-200 font-medium ${!formData.is_smoker ? 'bg-brand-accent text-brand-dark border-brand-accent shadow-[0_0_20px_rgba(16,185,129,0.2)]' : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'}`}
+                        >
+                            Non-Smoker
+                        </button>
                     </div>
                 </div>
 

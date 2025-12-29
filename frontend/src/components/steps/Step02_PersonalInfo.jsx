@@ -13,7 +13,7 @@ export default function Step02_PersonalInfo({ formData, updateField }) {
             <div className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-sm font-semibold text-slate-300 mb-2">First Name</label>
+                        <label className="block text-sm font-semibold text-slate-300 mb-2">First Name <span className="text-red-500">*</span></label>
                         <input
                             type="text" placeholder="Pankaj"
                             value={formData.first_name}
@@ -22,7 +22,7 @@ export default function Step02_PersonalInfo({ formData, updateField }) {
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-semibold text-slate-300 mb-2">Last Name</label>
+                        <label className="block text-sm font-semibold text-slate-300 mb-2">Last Name <span className="text-red-500">*</span></label>
                         <input
                             type="text" placeholder="Sharma"
                             value={formData.last_name}
@@ -33,7 +33,23 @@ export default function Step02_PersonalInfo({ formData, updateField }) {
                 </div>
 
                 <div>
-                    <label className="block text-sm font-semibold text-slate-300 mb-2">Date of Birth</label>
+                    <label className="block text-sm font-semibold text-slate-300 mb-3">Gender <span className="text-red-500">*</span></label>
+                    <div className="flex gap-3">
+                        {['Male', 'Female', 'Other'].map((option) => (
+                            <button
+                                key={option}
+                                type="button"
+                                onClick={() => updateField('gender', option)}
+                                className={`flex-1 p-3 rounded-xl border transition-all duration-200 font-medium ${formData.gender === option ? 'bg-brand-accent text-brand-dark border-brand-accent shadow-[0_0_15px_rgba(16,185,129,0.2)]' : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'}`}
+                            >
+                                {option}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <div>
+                    <label className="block text-sm font-semibold text-slate-300 mb-2">Date of Birth <span className="text-red-500">*</span></label>
                     <input
                         type="date"
                         value={formData.dob}

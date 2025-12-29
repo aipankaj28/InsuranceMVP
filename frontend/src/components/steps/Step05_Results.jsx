@@ -50,6 +50,36 @@ export default function Step05_Results({ result }) {
                 </motion.div>
             </div>
 
+            {result.reasoning && (
+                <div className="text-left bg-white/5 p-6 rounded-2xl border border-white/10 space-y-3">
+                    <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-brand-accent"></span>
+                        Why this coverage?
+                    </h3>
+                    <p className="text-sm text-slate-400 leading-relaxed italic">"{result.reasoning}"</p>
+                </div>
+            )}
+
+            {result.recommended_features && result.recommended_features.length > 0 && (
+                <div className="text-left space-y-4">
+                    <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
+                        Recommended Plan Features
+                    </h3>
+                    <div className="grid grid-cols-1 gap-3">
+                        {result.recommended_features.map((feature, idx) => (
+                            <div key={idx} className="bg-white/5 border border-white/10 p-4 rounded-xl hover:bg-white/10 transition-colors group">
+                                <div className="flex items-center justify-between mb-1">
+                                    <span className="font-bold text-brand-accent text-sm">{feature.name}</span>
+                                    <div className="text-[10px] bg-brand-accent/20 text-brand-accent px-2 py-0.5 rounded-full font-bold uppercase tracking-tighter">Recommended</div>
+                                </div>
+                                <p className="text-xs text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors">{feature.reason}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             <button
                 onClick={() => window.location.reload()}
                 className="mt-4 text-sm text-slate-500 hover:text-white transition-colors underline decoration-dotted underline-offset-4"

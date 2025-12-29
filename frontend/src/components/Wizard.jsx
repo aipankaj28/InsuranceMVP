@@ -29,7 +29,9 @@ export default function Wizard() {
             "Mother-In-Law": false,
             "Father-In-Law": false
         },
-        num_children: 0
+        num_children: 0,
+        is_smoker: false,
+        gender: ""
     });
     const [result, setResult] = useState(null);
     const [history, setHistory] = useState([]);
@@ -74,7 +76,29 @@ export default function Wizard() {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
-    const handleNext = () => setStep(prev => prev + 1);
+    const isStepValid = () => {
+        if (step === 2) {
+            return (
+                formData.first_name.trim() !== "" &&
+                formData.last_name.trim() !== "" &&
+                formData.dob !== "" &&
+                formData.gender !== ""
+            );
+        }
+        if (step === 4) {
+            return formData.city !== "";
+        }
+        return true;
+    };
+
+    const handleNext = () => {
+        if (isStepValid()) {
+            setStep(prev => prev + 1);
+        } else {
+            alert("Please fill in all mandatory fields before proceeding.");
+        }
+    };
+
     const handleBack = () => setStep(prev => prev - 1);
 
     const fetchRecommendation = async () => {
@@ -180,7 +204,7 @@ export default function Wizard() {
                             </button>
 
                             <button
-                                onClick={step === 4 ? fetchRecommendation : handleNext}
+                                onClick={step === 4 ? (isStepValid() ? fetchRecommendation : () => alert("Please select your City.")) : handleNext}
                                 disabled={loading}
                                 className={`
                                     relative overflow-hidden bg-white text-brand-dark px-8 py-3 rounded-xl font-bold flex items-center shadow-lg hover:shadow-white/20 transition-all disabled:opacity-70 disabled:cursor-wait

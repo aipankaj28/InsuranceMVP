@@ -32,6 +32,8 @@ class User(Base):
     mobile = Column(String)
     income_level = Column(String)
     city = Column(String)
+    gender = Column(String)
+    is_smoker = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     
     # JSON field for dependents structure
@@ -48,6 +50,8 @@ class Recommendation(Base):
     life_cover = Column(String)
     health_cover = Column(String)
     details = Column(String)
+    reasoning = Column(String)
+    features = Column(JSON)
     icon = Column(String)
     mode = Column(String) # AI or RULE
     created_at = Column(DateTime, default=datetime.utcnow)

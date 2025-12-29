@@ -43,6 +43,7 @@ def calculate_recommendation_rule(data: dict) -> dict:
     income_val = parse_income(data.get("income_level", "<5L"))
     age = calculate_age(data.get("dob", ""))
     city_tier = get_city_tier(data.get("city", ""))
+    is_smoker = data.get("is_smoker", False)
     dependents = data.get("dependents", {})
     num_children = data.get("num_children", 0)
 
@@ -56,8 +57,13 @@ def calculate_recommendation_rule(data: dict) -> dict:
     # Boost multiplier if they have kids or spouse
     if dependents.get("Spouse") or num_children > 0:
         multiplier += 2
-        
-    life_cover_amount = income_val * multiplier
+    
+    # Smoking impact: Smoker might need more coverage or higher premium (logic-wise we increase coverage requirement)
+    if is_smoker:
+        # Increase coverage by 20% if smoker
+        life_cover_amount = int(income_val * multiplier * 1.2)
+    else:
+        life_cover_amount = income_val * multiplier
     
     # Health Insurance Rule
     base_health = 500000
@@ -82,11 +88,20 @@ def calculate_recommendation_rule(data: dict) -> dict:
     # Format strings
     life_cover_str = f"₹{life_cover_amount/10000000:.1f} Crore" if life_cover_amount >= 10000000 else f"₹{life_cover_amount/100000:.0f} Lakhs"
     health_cover_str = f"₹{base_health/100000:.0f} Lakhs"
+    
+    details = f"Coverage designed for your profile including {members_count} family members in a {city_tier} city."
+    if is_smoker:
+        details += " Note: Smoking status affects premium and coverage needs."
 
     return {
         "life_cover": life_cover_str,
         "health_cover": health_cover_str,
-        "details": f"Coverage designed for your profile including {members_count} family members in a {city_tier} city.",
+        "details": details,
+        "reasoning": f"Based on your income of {data.get('income_level')} and family size of {members_count}, we recommend this coverage level to ensure financial stability.",
+        "recommended_features": [
+            {"name": "Critical Illness Cover", "reason": "Recommended for long-term health protection."},
+            {"name": "No Room Rent Capping", "reason": "Ensures you get any room type during hospitalization."}
+        ],
         "icon": "🚀" if life_cover_amount > 10000000 else "🛡️"
     }
 
@@ -112,20 +127,28 @@ def calculate_recommendation_ai(data: dict) -> dict:
 
 User Profile:
 - Age: {data.get('age', 25)}
+- Gender: {data.get('gender', 'Not specified')}
 - City: {data.get('city', 'Unknown')}
 - Annual Income: {data.get('income_level', '<5L')}
 - Family Status: {data.get('family_status', 'Single')}
+- Smoker: {'Yes' if data.get('is_smoker') else 'No'}
 - Years of Experience: {data.get('experience', 0)}
 
-Provide a recommendation in EXACTLY this JSON format (no markdown, no extra text):
+Provide a recommendation in EXACTLY this JSON format:
 {{
   "life_cover": "₹X Crore" or "₹X Lakhs",
   "health_cover": "₹X Lakhs",
-  "details": "One empathetic sentence explaining why these amounts suit the user's situation",
+  "details": "A short tagline summary (one sentence).",
+  "reasoning": "A detailed 2-3 sentence explanation of WHY these specific cover amounts were chosen based on the user's age, gender, income, smoking status, and city tier.",
+  "recommended_features": [
+    {{ "name": "Maternity Benefit", "reason": "Explain why this feature is suitable based on the user's demographic (e.g., if female and of child-bearing age)." }},
+    {{ "name": "Critical Illness Cover", "reason": "Reason for adding this (e.g., lifestyle, age)." }},
+    {{ "name": "No Room Rent Capping", "reason": "Why this is important in their city tier." }}
+  ],
   "icon": "🚀" or "🛡️" or "💼"
 }}
 
-Be specific and mention the city or family status in your explanation. Keep it warm and human."""
+Be specific and empathetic. Mention the user's gender or family situation where relevant. Avoid generic advice."""
 
         response = model.generate_content(prompt)
         response_text = response.text.strip()
@@ -140,7 +163,7 @@ Be specific and mention the city or family status in your explanation. Keep it w
         result = json.loads(response_text)
         
         # Validate required fields
-        required_fields = ["life_cover", "health_cover", "details", "icon"]
+        required_fields = ["life_cover", "health_cover", "details", "reasoning", "recommended_features", "icon"]
         if not all(field in result for field in required_fields):
             raise ValueError("AI response missing required fields")
         

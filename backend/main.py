@@ -84,6 +84,8 @@ class UserData(BaseModel):
     mobile: str
     income_level: str
     city: str
+    gender: str
+    is_smoker: bool
     dependents: Dict[str, bool]
     num_children: Optional[int] = 0
 
@@ -154,6 +156,8 @@ def get_recommendation(data: UserData, user_payload = Depends(get_current_user),
     user.mobile = data.mobile
     user.income_level = data.income_level
     user.city = data.city
+    user.gender = data.gender
+    user.is_smoker = data.is_smoker
     user.dependents_data = data.dependents
     user.num_children = data.num_children
     
@@ -163,6 +167,8 @@ def get_recommendation(data: UserData, user_payload = Depends(get_current_user),
         life_cover=result.get("life_cover"),
         health_cover=result.get("health_cover"),
         details=result.get("details"),
+        reasoning=result.get("reasoning"),
+        features=result.get("recommended_features"),
         icon=result.get("icon"),
         mode=result.get("mode")
     )
@@ -190,6 +196,8 @@ def get_user_profile(user_payload = Depends(get_current_user), db: Session = Dep
             "mobile": user.mobile,
             "income_level": user.income_level,
             "city": user.city,
+            "gender": user.gender,
+            "is_smoker": user.is_smoker,
             "dependents": user.dependents_data,
             "num_children": user.num_children
         },
@@ -199,6 +207,8 @@ def get_user_profile(user_payload = Depends(get_current_user), db: Session = Dep
                 "life_cover": rec.life_cover,
                 "health_cover": rec.health_cover,
                 "details": rec.details,
+                "reasoning": rec.reasoning,
+                "recommended_features": rec.features,
                 "icon": rec.icon,
                 "mode": rec.mode,
                 "created_at": rec.created_at.isoformat()
