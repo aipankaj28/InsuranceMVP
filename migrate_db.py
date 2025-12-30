@@ -56,7 +56,13 @@ if os.path.exists(db_path):
         ("employment_type", "TEXT"),
         ("lifestyle", "TEXT"),
         ("smoking_status", "TEXT"),
-        ("family_health_history", "JSON")
+        ("family_health_history", "JSON"),
+        ("has_life_insurance", "BOOLEAN DEFAULT 0"),
+        ("existing_life_cover", "TEXT"),
+        ("has_health_insurance", "BOOLEAN DEFAULT 0"),
+        ("existing_health_cover", "TEXT"),
+        ("health_source", "TEXT"),
+        ("parents_covered", "BOOLEAN DEFAULT 0")
     ]
     
     for col_name, col_type in v2_cols:

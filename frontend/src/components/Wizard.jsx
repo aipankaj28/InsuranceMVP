@@ -11,6 +11,7 @@ import Step03_CareerStage from './steps/Step03_CareerStage';
 import Step04_FinancialReality from './steps/Step04_FinancialReality';
 import Step05_HealthSnapshot from './steps/Step05_HealthSnapshot';
 import Step05_Results from './steps/Step05_Results';
+import Step06_ExistingCoverage from './steps/Step06_ExistingCoverage';
 import Dashboard from './Dashboard';
 
 export default function Wizard() {
@@ -30,7 +31,17 @@ export default function Wizard() {
         smoking_status: "Never",
         family_health_history: ["No significant history"],
         lifestyle: "Moderately Active",
-        gender: "" // Default
+        gender: "", // Default
+        // Phase 2 Fields
+        has_life_insurance: false,
+        existing_life_cover: "",
+        existing_life_cover_val: 0,
+        has_health_insurance: false,
+        existing_health_cover: "",
+        existing_health_cover_val: 0,
+        health_source: "Employer",
+        parents_covered: false,
+        dependents: {}
     });
     const [result, setResult] = useState(null);
     const [history, setHistory] = useState([]);
@@ -103,6 +114,20 @@ export default function Wizard() {
     const fetchRecommendation = async () => {
         setLoading(true);
         try {
+            // Prep dependents for calculation
+            const updatedDependents = {};
+            if (formData.marital_status === "Married") updatedDependents["Spouse"] = true;
+            if (formData.support_parents) {
+                updatedDependents["Mother"] = true;
+                updatedDependents["Father"] = true;
+            }
+            if (formData.num_children > 0) updatedDependents["Children"] = true;
+
+            const finalPayload = {
+                ...formData,
+                dependents: updatedDependents
+            };
+
             const token = localStorage.getItem('auth_token');
             const response = await fetch(`${API_BASE_URL}/api/recommend`, {
                 method: 'POST',
@@ -110,8 +135,20 @@ export default function Wizard() {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify(finalPayload)
             });
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    alert("Your session has expired. Please log in again.");
+                    localStorage.removeItem('auth_token');
+                    window.location.reload();
+                    return;
+                }
+                const errorData = await response.json();
+                throw new Error(errorData.detail || "Failed to fetch recommendation");
+            }
+
             const data = await response.json();
             setResult(data);
             setHistory(prev => [data, ...prev]); // Add new recommendation to history
@@ -124,13 +161,35 @@ export default function Wizard() {
         }
     };
 
+    const saveSafetyNet = async () => {
+        setLoading(true);
+        try {
+            const token = localStorage.getItem('auth_token');
+            await fetch(`${API_BASE_URL}/api/recommend`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(formData)
+            });
+            // After saving, we can finally move to dashboard or final view
+            setView('dashboard');
+        } catch (error) {
+            console.error("Failed to save safety net", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const steps = [
         { id: 1, title: "Start", icon: <User className="w-5 h-5" /> },
         { id: 2, title: "Life", icon: <Heart className="w-5 h-5" /> },
         { id: 3, title: "Career", icon: <Briefcase className="w-5 h-5" /> },
         { id: 4, title: "Finance", icon: <Shield className="w-5 h-5" /> },
         { id: 5, title: "Health", icon: <Sparkles className="w-5 h-5" /> },
-        { id: 6, title: "Result", icon: <Check className="w-5 h-5" /> }
+        { id: 6, title: "Ideal", icon: <Check className="w-5 h-5" /> },
+        { id: 7, title: "Net", icon: <Shield className="w-5 h-5" /> }
     ];
 
     if (initialLoading) {
@@ -187,11 +246,12 @@ export default function Wizard() {
                         {step === 3 && <Step03_CareerStage key="step3" formData={formData} updateField={updateField} />}
                         {step === 4 && <Step04_FinancialReality key="step4" formData={formData} updateField={updateField} />}
                         {step === 5 && <Step05_HealthSnapshot key="step5" formData={formData} updateField={updateField} />}
-                        {step === 6 && <Step05_Results key="step6" result={result} />}
+                        {step === 6 && <Step05_Results key="step6" result={result} onAnalyzeGaps={handleNext} />}
+                        {step === 7 && <Step06_ExistingCoverage key="step7" formData={formData} updateField={updateField} />}
                     </AnimatePresence>
 
                     {/* Navigation Buttons */}
-                    {step < 6 && (
+                    {true && (
                         <div className="flex justify-between items-center pt-8 border-t border-white/10 mt-8">
                             <button
                                 onClick={handleBack}
@@ -205,11 +265,13 @@ export default function Wizard() {
                             </button>
 
                             <button
-                                onClick={step === 5 ? (isStepValid() ? fetchRecommendation : () => alert("Please fill mandatory fields.")) : handleNext}
+                                onClick={
+                                    step === 5 ? (isStepValid() ? fetchRecommendation : () => alert("Please fill mandatory fields.")) :
+                                        step === 7 ? saveSafetyNet :
+                                            handleNext
+                                }
                                 disabled={loading}
-                                className={`
-                                    relative overflow-hidden bg-white text-brand-dark px-8 py-3 rounded-xl font-bold flex items-center shadow-lg hover:shadow-white/20 transition-all disabled:opacity-70 disabled:cursor-wait
-                                `}
+                                className="relative overflow-hidden bg-white text-brand-dark px-8 py-3 rounded-xl font-bold flex items-center shadow-lg hover:shadow-white/20 transition-all disabled:opacity-70 disabled:cursor-wait"
                             >
                                 <span className="relative z-10 flex items-center">
                                     {loading ? 'Computing...' : (
@@ -217,7 +279,8 @@ export default function Wizard() {
                                             step === 2 ? 'Continue my story' :
                                                 step === 3 ? 'Next' :
                                                     step === 4 ? 'Continue' :
-                                                        step === 5 ? 'See my protection needs' : 'Next'
+                                                        step === 5 ? 'See my protection needs' :
+                                                            step === 6 ? 'Analyze My Gaps' : 'Complete Analysis'
                                     )}
                                     {!loading && <ArrowRight className="w-4 h-4 ml-2" />}
                                 </span>

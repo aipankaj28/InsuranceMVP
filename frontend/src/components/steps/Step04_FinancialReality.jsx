@@ -1,5 +1,5 @@
 import StepWrapper from './StepWrapper';
-import { IndianRupee, Briefcase, Info } from 'lucide-react';
+import { IndianRupee, Briefcase } from 'lucide-react';
 
 export default function Step04_FinancialReality({ formData, updateField }) {
     const incomeBrackets = [
@@ -19,35 +19,11 @@ export default function Step04_FinancialReality({ formData, updateField }) {
         'Student'
     ];
 
-    const getProgress = () => {
-        const index = incomeBrackets.indexOf(formData.income_level);
-        if (index === -1) return 0;
-        return ((index + 1) / incomeBrackets.length) * 100;
-    };
-
     return (
         <StepWrapper className="space-y-8">
             <div className="text-center">
                 <h2 className="text-3xl font-bold text-white mb-2">Your financial landscape</h2>
                 <p className="text-slate-400">This helps us recommend coverage that fits your budget.</p>
-            </div>
-
-            {/* Protection Capacity Visual */}
-            <div className="bg-white/5 border border-white/10 p-6 rounded-2xl space-y-4">
-                <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Protection Capacity</span>
-                    <span className="text-brand-accent font-black">{Math.round(getProgress())}%</span>
-                </div>
-                <div className="h-2 bg-white/5 rounded-full overflow-hidden border border-white/5">
-                    <div
-                        className="h-full bg-gradient-to-r from-blue-500 to-brand-accent transition-all duration-700"
-                        style={{ width: `${getProgress()}%` }}
-                    ></div>
-                </div>
-                <div className="flex items-center gap-2 text-[10px] text-slate-500">
-                    <Info className="w-3 h-3" />
-                    <span>Based on your annual income bracket</span>
-                </div>
             </div>
 
             <div className="space-y-6">

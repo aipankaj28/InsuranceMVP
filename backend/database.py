@@ -40,7 +40,14 @@ class User(Base):
     lifestyle = Column(String)
     smoking_status = Column(String) # Never, Occasionally, Regularly
     family_health_history = Column(JSON) # List of conditions
-    is_smoker = Column(Boolean, default=False) # Keep for backward compat
+    # Gap Analysis fields (Phase 2)
+    has_life_insurance = Column(Boolean, default=False)
+    existing_life_cover = Column(String) # Stored as string like "₹50 Lakhs"
+    has_health_insurance = Column(Boolean, default=False)
+    existing_health_cover = Column(String)
+    health_source = Column(String) # Employer, Personal, Both
+    parents_covered = Column(Boolean, default=False)
+    
     created_at = Column(DateTime, default=datetime.utcnow)
     
     # JSON field for dependents structure

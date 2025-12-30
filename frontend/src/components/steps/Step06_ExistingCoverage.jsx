@@ -1,0 +1,206 @@
+import StepWrapper from './StepWrapper';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Heart, Shield, Briefcase, Plus, Users } from 'lucide-react';
+
+export default function Step06_ExistingCoverage({ formData, updateField }) {
+
+    const formatCurrency = (val) => {
+        if (!val) return "None";
+        if (val >= 100) return `₹${(val / 100).toFixed(1)} Crore`;
+        return `₹${val} Lakhs`;
+    };
+
+    // Helper for slider to Lakhs conversion
+    // 0-100: 0-100 Lakhs
+    // 100-500: 1-5 Crore
+    const parseSliderValue = (val) => {
+        if (val <= 100) return val; // 1-100 Lakhs
+        return Math.round(val); // Just return the value, format handles conversion
+    };
+
+    return (
+        <StepWrapper className="space-y-10">
+            <div className="text-center space-y-2">
+                <div className="inline-block bg-brand-accent/20 border border-brand-accent/30 px-3 py-1 rounded-full mb-2">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-brand-accent">Phase 2: Gap Analysis</span>
+                </div>
+                <h2 className="text-3xl font-black text-white">Let's map your <span className="text-brand-accent text-italic">existing</span> safety net</h2>
+                <p className="text-sm text-slate-400 max-w-md mx-auto">
+                    We'll identify gaps without duplicating what you already have.
+                </p>
+            </div>
+
+            <div className="space-y-12">
+                {/* Life Insurance Section */}
+                <div className="space-y-6">
+                    <div className="flex items-center gap-3 pb-2 border-b border-white/10">
+                        <div className="w-8 h-8 rounded-lg bg-pink-500/20 flex items-center justify-center">
+                            <Heart className="w-4 h-4 text-pink-400" />
+                        </div>
+                        <h3 className="text-lg font-bold text-white uppercase tracking-tight">Life Insurance</h3>
+                    </div>
+
+                    <div className="space-y-4">
+                        <label className="text-sm font-semibold text-slate-300">Do you have existing Life Insurance?</label>
+                        <div className="grid grid-cols-2 gap-3">
+                            {[true, false].map(val => (
+                                <button
+                                    key={val ? 'yes' : 'no'}
+                                    onClick={() => updateField('has_life_insurance', val)}
+                                    className={`py-4 rounded-2xl border transition-all duration-200 font-bold ${formData.has_life_insurance === val ? 'bg-pink-500/20 border-pink-500 text-white shadow-[0_0_15px_rgba(236,72,153,0.3)]' : 'bg-white/5 border-white/10 text-slate-500 hover:bg-white/10'}`}
+                                >
+                                    {val ? 'Yes' : 'No'}
+                                </button>
+                            ))}
+                        </div>
+
+                        <AnimatePresence>
+                            {formData.has_life_insurance && (
+                                <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    className="space-y-4 pt-2 overflow-hidden"
+                                >
+                                    <div className="flex justify-between items-end">
+                                        <span className="text-xs font-bold text-slate-500 uppercase">Coverage Amount</span>
+                                        <span className="text-xl font-black text-white">{formatCurrency(formData.existing_life_cover_val || 0)}</span>
+                                    </div>
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="500"
+                                        step="5"
+                                        value={formData.existing_life_cover_val || 0}
+                                        onChange={(e) => {
+                                            const val = parseInt(e.target.value);
+                                            updateField('existing_life_cover_val', val);
+                                            updateField('existing_life_cover', formatCurrency(val));
+                                        }}
+                                        className="w-full accent-pink-500 h-2 bg-white/10 rounded-lg appearance-none cursor-pointer"
+                                    />
+                                    <div className="flex justify-between text-[10px] text-slate-600 font-bold uppercase tracking-tighter">
+                                        <span>0</span>
+                                        <span>1 Cr</span>
+                                        <span>2 Cr</span>
+                                        <span>3 Cr</span>
+                                        <span>4 Cr</span>
+                                        <span>5 Cr</span>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
+                </div>
+
+                {/* Health Insurance Section */}
+                <div className="space-y-6">
+                    <div className="flex items-center gap-3 pb-2 border-b border-white/10">
+                        <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                            <Shield className="w-4 h-4 text-blue-400" />
+                        </div>
+                        <h3 className="text-lg font-bold text-white uppercase tracking-tight">Health Insurance</h3>
+                    </div>
+
+                    <div className="space-y-4">
+                        <label className="text-sm font-semibold text-slate-300">Do you have existing health insurance?</label>
+                        <div className="grid grid-cols-2 gap-3">
+                            {[true, false].map(val => (
+                                <button
+                                    key={val ? 'yes' : 'no'}
+                                    onClick={() => updateField('has_health_insurance', val)}
+                                    className={`py-4 rounded-2xl border transition-all duration-200 font-bold ${formData.has_health_insurance === val ? 'bg-blue-500/20 border-blue-500 text-white shadow-[0_0_15px_rgba(59,130,246,0.3)]' : 'bg-white/5 border-white/10 text-slate-500 hover:bg-white/10'}`}
+                                >
+                                    {val ? 'Yes' : 'No'}
+                                </button>
+                            ))}
+                        </div>
+
+                        <AnimatePresence>
+                            {formData.has_health_insurance && (
+                                <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    className="space-y-6 pt-2 overflow-hidden"
+                                >
+                                    {/* Source */}
+                                    <div className="space-y-3">
+                                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                                            <Briefcase className="w-3 h-3" /> Coverage Source
+                                        </label>
+                                        <div className="grid grid-cols-3 gap-2">
+                                            {['Employer', 'Personal', 'Both'].map(src => (
+                                                <button
+                                                    key={src}
+                                                    onClick={() => updateField('health_source', src)}
+                                                    className={`py-3 rounded-xl border text-[10px] font-black uppercase tracking-tighter transition-all ${formData.health_source === src ? 'bg-blue-500/20 border-blue-500 text-white' : 'bg-white/5 border-white/10 text-slate-500 hover:bg-white/10'}`}
+                                                >
+                                                    {src}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Health Cover Amount */}
+                                    <div className="space-y-4">
+                                        <div className="flex justify-between items-end">
+                                            <span className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                                                <Shield className="w-3 h-3" /> Cover Amount
+                                            </span>
+                                            <span className="text-xl font-black text-white">{formatCurrency(formData.existing_health_cover_val || 0)}</span>
+                                        </div>
+                                        <input
+                                            type="range"
+                                            min="0"
+                                            max="200"
+                                            step="1"
+                                            value={formData.existing_health_cover_val || 0}
+                                            onChange={(e) => {
+                                                const val = parseInt(e.target.value);
+                                                updateField('existing_health_cover_val', val);
+                                                updateField('existing_health_cover', formatCurrency(val));
+                                            }}
+                                            className="w-full accent-blue-500 h-2 bg-white/10 rounded-lg appearance-none cursor-pointer"
+                                        />
+                                        <div className="flex justify-between text-[10px] text-slate-600 font-bold uppercase tracking-tighter">
+                                            <span>0</span>
+                                            <span>50 L</span>
+                                            <span>1 Cr</span>
+                                            <span>1.5 Cr</span>
+                                            <span>2 Cr</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Parents Coverage */}
+                                    <div className="space-y-3">
+                                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                                            <Users className="w-3 h-3" /> Does this cover your parents?
+                                        </label>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            {[true, false].map(val => (
+                                                <button
+                                                    key={val ? 'yes-parents' : 'no-parents'}
+                                                    onClick={() => updateField('parents_covered', val)}
+                                                    className={`py-3 rounded-xl border font-bold transition-all ${formData.parents_covered === val ? 'bg-emerald-500/20 border-emerald-500 text-white' : 'bg-white/5 border-white/10 text-slate-500 hover:bg-white/10'}`}
+                                                >
+                                                    {val ? 'Yes' : 'No'}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
+                </div>
+            </div>
+
+            <div className="pt-6 border-t border-white/10 text-center">
+                <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-black">
+                    Next: View your gap analysis dashboard
+                </p>
+            </div>
+        </StepWrapper>
+    );
+}

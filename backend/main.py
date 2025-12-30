@@ -92,8 +92,15 @@ class UserData(BaseModel):
     lifestyle: str
     smoking_status: str
     family_health_history: list[str]
-    dependents: Dict[str, bool]
+    dependents: Optional[Dict[str, bool]] = {}
     num_children: Optional[int] = 0
+    # Phase 2 Fields
+    has_life_insurance: Optional[bool] = False
+    existing_life_cover: Optional[str] = ""
+    has_health_insurance: Optional[bool] = False
+    existing_health_cover: Optional[str] = ""
+    health_source: Optional[str] = ""
+    parents_covered: Optional[bool] = False
 
 class LoginRequest(BaseModel):
     email: str
@@ -104,13 +111,24 @@ class VerifyRequest(BaseModel):
 
 # Dependency to verify JWT
 async def get_current_user(authorization: str = Header(None)):
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="Missing or invalid token")
+    if not authorization:
+        log_now("AUTH ERROR: Missing Authorization header")
+        raise HTTPException(status_code=401, detail="Missing authorization header")
+        
+    if not authorization.startswith("Bearer "):
+        log_now(f"AUTH ERROR: Invalid header format: {authorization[:20]}...")
+        raise HTTPException(status_code=401, detail="Invalid token format")
     
     token = authorization.split(" ")[1]
+    if token == "null" or token == "undefined" or not token:
+        log_now(f"AUTH ERROR: Token is literal '{token}'")
+        raise HTTPException(status_code=401, detail="Invalid token value")
+
     payload = decode_access_token(token)
     if not payload:
+        log_now("AUTH ERROR: Token decoding failed (expired or invalid signature)")
         raise HTTPException(status_code=401, detail="Token expired or invalid")
+        
     return payload
 
 @app.get("/")
@@ -170,9 +188,16 @@ def get_recommendation(data: UserData, user_payload = Depends(get_current_user),
     user.lifestyle = data.lifestyle
     user.smoking_status = data.smoking_status
     user.family_health_history = data.family_health_history
-    user.is_smoker = (data.smoking_status != "Never") # Deriving for backward compat
-    user.dependents_data = data.dependents
     user.num_children = data.num_children
+    user.dependents_data = data.dependents
+    
+    # Phase 2 Fields
+    if data.has_life_insurance is not None: user.has_life_insurance = data.has_life_insurance
+    if data.existing_life_cover is not None: user.existing_life_cover = data.existing_life_cover
+    if data.has_health_insurance is not None: user.has_health_insurance = data.has_health_insurance
+    if data.existing_health_cover is not None: user.existing_health_cover = data.existing_health_cover
+    if data.health_source is not None: user.health_source = data.health_source
+    if data.parents_covered is not None: user.parents_covered = data.parents_covered
     
     # Save the recommendation
     db_recommendation = Recommendation(
@@ -224,9 +249,14 @@ def get_user_profile(user_payload = Depends(get_current_user), db: Session = Dep
             "lifestyle": user.lifestyle,
             "smoking_status": user.smoking_status,
             "family_health_history": user.family_health_history,
-            "is_smoker": user.is_smoker,
             "dependents": user.dependents_data,
-            "num_children": user.num_children
+            "num_children": user.num_children,
+            "has_life_insurance": user.has_life_insurance,
+            "existing_life_cover": user.existing_life_cover,
+            "has_health_insurance": user.has_health_insurance,
+            "existing_health_cover": user.existing_health_cover,
+            "health_source": user.health_source,
+            "parents_covered": user.parents_covered
         },
         "recommendations": [
             {

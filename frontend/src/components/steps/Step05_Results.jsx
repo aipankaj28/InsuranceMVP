@@ -7,6 +7,10 @@ export default function Step05_Results({ result }) {
     const [showPrompt, setShowPrompt] = useState(false);
     if (!result) return null;
 
+    const lifeCover = result.life_cover;
+    const healthCover = result.health_cover;
+    const features = result.recommended_features || result.features || [];
+
     return (
         <StepWrapper className="text-center space-y-6">
             {result.mode === 'AI' && (
@@ -34,14 +38,14 @@ export default function Step05_Results({ result }) {
             )}
 
             <div className="inline-block relative">
-                <div className="text-7xl animate-bounce">{result.icon}</div>
+                <div className="text-7xl animate-bounce">{result.icon || "🛡️"}</div>
                 <Sparkles className="absolute -top-4 -right-4 text-yellow-400 w-8 h-8 animate-pulse" />
             </div>
 
             <div className="max-w-md mx-auto">
                 <h2 className="text-3xl font-extrabold text-white mb-2">Your Personalized Shield</h2>
                 <p className="text-sm text-slate-400 leading-relaxed px-4 font-medium italic">
-                    {result.tagline || result.details}
+                    {result.tagline || result.details || "We've crafted the perfect plan for your needs."}
                 </p>
             </div>
 
@@ -52,7 +56,7 @@ export default function Step05_Results({ result }) {
                 >
                     <Heart className="w-8 h-8 text-blue-400 mx-auto mb-3" />
                     <h3 className="text-xs uppercase tracking-widest text-blue-300 font-bold mb-1">Life Cover</h3>
-                    <p className="text-3xl font-black text-white">{result.life_cover}</p>
+                    <p className="text-3xl font-black text-white">{lifeCover || "Calculated below"}</p>
                 </motion.div>
 
                 <motion.div
@@ -61,7 +65,7 @@ export default function Step05_Results({ result }) {
                 >
                     <Shield className="w-8 h-8 text-brand-accent mx-auto mb-3" />
                     <h3 className="text-xs uppercase tracking-widest text-emerald-300 font-bold mb-1">Health Cover</h3>
-                    <p className="text-3xl font-black text-white">{result.health_cover}</p>
+                    <p className="text-3xl font-black text-white">{healthCover || "Calculated below"}</p>
                 </motion.div>
             </div>
 
@@ -75,14 +79,14 @@ export default function Step05_Results({ result }) {
                 </div>
             )}
 
-            {result.recommended_features && result.recommended_features.length > 0 && (
+            {features.length > 0 && (
                 <div className="text-left space-y-4">
                     <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
                         Recommended Plan Features
                     </h3>
                     <div className="grid grid-cols-1 gap-3">
-                        {result.recommended_features.map((feature, idx) => (
+                        {features.map((feature, idx) => (
                             <div key={idx} className="bg-white/5 border border-white/10 p-4 rounded-xl hover:bg-white/10 transition-colors group">
                                 <div className="flex items-center justify-between mb-1">
                                     <span className="font-bold text-brand-accent text-sm">{feature.name}</span>
