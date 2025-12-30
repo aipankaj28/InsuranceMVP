@@ -5,10 +5,11 @@ const API_BASE_URL = rawBaseUrl.startsWith('http') ? rawBaseUrl : `https://${raw
 import { ArrowRight, ArrowLeft, Shield, Briefcase, User, Heart, Sparkles, Check } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
 
-import Step01_Life101 from './steps/Step01_Life101';
-import Step02_PersonalInfo from './steps/Step02_PersonalInfo';
-import Step03_Health101 from './steps/Step03_Health101';
-import Step04_LocationDependents from './steps/Step04_LocationDependents';
+import Step01_Splash from './steps/Step01_Splash';
+import Step02_LifeStage from './steps/Step02_LifeStage';
+import Step03_CareerStage from './steps/Step03_CareerStage';
+import Step04_FinancialReality from './steps/Step04_FinancialReality';
+import Step05_HealthSnapshot from './steps/Step05_HealthSnapshot';
 import Step05_Results from './steps/Step05_Results';
 import Dashboard from './Dashboard';
 
@@ -16,22 +17,20 @@ export default function Wizard() {
     const [step, setStep] = useState(1);
     const [formData, setFormData] = useState({
         first_name: "",
-        last_name: "",
-        dob: "",
-        mobile: "",
-        income_level: "5-10L",
+        last_name: "", // Internal/Backward compatibility
         city: "",
-        dependents: {
-            Spouse: false,
-            Children: false,
-            Mother: false,
-            Father: false,
-            "Mother-In-Law": false,
-            "Father-In-Law": false
-        },
+        mobile: "",
+        marital_status: "Single",
         num_children: 0,
-        is_smoker: false,
-        gender: ""
+        support_parents: false,
+        dob: "",
+        career_stage: "Launch Pad",
+        income_level: "₹5-10 lakhs",
+        employment_type: "Salaried (MNC/Large)",
+        smoking_status: "Never",
+        family_health_history: ["No significant history"],
+        lifestyle: "Moderately Active",
+        gender: "" // Default
     });
     const [result, setResult] = useState(null);
     const [history, setHistory] = useState([]);
@@ -77,16 +76,16 @@ export default function Wizard() {
     };
 
     const isStepValid = () => {
-        if (step === 2) {
+        if (step === 1) {
             return (
                 formData.first_name.trim() !== "" &&
-                formData.last_name.trim() !== "" &&
-                formData.dob !== "" &&
+                formData.city !== "" &&
+                formData.mobile.length === 10 &&
                 formData.gender !== ""
             );
         }
-        if (step === 4) {
-            return formData.city !== "";
+        if (step === 2) {
+            return formData.dob !== "";
         }
         return true;
     };
@@ -126,11 +125,12 @@ export default function Wizard() {
     };
 
     const steps = [
-        { id: 1, title: "Life 101", icon: <Heart className="w-5 h-5" /> },
-        { id: 2, title: "About You", icon: <User className="w-5 h-5" /> },
-        { id: 3, title: "Health 101", icon: <Shield className="w-5 h-5" /> },
-        { id: 4, title: "Family", icon: <Sparkles className="w-5 h-5" /> },
-        { id: 5, title: "Your Plan", icon: <Check className="w-5 h-5" /> }
+        { id: 1, title: "Start", icon: <User className="w-5 h-5" /> },
+        { id: 2, title: "Life", icon: <Heart className="w-5 h-5" /> },
+        { id: 3, title: "Career", icon: <Briefcase className="w-5 h-5" /> },
+        { id: 4, title: "Finance", icon: <Shield className="w-5 h-5" /> },
+        { id: 5, title: "Health", icon: <Sparkles className="w-5 h-5" /> },
+        { id: 6, title: "Result", icon: <Check className="w-5 h-5" /> }
     ];
 
     if (initialLoading) {
@@ -182,15 +182,16 @@ export default function Wizard() {
                     <div className="absolute top-0 right-0 w-64 h-64 bg-brand-primary/10 rounded-full blur-[80px] -z-10 pointer-events-none" />
 
                     <AnimatePresence mode="wait" initial={false}>
-                        {step === 1 && <Step01_Life101 key="step1" />}
-                        {step === 2 && <Step02_PersonalInfo key="step2" formData={formData} updateField={updateField} />}
-                        {step === 3 && <Step03_Health101 key="step3" />}
-                        {step === 4 && <Step04_LocationDependents key="step4" formData={formData} updateField={updateField} />}
-                        {step === 5 && <Step05_Results key="step5" result={result} />}
+                        {step === 1 && <Step01_Splash key="step1" formData={formData} updateField={updateField} />}
+                        {step === 2 && <Step02_LifeStage key="step2" formData={formData} updateField={updateField} />}
+                        {step === 3 && <Step03_CareerStage key="step3" formData={formData} updateField={updateField} />}
+                        {step === 4 && <Step04_FinancialReality key="step4" formData={formData} updateField={updateField} />}
+                        {step === 5 && <Step05_HealthSnapshot key="step5" formData={formData} updateField={updateField} />}
+                        {step === 6 && <Step05_Results key="step6" result={result} />}
                     </AnimatePresence>
 
                     {/* Navigation Buttons */}
-                    {step < 5 && (
+                    {step < 6 && (
                         <div className="flex justify-between items-center pt-8 border-t border-white/10 mt-8">
                             <button
                                 onClick={handleBack}
@@ -204,14 +205,20 @@ export default function Wizard() {
                             </button>
 
                             <button
-                                onClick={step === 4 ? (isStepValid() ? fetchRecommendation : () => alert("Please select your City.")) : handleNext}
+                                onClick={step === 5 ? (isStepValid() ? fetchRecommendation : () => alert("Please fill mandatory fields.")) : handleNext}
                                 disabled={loading}
                                 className={`
                                     relative overflow-hidden bg-white text-brand-dark px-8 py-3 rounded-xl font-bold flex items-center shadow-lg hover:shadow-white/20 transition-all disabled:opacity-70 disabled:cursor-wait
                                 `}
                             >
                                 <span className="relative z-10 flex items-center">
-                                    {loading ? 'Computing...' : (step === 4 ? 'Get My Plan' : 'Next Step')}
+                                    {loading ? 'Computing...' : (
+                                        step === 1 ? 'Begin my protection story' :
+                                            step === 2 ? 'Continue my story' :
+                                                step === 3 ? 'Next' :
+                                                    step === 4 ? 'Continue' :
+                                                        step === 5 ? 'See my protection needs' : 'Next'
+                                    )}
                                     {!loading && <ArrowRight className="w-4 h-4 ml-2" />}
                                 </span>
                             </button>

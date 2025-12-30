@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import StepWrapper from './StepWrapper';
-import { motion } from 'framer-motion';
-import { Sparkles, Heart, Shield } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Sparkles, Heart, Shield, Code, ChevronDown, ChevronUp } from 'lucide-react';
 
 export default function Step05_Results({ result }) {
+    const [showPrompt, setShowPrompt] = useState(false);
     if (!result) return null;
 
     return (
@@ -20,14 +22,27 @@ export default function Step05_Results({ result }) {
                 </motion.div>
             )}
 
+            {result.persona_name && (
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="bg-brand-accent/20 border border-brand-accent/30 px-6 py-4 rounded-3xl inline-block mb-4"
+                >
+                    <span className="text-xs font-black uppercase tracking-[0.3em] text-brand-accent block mb-1">Your Protection Persona</span>
+                    <h2 className="text-2xl font-black text-white italic">"{result.persona_name}"</h2>
+                </motion.div>
+            )}
+
             <div className="inline-block relative">
                 <div className="text-7xl animate-bounce">{result.icon}</div>
                 <Sparkles className="absolute -top-4 -right-4 text-yellow-400 w-8 h-8 animate-pulse" />
             </div>
 
-            <div>
+            <div className="max-w-md mx-auto">
                 <h2 className="text-3xl font-extrabold text-white mb-2">Your Personalized Shield</h2>
-                <p className="text-sm text-slate-400 leading-relaxed px-4">{result.details}</p>
+                <p className="text-sm text-slate-400 leading-relaxed px-4 font-medium italic">
+                    {result.tagline || result.details}
+                </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -77,6 +92,39 @@ export default function Step05_Results({ result }) {
                             </div>
                         ))}
                     </div>
+                </div>
+            )}
+
+            {/* Debug Section (Collapsible) */}
+            {result.show_debug && result.prompt_sent && (
+                <div className="mt-8 border-t border-white/10 pt-8">
+                    <button
+                        onClick={() => setShowPrompt(!showPrompt)}
+                        className="flex items-center gap-2 mx-auto text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-white transition-colors group"
+                    >
+                        <Code className="w-3 h-3 transition-transform group-hover:scale-110" />
+                        {showPrompt ? 'Hide Debug Prompt' : 'Show Debug Prompt'}
+                        {showPrompt ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                    </button>
+
+                    <AnimatePresence>
+                        {showPrompt && (
+                            <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                className="overflow-hidden"
+                            >
+                                <div className="mt-4 text-left bg-black/40 border border-white/10 p-4 rounded-xl font-mono text-[10px] max-w-full overflow-x-auto leading-relaxed text-slate-400 whitespace-pre-wrap max-h-64 overflow-y-auto custom-scrollbar">
+                                    <div className="flex items-center justify-between mb-2 pb-2 border-b border-white/5">
+                                        <span className="text-blue-400 font-bold">RAW PROMPT SENT TO LLM</span>
+                                        <span className="text-[8px] bg-slate-800 px-2 py-0.5 rounded text-slate-500 uppercase">ReadOnly</span>
+                                    </div>
+                                    {result.prompt_sent}
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
             )}
 

@@ -96,13 +96,15 @@ def calculate_recommendation_rule(data: dict) -> dict:
     return {
         "life_cover": life_cover_str,
         "health_cover": health_cover_str,
-        "details": details,
+        "persona_name": "The Shield Bearer" if dependents.get("Spouse") or num_children > 0 else "The Dynamic Planner",
+        "tagline": details,
         "reasoning": f"Based on your income of {data.get('income_level')} and family size of {members_count}, we recommend this coverage level to ensure financial stability.",
         "recommended_features": [
             {"name": "Critical Illness Cover", "reason": "Recommended for long-term health protection."},
             {"name": "No Room Rent Capping", "reason": "Ensures you get any room type during hospitalization."}
         ],
-        "icon": "🚀" if life_cover_amount > 10000000 else "🛡️"
+        "icon": "🚀" if life_cover_amount > 10000000 else "🛡️",
+        "prompt_sent": "Rule-based logic used."
     }
 
 # ============================================================================
@@ -125,30 +127,37 @@ def calculate_recommendation_ai(data: dict) -> dict:
         # Build prompt
         prompt = f"""You are an expert Indian insurance advisor. Based on the following user profile, recommend life and health insurance coverage amounts.
 
-User Profile:
-- Age: {data.get('age', 25)}
-- Gender: {data.get('gender', 'Not specified')}
-- City: {data.get('city', 'Unknown')}
-- Annual Income: {data.get('income_level', '<5L')}
-- Family Status: {data.get('family_status', 'Single')}
-- Smoker: {'Yes' if data.get('is_smoker') else 'No'}
-- Years of Experience: {data.get('experience', 0)}
-
 Provide a recommendation in EXACTLY this JSON format:
 {{
   "life_cover": "₹X Crore" or "₹X Lakhs",
   "health_cover": "₹X Lakhs",
-  "details": "A short tagline summary (one sentence).",
-  "reasoning": "A detailed 2-3 sentence explanation of WHY these specific cover amounts were chosen based on the user's age, gender, income, smoking status, and city tier.",
+  "persona_name": "A creative title (e.g., The Family Anchor, The Rising Star)",
+  "tagline": "A short tagline summary (one sentence).",
+  "reasoning": "A detailed explanation of WHY these specific cover amounts were chosen based on the user's age, gender, income, smoking status, career stage, and city tier.",
   "recommended_features": [
-    {{ "name": "Maternity Benefit", "reason": "Explain why this feature is suitable based on the user's demographic (e.g., if female and of child-bearing age)." }},
-    {{ "name": "Critical Illness Cover", "reason": "Reason for adding this (e.g., lifestyle, age)." }},
-    {{ "name": "No Room Rent Capping", "reason": "Why this is important in their city tier." }}
+    {{ "name": "Maternity Benefit", "reason": "Justification based on demographic/life stage." }},
+    {{ "name": "Critical Illness Cover", "reason": "Justification based on age/lifestyle." }},
+    {{ "name": "No Room Rent Capping", "reason": "Justification based on city tier." }}
   ],
   "icon": "🚀" or "🛡️" or "💼"
 }}
 
-Be specific and empathetic. Mention the user's gender or family situation where relevant. Avoid generic advice."""
+User Context:
+- Name: {data.get('first_name', 'User')}
+- Age: {data.get('age', 25)}
+- Gender: {data.get('gender', 'Not specified')}
+- City: {data.get('city', 'Unknown')}
+- Annual Income: {data.get('income_level', '<5L')}
+- Marital Status: {data.get('marital_status', 'Single')}
+- Children: {data.get('num_children', 0)}
+- Supports Parents: {'Yes' if data.get('support_parents') else 'No'}
+- Career Stage: {data.get('career_stage', 'Building foundation')}
+- Employment: {data.get('employment_type', 'Salaried')}
+- Lifestyle: {data.get('lifestyle', 'Moderately Active')}
+- Smoking Status: {data.get('smoking_status', 'Never')}
+- Family Health History: {', '.join(data.get('family_health_history', [])) if data.get('family_health_history') else 'No significant history'}
+
+Be specific and empathetic. Avoid generic advice. Mention the user's specific career stage or family responsibilities."""
 
         response = model.generate_content(prompt)
         response_text = response.text.strip()
@@ -163,9 +172,12 @@ Be specific and empathetic. Mention the user's gender or family situation where 
         result = json.loads(response_text)
         
         # Validate required fields
-        required_fields = ["life_cover", "health_cover", "details", "reasoning", "recommended_features", "icon"]
+        required_fields = ["life_cover", "health_cover", "persona_name", "tagline", "reasoning", "recommended_features", "icon"]
         if not all(field in result for field in required_fields):
-            raise ValueError("AI response missing required fields")
+            raise ValueError(f"AI response missing required fields. Got: {list(result.keys())}")
+        
+        # Add the prompt to the result for debugging
+        result["prompt_sent"] = prompt
         
         return result
         
@@ -175,7 +187,9 @@ Be specific and empathetic. Mention the user's gender or family situation where 
         print(f"Full traceback:")
         traceback.print_exc()
         print("Falling back to rule-based logic...")
-        return calculate_recommendation_rule(data)
+        rule_result = calculate_recommendation_rule(data)
+        rule_result["prompt_sent"] = "Rule-based logic used. No LLM prompt sent."
+        return rule_result
 
 # ============================================================================
 # MAIN DISPATCHER

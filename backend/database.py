@@ -33,7 +33,14 @@ class User(Base):
     income_level = Column(String)
     city = Column(String)
     gender = Column(String)
-    is_smoker = Column(Boolean, default=False)
+    marital_status = Column(String)
+    support_parents = Column(Boolean, default=False)
+    career_stage = Column(String)
+    employment_type = Column(String)
+    lifestyle = Column(String)
+    smoking_status = Column(String) # Never, Occasionally, Regularly
+    family_health_history = Column(JSON) # List of conditions
+    is_smoker = Column(Boolean, default=False) # Keep for backward compat
     created_at = Column(DateTime, default=datetime.utcnow)
     
     # JSON field for dependents structure
@@ -49,10 +56,13 @@ class Recommendation(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
     life_cover = Column(String)
     health_cover = Column(String)
+    persona_name = Column(String)
+    tagline = Column(String)
     details = Column(String)
     reasoning = Column(String)
     features = Column(JSON)
     icon = Column(String)
+    prompt_sent = Column(String) # Store the prompt for debugging
     mode = Column(String) # AI or RULE
     created_at = Column(DateTime, default=datetime.utcnow)
 

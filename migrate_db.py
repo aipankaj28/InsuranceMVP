@@ -35,6 +35,37 @@ if os.path.exists(db_path):
     except sqlite3.OperationalError:
         print("Column features already exists.")
     
+    # New Onboarding v2 columns - recommendations
+    rec_cols = [
+        ("persona_name", "TEXT"),
+        ("tagline", "TEXT"),
+        ("prompt_sent", "TEXT")
+    ]
+    for col_name, col_type in rec_cols:
+        try:
+            cursor.execute(f"ALTER TABLE recommendations ADD COLUMN {col_name} {col_type}")
+            print(f"Successfully added {col_name} to recommendations.")
+        except sqlite3.OperationalError:
+            print(f"Column {col_name} already exists in recommendations.")
+
+    # New Onboarding v2 columns - users
+    v2_cols = [
+        ("marital_status", "TEXT"),
+        ("support_parents", "BOOLEAN DEFAULT 0"),
+        ("career_stage", "TEXT"),
+        ("employment_type", "TEXT"),
+        ("lifestyle", "TEXT"),
+        ("smoking_status", "TEXT"),
+        ("family_health_history", "JSON")
+    ]
+    
+    for col_name, col_type in v2_cols:
+        try:
+            cursor.execute(f"ALTER TABLE users ADD COLUMN {col_name} {col_type}")
+            print(f"Successfully added {col_name} column.")
+        except sqlite3.OperationalError:
+            print(f"Column {col_name} already exists.")
+    
     conn.commit()
     conn.close()
 else:

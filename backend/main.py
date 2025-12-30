@@ -85,7 +85,13 @@ class UserData(BaseModel):
     income_level: str
     city: str
     gender: str
-    is_smoker: bool
+    marital_status: str
+    support_parents: bool
+    career_stage: str
+    employment_type: str
+    lifestyle: str
+    smoking_status: str
+    family_health_history: list[str]
     dependents: Dict[str, bool]
     num_children: Optional[int] = 0
 
@@ -157,7 +163,14 @@ def get_recommendation(data: UserData, user_payload = Depends(get_current_user),
     user.income_level = data.income_level
     user.city = data.city
     user.gender = data.gender
-    user.is_smoker = data.is_smoker
+    user.marital_status = data.marital_status
+    user.support_parents = data.support_parents
+    user.career_stage = data.career_stage
+    user.employment_type = data.employment_type
+    user.lifestyle = data.lifestyle
+    user.smoking_status = data.smoking_status
+    user.family_health_history = data.family_health_history
+    user.is_smoker = (data.smoking_status != "Never") # Deriving for backward compat
     user.dependents_data = data.dependents
     user.num_children = data.num_children
     
@@ -166,14 +179,21 @@ def get_recommendation(data: UserData, user_payload = Depends(get_current_user),
         user=user,
         life_cover=result.get("life_cover"),
         health_cover=result.get("health_cover"),
-        details=result.get("details"),
+        persona_name=result.get("persona_name"),
+        tagline=result.get("tagline"),
+        details=result.get("tagline"), # Fallback
         reasoning=result.get("reasoning"),
         features=result.get("recommended_features"),
         icon=result.get("icon"),
-        mode=result.get("mode")
+        mode=result.get("mode"),
+        prompt_sent=result.get("prompt_sent")
     )
     db.add(db_recommendation)
     db.commit()
+    
+    # Return result with debug flag
+    show_debug = os.getenv("SHOW_DEBUG_INFO", "false").lower() == "true"
+    result["show_debug"] = show_debug
     
     return result
 
@@ -197,6 +217,13 @@ def get_user_profile(user_payload = Depends(get_current_user), db: Session = Dep
             "income_level": user.income_level,
             "city": user.city,
             "gender": user.gender,
+            "marital_status": user.marital_status,
+            "support_parents": user.support_parents,
+            "career_stage": user.career_stage,
+            "employment_type": user.employment_type,
+            "lifestyle": user.lifestyle,
+            "smoking_status": user.smoking_status,
+            "family_health_history": user.family_health_history,
             "is_smoker": user.is_smoker,
             "dependents": user.dependents_data,
             "num_children": user.num_children
@@ -206,14 +233,17 @@ def get_user_profile(user_payload = Depends(get_current_user), db: Session = Dep
                 "id": rec.id,
                 "life_cover": rec.life_cover,
                 "health_cover": rec.health_cover,
-                "details": rec.details,
+                "persona_name": rec.persona_name,
+                "tagline": rec.tagline or rec.details,
                 "reasoning": rec.reasoning,
                 "recommended_features": rec.features,
                 "icon": rec.icon,
                 "mode": rec.mode,
+                "prompt_sent": rec.prompt_sent,
                 "created_at": rec.created_at.isoformat()
             } for rec in all_recs
-        ]
+        ],
+        "show_debug": os.getenv("SHOW_DEBUG_INFO", "false").lower() == "true"
     }
 
 if __name__ == "__main__":
