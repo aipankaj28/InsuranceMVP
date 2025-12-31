@@ -40,6 +40,29 @@ def calculate_age(dob_str: str) -> int:
     except (ValueError, TypeError):
         return 30  # Default age if parsing fails
 
+def parse_amount_from_string(amount_str: str) -> int:
+    """Safely derive numeric value from Indian currency strings like '₹1 Crore' or '₹50 Lakhs'"""
+    if not amount_str:
+        return 0
+    try:
+        # Clean string: remove ₹, commas, spaces
+        clean_str = amount_str.replace('₹', '').replace(',', '').strip().lower()
+        
+        multiplier = 1
+        if 'crore' in clean_str or 'cr' in clean_str:
+            multiplier = 10000000
+            clean_str = clean_str.replace('crore', '').replace('cr', '').strip()
+        elif 'lakh' in clean_str or 'l' in clean_str:
+            multiplier = 100000
+            clean_str = clean_str.replace('lakhs', '').replace('lakh', '').replace('l', '').strip()
+            
+        # Extract numeric part
+        value = float(clean_str)
+        return int(value * multiplier)
+    except Exception as e:
+        print(f"Error parsing amount string '{amount_str}': {e}")
+        return 0
+
 def calculate_recommendation_rule(data: dict) -> dict:
     """Updated rule-based recommendation logic for full family structure"""
     income_val = parse_income(data.get("income_level", "<5L"))
@@ -146,15 +169,19 @@ Existing Life Policy:
 
         prompt = f"""You are an expert Indian insurance advisor. Based on the user's profile, gaps identified, and existing policy details, recommend 1 specific Life Insurance plan and 1 specific Health Insurance plan available in the Indian market ONLY IF NECESSARY.
 
-CRITICAL RULES:
-1. Use a FIRST-PERSON NARRATIVE (e.g., "I suggest...", "I recommend...").
-2. RECOMMEND A NEW LIFE POLICY ONLY IF there is a gap in the coverage amount (Ideal Life Cover > Existing Life Cover). 
-   - If no gap exists, set "life_recommendation" to null.
-3. RECOMMEND A NEW HEALTH POLICY ONLY IF:
-   - There is a gap in the coverage amount (Ideal Health Cover > Existing Health Cover).
-   - OR their current policy likely lacks the features I recommended (like Maternity, Critical Illness, etc.).
-   - If their current policy covers both amount and features, set "health_recommendation" to null.
-4. If a policy is recommended, clearly show how it fills the specific gaps identified.
+CRITICAL MATHEMATICAL RULES:
+1. ALWAYS compare the Recommended Ideal amount with the Existing amount numerically.
+2. RECOMMEND A NEW LIFE POLICY IF: Recommended Ideal Life Cover ({data.get('recommended_life_cover_val', 0)}) > Existing Life Cover Amount ({data.get('existing_life_cover_val', 0)}).
+   - For example: ₹5 Crore (50,000,000) is much greater than ₹60 Lakhs (6,000,000). If this appears, you MUST recommend a life policy.
+   - If (Recommended Ideal Life Cover <= Existing Life Cover Amount), set "life_recommendation" to null.
+3. RECOMMEND A NEW HEALTH POLICY IF: 
+   - Recommended Ideal Health Cover ({data.get('recommended_health_cover_val', 0)}) > Existing Health Cover Amount ({data.get('existing_health_cover_val', 0)}).
+   - OR their current policy likely lacks specific features like Maternity, Critical Illness, etc.
+   - If both amount and features are adequate, set "health_recommendation" to null.
+
+UNITS REMINDER:
+- 1 Crore = 1,00,00,000 (7 Zeros)
+- 10 Lakhs = 10,00,000 (6 Zeros)
 
 Provide recommendations in EXACTLY this JSON format:
 {{
@@ -180,15 +207,17 @@ Provide recommendations in EXACTLY this JSON format:
 
 User Context:
 - Name: {data.get('first_name', 'User')}
-- Recommended Ideal Life Cover: {data.get('recommended_life_cover', 'Not calculated')}
-- Existing Life Cover Amount: {data.get('existing_life_cover_val', '0')}
-- Recommended Ideal Health Cover: {data.get('recommended_health_cover', 'Not calculated')}
-- Existing Health Cover Amount: {data.get('existing_health_cover_val', '0')}
+- Recommended Ideal Life Cover (Display): {data.get('recommended_life_cover', 'Not calculated')}
+- Recommended Ideal Life Cover (Numeric): {data.get('recommended_life_cover_val', 0)}
+- Existing Life Cover Amount (Numeric): {data.get('existing_life_cover_val', 0)}
+- Recommended Ideal Health Cover (Display): {data.get('recommended_health_cover', 'Not calculated')}
+- Recommended Ideal Health Cover (Numeric): {data.get('recommended_health_cover_val', 0)}
+- Existing Health Cover Amount (Numeric): {data.get('existing_health_cover_val', 0)}
 - Recommended Features: {', '.join(data.get('recommended_features', []))}
 {existing_health_info}
 {existing_life_info}
 
-Be very specific about product names available in India."""
+Be very specific about product names available in India. Use a FIRST-PERSON NARRATIVE."""
 
         response = model.generate_content(prompt)
         response_text = response.text.strip()
@@ -250,9 +279,9 @@ def calculate_recommendation_ai(data: dict) -> dict:
 Provide a recommendation in EXACTLY this JSON format:
 {{
   "life_cover": "₹X Crore" or "₹X Lakhs",
-  "life_cover_val": numeric_amount_in_rupees (e.g., 10000000),
+  "life_cover_val": numeric_amount_in_rupees (e.g., 10000000 for 1 Cr, 5000000 for 50L),
   "health_cover": "₹X Lakhs",
-  "health_cover_val": numeric_amount_in_rupees (e.g., 1000000),
+  "health_cover_val": numeric_amount_in_rupees (e.g., 1000000 for 10L),
   "persona_name": "A creative title (e.g., The Family Anchor, The Rising Star)",
   "tagline": "A short tagline summary (one sentence).",
   "summary": "A concise 1-2 sentence summary of the core recommendation.",
@@ -264,6 +293,12 @@ Provide a recommendation in EXACTLY this JSON format:
   ],
   "icon": "🚀" or "🛡️" or "💼"
 }}
+
+CRITICAL UNIT REMINDER:
+- 1 Crore = 1,00,00,000 (1 followed by 7 zeros)
+- 10 Lakhs = 10,00,000 (1 followed by 6 zeros)
+- 50 Lakhs = 50,00,000 (5 followed by 6 zeros)
+Ensure life_cover_val and health_cover_val reflect these absolute rupee values accurately.
 
 User Context:
 - Name: {data.get('first_name', 'User')}
@@ -294,11 +329,20 @@ Be specific and empathetic. Avoid generic advice. Mention the user's specific ca
         
         result = json.loads(response_text)
         
-        # Validate required fields
-        required_fields = ["life_cover", "health_cover", "persona_name", "tagline", "reasoning", "recommended_features", "icon"]
-        if not all(field in result for field in required_fields):
-            raise ValueError(f"AI response missing required fields. Got: {list(result.keys())}")
-        
+        # Validate and Fix numeric values using our parser as a safety net
+        # This prevents AI hallucinations from breaking gap calculations
+        if "life_cover" in result:
+            expected_val = parse_amount_from_string(result["life_cover"])
+            if expected_val > 0 and result.get("life_cover_val", 0) != expected_val:
+                print(f"DEBUG: Correcting life_cover_val from {result.get('life_cover_val')} to {expected_val}")
+                result["life_cover_val"] = expected_val
+
+        if "health_cover" in result:
+            expected_val = parse_amount_from_string(result["health_cover"])
+            if expected_val > 0 and result.get("health_cover_val", 0) != expected_val:
+                print(f"DEBUG: Correcting health_cover_val from {result.get('health_cover_val')} to {expected_val}")
+                result["health_cover_val"] = expected_val
+
         # Add the prompt to the result for debugging
         result["prompt_sent"] = prompt
         

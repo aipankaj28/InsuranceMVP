@@ -34,10 +34,10 @@ export default function Step03_CareerStage({ formData, updateField }) {
     ];
 
     return (
-        <StepWrapper className="space-y-8">
+        <StepWrapper className="space-y-6 md:space-y-8">
             <div className="text-center">
-                <h2 className="text-3xl font-bold text-white mb-2">Your work fuels more than just your career</h2>
-                <p className="text-slate-400">It supports your family's present and your parents' comfort.</p>
+                <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Your work fuels more than just your career</h2>
+                <p className="text-sm md:text-base text-slate-400">It supports your family's present and your parents' comfort.</p>
             </div>
 
             <div className="grid grid-cols-1 gap-3">

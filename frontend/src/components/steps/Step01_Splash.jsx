@@ -3,12 +3,12 @@ import { Sparkles, ArrowRight, User, MapPin, Phone } from 'lucide-react';
 
 export default function Step01_Splash({ formData, updateField }) {
     return (
-        <StepWrapper className="space-y-8">
-            <div className="text-center space-y-4">
-                <h1 className="text-4xl md:text-5xl font-black text-white leading-tight">
+        <StepWrapper className="space-y-6 md:space-y-8">
+            <div className="text-center space-y-3 md:space-y-4">
+                <h1 className="text-3xl md:text-5xl font-black text-white leading-tight">
                     You're more than <span className="text-brand-accent">your job.</span>
                 </h1>
-                <p className="text-lg text-slate-300 max-w-lg mx-auto leading-relaxed">
+                <p className="text-base md:text-lg text-slate-300 max-w-lg mx-auto leading-relaxed">
                     Your work pays the bills. But what about your family's dreams? Your parents' health? Your future freedom?
                 </p>
                 <div className="pt-4">

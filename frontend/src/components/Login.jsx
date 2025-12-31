@@ -37,13 +37,13 @@ const Login = () => {
     };
 
     return (
-        <div className="w-full max-w-md mx-auto p-6 z-10">
-            <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 shadow-2xl">
-                <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-accent/20 rounded-2xl mb-4">
-                        <span className="text-3xl">🔐</span>
+        <div className="w-full max-w-md mx-auto p-4 md:p-6 z-10">
+            <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-6 md:p-8 shadow-2xl">
+                <div className="text-center mb-6 md:mb-8">
+                    <div className="inline-flex items-center justify-center w-14 h-14 md:w-16 md:h-16 bg-brand-accent/20 rounded-xl md:rounded-2xl mb-4">
+                        <span className="text-2xl md:text-3xl">🔐</span>
                     </div>
-                    <h2 className="text-3xl font-bold text-white mb-2">
+                    <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
                         {step === 1 ? 'Welcome Back' : 'Verify Identity'}
                     </h2>
                     <p className="text-slate-400">

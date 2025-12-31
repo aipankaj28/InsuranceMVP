@@ -19,13 +19,13 @@ export default function Step06_ExistingCoverage({ formData, updateField }) {
     };
 
     return (
-        <StepWrapper className="space-y-10">
+        <StepWrapper className="space-y-6 md:space-y-10">
             <div className="text-center space-y-2">
-                <div className="inline-block bg-brand-accent/20 border border-brand-accent/30 px-3 py-1 rounded-full mb-2">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-brand-accent">Phase 2: Gap Analysis</span>
+                <div className="inline-block bg-brand-accent/20 border border-brand-accent/30 px-3 py-1 rounded-full mb-1">
+                    <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-brand-accent">Phase 2: Gap Analysis</span>
                 </div>
-                <h2 className="text-3xl font-black text-white">Let's map your <span className="text-brand-accent text-italic">existing</span> safety net</h2>
-                <p className="text-sm text-slate-400 max-w-md mx-auto">
+                <h2 className="text-2xl md:text-3xl font-black text-white leading-tight">Let's map your <span className="text-brand-accent text-italic">existing</span> safety net</h2>
+                <p className="text-xs md:text-sm text-slate-400 max-w-md mx-auto">
                     We'll identify gaps without duplicating what you already have.
                 </p>
             </div>
@@ -152,12 +152,12 @@ export default function Step06_ExistingCoverage({ formData, updateField }) {
                                         <label className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
                                             <Briefcase className="w-3 h-3" /> Coverage Source
                                         </label>
-                                        <div className="grid grid-cols-3 gap-2">
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                                             {['Employer', 'Personal', 'Both'].map(src => (
                                                 <button
                                                     key={src}
                                                     onClick={() => updateField('health_source', src)}
-                                                    className={`py-3 rounded-xl border text-[10px] font-black uppercase tracking-tighter transition-all ${formData.health_source === src ? 'bg-blue-500/20 border-blue-500 text-white' : 'bg-white/5 border-white/10 text-slate-500 hover:bg-white/10'}`}
+                                                    className={`py-2.5 md:py-3 rounded-xl border text-[10px] md:text-[11px] font-black uppercase tracking-tighter transition-all ${formData.health_source === src ? 'bg-blue-500/20 border-blue-500 text-white' : 'bg-white/5 border-white/10 text-slate-500 hover:bg-white/10'}`}
                                                 >
                                                     {src}
                                                 </button>

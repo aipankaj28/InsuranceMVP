@@ -20,10 +20,10 @@ export default function Step04_FinancialReality({ formData, updateField }) {
     ];
 
     return (
-        <StepWrapper className="space-y-8">
+        <StepWrapper className="space-y-6 md:space-y-8">
             <div className="text-center">
-                <h2 className="text-3xl font-bold text-white mb-2">Your financial landscape</h2>
-                <p className="text-slate-400">This helps us recommend coverage that fits your budget.</p>
+                <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Your financial landscape</h2>
+                <p className="text-sm md:text-base text-slate-400">This helps us recommend coverage that fits your budget.</p>
             </div>
 
             <div className="space-y-6">
@@ -37,9 +37,9 @@ export default function Step04_FinancialReality({ formData, updateField }) {
                             <button
                                 key={bracket}
                                 onClick={() => updateField('income_level', bracket)}
-                                className={`p-4 rounded-xl border text-left transition-all duration-200 ${formData.income_level === bracket ? 'bg-brand-accent/20 border-brand-accent text-white' : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'}`}
+                                className={`p-3 md:p-4 rounded-xl border text-left transition-all duration-200 ${formData.income_level === bracket ? 'bg-brand-accent/20 border-brand-accent text-white' : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'}`}
                             >
-                                <span className="text-sm font-bold">{bracket}</span>
+                                <span className="text-xs md:text-sm font-bold">{bracket}</span>
                             </button>
                         ))}
                     </div>
@@ -55,9 +55,9 @@ export default function Step04_FinancialReality({ formData, updateField }) {
                             <button
                                 key={type}
                                 onClick={() => updateField('employment_type', type)}
-                                className={`p-4 rounded-xl border text-center transition-all duration-200 ${formData.employment_type === type ? 'bg-brand-accent/20 border-brand-accent text-white' : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'}`}
+                                className={`p-3 md:p-4 rounded-xl border text-center transition-all duration-200 ${formData.employment_type === type ? 'bg-brand-accent/20 border-brand-accent text-white' : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'}`}
                             >
-                                <span className="text-[10px] font-bold leading-tight uppercase tracking-tight">{type}</span>
+                                <span className="text-[9px] md:text-[10px] font-bold leading-tight uppercase tracking-tight">{type}</span>
                             </button>
                         ))}
                     </div>

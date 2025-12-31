@@ -225,8 +225,8 @@ export default function Wizard() {
     return (
         <div className="w-full max-w-2xl mx-auto px-4">
             {/* Progress Header */}
-            <div className="flex justify-between items-center mb-8 relative">
-                <div className="absolute top-1/2 left-0 w-full h-0.5 bg-white/20 -z-10 -translate-y-1/2 rounded-full"></div>
+            <div className="flex justify-between items-center mb-6 md:mb-8 relative overflow-x-auto pb-4 no-scrollbar snap-x">
+                <div className="absolute top-1/2 left-0 w-full h-0.5 bg-white/20 -z-10 -translate-y-1/2 rounded-full min-w-[600px]"></div>
                 {steps.map((s) => (
                     <button
                         key={s.id}
@@ -237,17 +237,17 @@ export default function Wizard() {
                             }
                         }}
                         disabled={loading}
-                        className="flex flex-col items-center gap-2 relative z-10 group cursor-pointer disabled:cursor-not-allowed"
+                        className="flex flex-col items-center gap-1.5 md:gap-2 relative z-10 group cursor-pointer disabled:cursor-not-allowed flex-shrink-0 snap-center px-2"
                     >
                         <div
-                            className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all duration-300 group-hover:scale-110 ${step >= s.id
+                            className={`w-9 h-9 md:w-12 md:h-12 rounded-full flex items-center justify-center border-2 transition-all duration-300 group-hover:scale-110 ${step >= s.id
                                 ? 'bg-brand-accent border-brand-accent text-brand-dark shadow-[0_0_20px_rgba(16,185,129,0.3)]'
                                 : 'bg-brand-dark border-white/20 text-white/40 group-hover:border-white/40'
                                 }`}
                         >
-                            {step > s.id ? <Check className="w-6 h-6" /> : s.icon}
+                            {step > s.id ? <Check className="w-4 h-4 md:w-6 md:h-6" /> : s.icon}
                         </div>
-                        <span className={`text-xs font-bold uppercase tracking-wider transition-colors ${step >= s.id ? 'text-brand-accent' : 'text-white/40 group-hover:text-white/70'}`}>
+                        <span className={`text-[9px] md:text-xs font-bold uppercase tracking-wider transition-colors hidden md:block ${step >= s.id ? 'text-brand-accent' : 'text-white/40 group-hover:text-white/70'}`}>
                             {s.title}
                         </span>
                     </button>
@@ -256,7 +256,7 @@ export default function Wizard() {
 
             {/* Dashboard View */}
             {view === 'dashboard' ? (
-                <div className="bg-brand-surface backdrop-blur-xl border border-white/10 rounded-3xl p-8 md:p-10 shadow-2xl relative">
+                <div className="bg-brand-surface backdrop-blur-xl border border-white/10 rounded-3xl p-5 md:p-10 shadow-2xl relative">
                     <Dashboard
                         userProfile={formData}
                         latestRecommendation={result}
@@ -266,7 +266,7 @@ export default function Wizard() {
                 </div>
             ) : (
                 /* Wizard Card */
-                <div className="bg-brand-surface backdrop-blur-xl border border-white/10 rounded-3xl p-8 md:p-10 shadow-2xl overflow-hidden relative">
+                <div className="bg-brand-surface backdrop-blur-xl border border-white/10 rounded-3xl p-5 md:p-10 shadow-2xl overflow-hidden relative">
 
                     {/* Decorative glow inside card */}
                     <div className="absolute top-0 right-0 w-64 h-64 bg-brand-primary/10 rounded-full blur-[80px] -z-10 pointer-events-none" />
@@ -285,7 +285,7 @@ export default function Wizard() {
 
                     {/* Navigation Buttons */}
                     {step < 9 && (
-                        <div className="flex justify-between items-center pt-8 border-t border-white/10 mt-8">
+                        <div className="flex justify-between items-center pt-6 md:pt-8 border-t border-white/10 mt-6 md:mt-8">
                             <button
                                 onClick={handleBack}
                                 disabled={step === 1}
@@ -303,7 +303,7 @@ export default function Wizard() {
                                         handleNext
                                 }
                                 disabled={loading}
-                                className="relative overflow-hidden bg-white text-brand-dark px-8 py-3 rounded-xl font-bold flex items-center shadow-lg hover:shadow-white/20 transition-all disabled:opacity-70 disabled:cursor-wait"
+                                className="relative overflow-hidden bg-white text-brand-dark px-6 py-2.5 md:px-8 md:py-3 rounded-xl font-bold flex items-center shadow-lg hover:shadow-white/20 transition-all disabled:opacity-70 disabled:cursor-wait text-sm md:text-base"
                             >
                                 <span className="relative z-10 flex items-center">
                                     {loading ? 'Computing...' :

@@ -26,12 +26,12 @@ export default function Step02_LifeStage({ formData, updateField }) {
     };
 
     return (
-        <StepWrapper className="space-y-8">
+        <StepWrapper className="space-y-6 md:space-y-8">
             <div className="text-center">
-                <h2 className="text-3xl font-bold text-white mb-2">
+                <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
                     Who shares your journey, <span className="text-brand-accent">{formData.first_name || 'Friend'}</span>?
                 </h2>
-                <p className="text-slate-400">Protecting your loved ones starts with understanding who they are.</p>
+                <p className="text-sm md:text-base text-slate-400">Protecting your loved ones starts with understanding who they are.</p>
             </div>
 
             <div className="space-y-6">
@@ -45,7 +45,7 @@ export default function Step02_LifeStage({ formData, updateField }) {
                             <button
                                 key={status}
                                 onClick={() => handleMaritalStatus(status)}
-                                className={`p-4 rounded-xl border transition-all duration-200 ${formData.marital_status === status ? 'bg-brand-accent/20 border-brand-accent text-white' : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'}`}
+                                className={`p-2.5 md:p-4 rounded-xl border transition-all duration-200 ${formData.marital_status === status ? 'bg-brand-accent/20 border-brand-accent text-white' : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'}`}
                             >
                                 <span className="text-sm font-bold">{status}</span>
                             </button>

@@ -11,6 +11,17 @@ export default function Step05_Results({ result, formData }) {
     const healthCover = result.health_cover;
     const features = result.recommended_features || result.features || [];
 
+    console.log("DEBUG: Result Covers", {
+        life_str: result.life_cover,
+        life_val: result.life_cover_val,
+        health_str: result.health_cover,
+        health_val: result.health_cover_val
+    });
+    console.log("DEBUG: Form Data existing", {
+        existing_life: formData?.existing_life_cover_val,
+        existing_health: formData?.existing_health_cover_val
+    });
+
     // Gap Calculations
     const existingLifeVal = formData?.existing_life_cover_val || 0;
     const idealLifeVal = result.life_cover_val || 0;
@@ -27,7 +38,7 @@ export default function Step05_Results({ result, formData }) {
     };
 
     return (
-        <StepWrapper className="text-center space-y-6">
+        <StepWrapper className="text-center space-y-4 md:space-y-6">
             {result.mode === 'AI' && (
                 <motion.div
                     initial={{ opacity: 0, y: 10 }}
@@ -52,13 +63,13 @@ export default function Step05_Results({ result, formData }) {
             )}
 
             <div className="inline-block relative">
-                <div className="text-7xl animate-bounce">{result.icon || "🛡️"}</div>
-                <Sparkles className="absolute -top-4 -right-4 text-yellow-400 w-8 h-8 animate-pulse" />
+                <div className="text-5xl md:text-7xl animate-bounce">{result.icon || "🛡️"}</div>
+                <Sparkles className="absolute -top-4 -right-4 text-yellow-400 w-6 h-6 md:w-8 md:h-8 animate-pulse" />
             </div>
 
             <div className="max-w-md mx-auto">
-                <h2 className="text-3xl font-extrabold text-white mb-2">Your Personalized Shield</h2>
-                <p className="text-sm text-slate-400 leading-relaxed px-4 font-medium italic">
+                <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-2">Your Personalized Shield</h2>
+                <p className="text-xs md:text-sm text-slate-400 leading-relaxed px-4 font-medium italic">
                     {result.tagline || result.details || "We've crafted the perfect plan for your needs."}
                 </p>
             </div>
@@ -66,11 +77,11 @@ export default function Step05_Results({ result, formData }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <motion.div
                     whileHover={{ scale: 1.02 }}
-                    className="bg-blue-500/10 p-6 rounded-2xl border border-blue-500/20 backdrop-blur-sm relative overflow-hidden"
+                    className="bg-blue-500/10 p-4 md:p-6 rounded-2xl border border-blue-500/20 backdrop-blur-sm relative overflow-hidden"
                 >
-                    <Heart className="w-8 h-8 text-blue-400 mx-auto mb-3" />
-                    <h3 className="text-xs uppercase tracking-widest text-blue-300 font-bold mb-1">Life Cover</h3>
-                    <p className="text-3xl font-black text-white">{lifeCover || "Calculated below"}</p>
+                    <Heart className="w-6 h-6 md:w-8 md:h-8 text-blue-400 mx-auto mb-2 md:mb-3" />
+                    <h3 className="text-[10px] md:text-xs uppercase tracking-widest text-blue-300 font-bold mb-1">Life Cover</h3>
+                    <p className="text-2xl md:text-3xl font-black text-white">{lifeCover || "Calculated below"}</p>
                     {lifeGap > 0 ? (
                         <div className="mt-3 inline-block bg-red-500/20 border border-red-500/30 px-3 py-1 rounded-full">
                             <span className="text-[10px] font-black uppercase text-red-400 tracking-wider">Gap: {formatINR(lifeGap)}</span>
@@ -84,11 +95,11 @@ export default function Step05_Results({ result, formData }) {
 
                 <motion.div
                     whileHover={{ scale: 1.02 }}
-                    className="bg-brand-accent/10 p-6 rounded-2xl border border-brand-accent/20 backdrop-blur-sm relative overflow-hidden"
+                    className="bg-brand-accent/10 p-4 md:p-6 rounded-2xl border border-brand-accent/20 backdrop-blur-sm relative overflow-hidden"
                 >
-                    <Shield className="w-8 h-8 text-brand-accent mx-auto mb-3" />
-                    <h3 className="text-xs uppercase tracking-widest text-emerald-300 font-bold mb-1">Health Cover</h3>
-                    <p className="text-3xl font-black text-white">{healthCover || "Calculated below"}</p>
+                    <Shield className="w-6 h-6 md:w-8 md:h-8 text-brand-accent mx-auto mb-2 md:mb-3" />
+                    <h3 className="text-[10px] md:text-xs uppercase tracking-widest text-emerald-300 font-bold mb-1">Health Cover</h3>
+                    <p className="text-2xl md:text-3xl font-black text-white">{healthCover || "Calculated below"}</p>
                     {healthGap > 0 ? (
                         <div className="mt-3 inline-block bg-red-500/20 border border-red-500/30 px-3 py-1 rounded-full">
                             <span className="text-[10px] font-black uppercase text-red-400 tracking-wider">Gap: {formatINR(healthGap)}</span>

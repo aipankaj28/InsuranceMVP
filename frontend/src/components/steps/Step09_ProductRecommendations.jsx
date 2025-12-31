@@ -37,7 +37,9 @@ export default function Step09_ProductRecommendations({ formData, gapResult, onC
                     },
                     body: JSON.stringify({
                         recommended_life_cover: gapResult.life_cover,
+                        recommended_life_cover_val: gapResult.life_cover_val,
                         recommended_health_cover: gapResult.health_cover,
+                        recommended_health_cover_val: gapResult.health_cover_val,
                         recommended_features: (gapResult.recommended_features || []).map(f => f.name),
                         has_life_insurance: formData.has_life_insurance,
                         existing_life_cover_val: formData.existing_life_cover_val,
@@ -92,14 +94,14 @@ export default function Step09_ProductRecommendations({ formData, gapResult, onC
     const { life_recommendation, health_recommendation, overall_narrative } = recommendations;
 
     return (
-        <StepWrapper className="space-y-8">
+        <StepWrapper className="space-y-6 md:space-y-8">
             <div className="text-center">
-                <div className="bg-emerald-500/10 border border-emerald-500/20 px-4 py-1.5 rounded-full inline-flex items-center gap-2 backdrop-blur-md mb-4">
+                <div className="bg-emerald-500/10 border border-emerald-500/20 px-4 py-1.5 rounded-full inline-flex items-center gap-2 backdrop-blur-md mb-2 md:mb-4">
                     <Sparkles className="w-4 h-4 text-emerald-400" />
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400">AI Product Matching Engine</span>
+                    <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400">AI Product Matching Engine</span>
                 </div>
-                <h2 className="text-3xl font-black text-white mb-2 italic">"My Final Handpicked Selection"</h2>
-                <p className="text-slate-400 text-sm max-w-lg mx-auto leading-relaxed">
+                <h2 className="text-2xl md:text-3xl font-black text-white mb-2 italic">"My Final Handpicked Selection"</h2>
+                <p className="text-slate-400 text-xs md:text-sm max-w-lg mx-auto leading-relaxed">
                     {overall_narrative}
                 </p>
             </div>
@@ -252,11 +254,11 @@ export default function Step09_ProductRecommendations({ formData, gapResult, onC
             <div className="flex flex-col items-center gap-6 pt-8">
                 <button
                     onClick={onComplete}
-                    className="group relative bg-white text-brand-dark px-10 py-4 rounded-2xl font-black text-lg shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:shadow-[0_0_50px_rgba(255,255,255,0.4)] transition-all hover:scale-105 active:scale-95 overflow-hidden"
+                    className="group relative bg-white text-brand-dark px-6 py-3 md:px-10 md:py-4 rounded-xl md:rounded-2xl font-black text-base md:text-lg shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:shadow-[0_0_50px_rgba(255,255,255,0.4)] transition-all hover:scale-105 active:scale-95 overflow-hidden"
                 >
-                    <span className="relative z-10 flex items-center gap-3">
+                    <span className="relative z-10 flex items-center gap-2 md:gap-3">
                         Finish & Secure My Future
-                        <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+                        <ArrowRight className="w-4 h-4 md:w-5 md:h-5 transition-transform group-hover:translate-x-1" />
                     </span>
                     <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-500/10 to-emerald-500/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                 </button>

@@ -40,10 +40,10 @@ export default function Step05_HealthSnapshot({ formData, updateField }) {
     };
 
     return (
-        <StepWrapper className="space-y-8">
+        <StepWrapper className="space-y-6 md:space-y-8">
             <div className="text-center">
-                <h2 className="text-3xl font-bold text-white mb-2">Your Most Valuable Asset</h2>
-                <p className="text-slate-400">A few quick questions to understand your health priorities.</p>
+                <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Your Most Valuable Asset</h2>
+                <p className="text-sm md:text-base text-slate-400">A few quick questions to understand your health priorities.</p>
             </div>
 
             {/* Health Dashboard Visual */}
@@ -70,9 +70,9 @@ export default function Step05_HealthSnapshot({ formData, updateField }) {
                             <button
                                 key={opt.value}
                                 onClick={() => updateField('smoking_status', opt.value)}
-                                className={`p-3 rounded-xl border transition-all duration-200 ${formData.smoking_status === opt.value ? 'bg-brand-accent/20 border-brand-accent text-white' : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'}`}
+                                className={`p-2 md:p-3 rounded-xl border transition-all duration-200 ${formData.smoking_status === opt.value ? 'bg-brand-accent/20 border-brand-accent text-white' : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'}`}
                             >
-                                <span className="text-xs font-bold">{opt.label}</span>
+                                <span className="text-[10px] md:text-xs font-bold">{opt.label}</span>
                             </button>
                         ))}
                     </div>
@@ -88,9 +88,9 @@ export default function Step05_HealthSnapshot({ formData, updateField }) {
                             <button
                                 key={condition}
                                 onClick={() => toggleCondition(condition)}
-                                className={`p-4 rounded-xl border text-left transition-all duration-200 ${(formData.family_health_history || []).includes(condition) ? 'bg-blue-500/20 border-blue-500 text-white' : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'}`}
+                                className={`p-3 md:p-4 rounded-xl border text-left transition-all duration-200 ${(formData.family_health_history || []).includes(condition) ? 'bg-blue-500/20 border-blue-500 text-white' : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'}`}
                             >
-                                <span className="text-xs font-bold">{condition}</span>
+                                <span className="text-[10px] md:text-xs font-bold">{condition}</span>
                             </button>
                         ))}
                     </div>
@@ -106,13 +106,13 @@ export default function Step05_HealthSnapshot({ formData, updateField }) {
                             <button
                                 key={opt.value}
                                 onClick={() => updateField('lifestyle', opt.value)}
-                                className={`flex items-center justify-between p-4 rounded-xl border transition-all duration-200 ${formData.lifestyle === opt.value ? 'bg-brand-accent/20 border-brand-accent text-white' : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'}`}
+                                className={`flex items-center justify-between p-3 md:p-4 rounded-xl border transition-all duration-200 ${formData.lifestyle === opt.value ? 'bg-brand-accent/20 border-brand-accent text-white' : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'}`}
                             >
                                 <div className="text-left">
-                                    <div className="text-sm font-bold">{opt.label}</div>
-                                    <div className="text-[10px] text-slate-500">{opt.sub}</div>
+                                    <div className="text-xs md:text-sm font-bold">{opt.label}</div>
+                                    <div className="text-[9px] md:text-[10px] text-slate-500">{opt.sub}</div>
                                 </div>
-                                <Activity className={`w-4 h-4 ${formData.lifestyle === opt.value ? 'text-brand-accent' : 'text-slate-600'}`} />
+                                <Activity className={`w-3.5 h-3.5 md:w-4 md:h-4 ${formData.lifestyle === opt.value ? 'text-brand-accent' : 'text-slate-600'}`} />
                             </button>
                         ))}
                     </div>

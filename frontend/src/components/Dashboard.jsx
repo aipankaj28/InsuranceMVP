@@ -40,11 +40,11 @@ export default function Dashboard({ userProfile, latestRecommendation, history, 
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="space-y-8"
+            className="space-y-6 md:space-y-8"
         >
             <div className="text-center">
-                <h2 className="text-4xl font-black text-white mb-2">Protection Dashboard</h2>
-                <p className="text-slate-400">Comparing your <span className="text-brand-accent">Ideal Shield</span> with your <span className="text-white">Existing Net</span>.</p>
+                <h2 className="text-2xl md:text-4xl font-black text-white mb-2">Protection Dashboard</h2>
+                <p className="text-sm md:text-base text-slate-400">Comparing your <span className="text-brand-accent">Ideal Shield</span> with your <span className="text-white">Existing Net</span>.</p>
             </div>
 
             {/* Gap Analysis Dashboard */}
