@@ -121,7 +121,9 @@ class VerifyRequest(BaseModel):
 
 class PolicyRecommendationRequest(BaseModel):
     recommended_life_cover: str
+    recommended_life_cover_val: int
     recommended_health_cover: str
+    recommended_health_cover_val: int
     recommended_features: list[str]
     has_life_insurance: bool
     existing_life_cover_val: Optional[int] = 0
