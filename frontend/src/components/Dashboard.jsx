@@ -135,7 +135,12 @@ export default function Dashboard({ userProfile, latestRecommendation, history, 
                     <span className="text-3xl">{icon}</span>
                     <div>
                         <h4 className="text-white font-bold mb-1">Our AI's Strategic Reasoning</h4>
-                        <p className="text-slate-300 leading-relaxed italic text-sm">"{reasoning || details}"</p>
+                        <p className="text-slate-200 leading-relaxed italic text-sm font-medium mb-2">"{latestRecommendation.summary || reasoning || details}"</p>
+                        {(latestRecommendation.summary && reasoning) && (
+                            <p className="text-slate-400 leading-relaxed text-xs opacity-80 border-t border-white/10 pt-2">
+                                {reasoning}
+                            </p>
+                        )}
                     </div>
                 </div>
             </div>

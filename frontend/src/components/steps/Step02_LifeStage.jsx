@@ -20,6 +20,9 @@ export default function Step02_LifeStage({ formData, updateField }) {
 
     const handleMaritalStatus = (status) => {
         updateField('marital_status', status);
+        if (status === 'Single') {
+            updateField('num_children', 0);
+        }
     };
 
     return (

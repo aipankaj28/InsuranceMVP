@@ -92,15 +92,25 @@ class UserData(BaseModel):
     lifestyle: str
     smoking_status: str
     family_health_history: list[str]
+    is_smoker: Optional[bool] = False
     dependents: Optional[Dict[str, bool]] = {}
     num_children: Optional[int] = 0
     # Phase 2 Fields
     has_life_insurance: Optional[bool] = False
     existing_life_cover: Optional[str] = ""
+    existing_life_cover_val: Optional[int] = 0
     has_health_insurance: Optional[bool] = False
     existing_health_cover: Optional[str] = ""
+    existing_health_cover_val: Optional[int] = 0
     health_source: Optional[str] = ""
     parents_covered: Optional[bool] = False
+    parents_health_cover: Optional[str] = ""
+    parents_health_cover_val: Optional[int] = 0
+    # Existing Policy Details
+    life_provider: Optional[str] = ""
+    life_policy_name: Optional[str] = ""
+    health_provider: Optional[str] = ""
+    health_policy_name: Optional[str] = ""
 
 class LoginRequest(BaseModel):
     email: str
@@ -108,6 +118,25 @@ class LoginRequest(BaseModel):
 class VerifyRequest(BaseModel):
     email: str
     otp: str
+
+class PolicyRecommendationRequest(BaseModel):
+    recommended_life_cover: str
+    recommended_health_cover: str
+    recommended_features: list[str]
+    has_life_insurance: bool
+    existing_life_cover_val: Optional[int] = 0
+    life_provider: Optional[str] = ""
+    life_policy_name: Optional[str] = ""
+    has_health_insurance: bool
+    existing_health_cover_val: Optional[int] = 0
+    health_provider: Optional[str] = ""
+    health_policy_name: Optional[str] = ""
+    health_source: Optional[str] = ""
+    # Profile context
+    first_name: str
+    age: int
+    income_level: str
+    city: str
 
 # Dependency to verify JWT
 async def get_current_user(authorization: str = Header(None)):
@@ -135,7 +164,7 @@ async def get_current_user(authorization: str = Header(None)):
 def read_root():
     return {"message": "Insurance Wizard Backend is Running!"}
 
-@app.post("/api/auth/login")
+@app.post("/api/auth/otp")
 async def login(request: LoginRequest):
     email = request.email.lower().strip()
     otp = generate_otp()
@@ -190,14 +219,23 @@ def get_recommendation(data: UserData, user_payload = Depends(get_current_user),
     user.family_health_history = data.family_health_history
     user.num_children = data.num_children
     user.dependents_data = data.dependents
+    user.is_smoker = data.is_smoker
+    user.has_life_insurance = data.has_life_insurance
+    user.existing_life_cover = data.existing_life_cover if data.has_life_insurance else ""
+    user.existing_life_cover_val = data.existing_life_cover_val if data.has_life_insurance else 0
+    user.has_health_insurance = data.has_health_insurance
+    user.existing_health_cover = data.existing_health_cover if data.has_health_insurance else ""
+    user.existing_health_cover_val = data.existing_health_cover_val if data.has_health_insurance else 0
+    user.health_source = data.health_source if data.has_health_insurance else ""
+    user.parents_covered = data.parents_covered if data.has_health_insurance else False
+    user.parents_health_cover = data.parents_health_cover if (data.has_health_insurance and data.parents_covered) else ""
+    user.parents_health_cover_val = data.parents_health_cover_val if (data.has_health_insurance and data.parents_covered) else 0
     
-    # Phase 2 Fields
-    if data.has_life_insurance is not None: user.has_life_insurance = data.has_life_insurance
-    if data.existing_life_cover is not None: user.existing_life_cover = data.existing_life_cover
-    if data.has_health_insurance is not None: user.has_health_insurance = data.has_health_insurance
-    if data.existing_health_cover is not None: user.existing_health_cover = data.existing_health_cover
-    if data.health_source is not None: user.health_source = data.health_source
-    if data.parents_covered is not None: user.parents_covered = data.parents_covered
+    # Policy Details
+    user.life_provider = data.life_provider if data.has_life_insurance else ""
+    user.life_policy_name = data.life_policy_name if data.has_life_insurance else ""
+    user.health_provider = data.health_provider if data.has_health_insurance else ""
+    user.health_policy_name = data.health_policy_name if data.has_health_insurance else ""
     
     # Save the recommendation
     db_recommendation = Recommendation(
@@ -220,6 +258,13 @@ def get_recommendation(data: UserData, user_payload = Depends(get_current_user),
     show_debug = os.getenv("SHOW_DEBUG_INFO", "false").lower() == "true"
     result["show_debug"] = show_debug
     
+    return result
+
+@app.post("/api/policy-recommendations")
+def get_policy_recommendations(request: PolicyRecommendationRequest, user_payload = Depends(get_current_user)):
+    from logic import calculate_policy_recommendations_ai
+    result = calculate_policy_recommendations_ai(request.model_dump())
+    result["show_debug"] = os.getenv("SHOW_DEBUG_INFO", "false").lower() == "true"
     return result
 
 @app.get("/api/user/profile")
@@ -253,10 +298,18 @@ def get_user_profile(user_payload = Depends(get_current_user), db: Session = Dep
             "num_children": user.num_children,
             "has_life_insurance": user.has_life_insurance,
             "existing_life_cover": user.existing_life_cover,
+            "existing_life_cover_val": user.existing_life_cover_val,
             "has_health_insurance": user.has_health_insurance,
             "existing_health_cover": user.existing_health_cover,
+            "existing_health_cover_val": user.existing_health_cover_val,
             "health_source": user.health_source,
-            "parents_covered": user.parents_covered
+            "parents_covered": user.parents_covered,
+            "parents_health_cover": user.parents_health_cover,
+            "parents_health_cover_val": user.parents_health_cover_val,
+            "life_provider": user.life_provider,
+            "life_policy_name": user.life_policy_name,
+            "health_provider": user.health_provider,
+            "health_policy_name": user.health_policy_name
         },
         "recommendations": [
             {

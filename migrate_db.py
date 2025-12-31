@@ -62,7 +62,13 @@ if os.path.exists(db_path):
         ("has_health_insurance", "BOOLEAN DEFAULT 0"),
         ("existing_health_cover", "TEXT"),
         ("health_source", "TEXT"),
-        ("parents_covered", "BOOLEAN DEFAULT 0")
+        ("parents_covered", "BOOLEAN DEFAULT 0"),
+        # Phase 3 Fields
+        ("life_provider", "TEXT"),
+        ("life_policy_name", "TEXT"),
+        ("health_provider", "TEXT"),
+        ("health_policy_name", "TEXT"),
+        ("parents_health_cover", "TEXT")
     ]
     
     for col_name, col_type in v2_cols:

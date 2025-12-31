@@ -12,6 +12,8 @@ import Step04_FinancialReality from './steps/Step04_FinancialReality';
 import Step05_HealthSnapshot from './steps/Step05_HealthSnapshot';
 import Step05_Results from './steps/Step05_Results';
 import Step06_ExistingCoverage from './steps/Step06_ExistingCoverage';
+import Step07_ExistingPolicyDetails from './steps/Step07_ExistingPolicyDetails';
+import Step09_ProductRecommendations from './steps/Step09_ProductRecommendations';
 import Dashboard from './Dashboard';
 
 export default function Wizard() {
@@ -41,7 +43,16 @@ export default function Wizard() {
         existing_health_cover_val: 0,
         health_source: "Employer",
         parents_covered: false,
-        dependents: {}
+        dependents: {},
+        // Phase 3 Fields
+        life_provider: "",
+        life_policy_name: "",
+        life_provider_custom: "",
+        life_policy_name_custom: "",
+        health_provider: "",
+        health_policy_name: "",
+        health_provider_custom: "",
+        health_policy_name_custom: ""
     });
     const [result, setResult] = useState(null);
     const [history, setHistory] = useState([]);
@@ -165,13 +176,21 @@ export default function Wizard() {
         setLoading(true);
         try {
             const token = localStorage.getItem('auth_token');
+
+            // Format custom providers/policies if 'Other' was selected
+            const finalFormData = { ...formData };
+            if (finalFormData.life_provider === 'Other') finalFormData.life_provider = finalFormData.life_provider_custom;
+            if (finalFormData.life_policy_name === 'Other') finalFormData.life_policy_name = finalFormData.life_policy_name_custom;
+            if (finalFormData.health_provider === 'Other') finalFormData.health_provider = finalFormData.health_provider_custom;
+            if (finalFormData.health_policy_name === 'Other') finalFormData.health_policy_name = finalFormData.health_policy_name_custom;
+
             await fetch(`${API_BASE_URL}/api/recommend`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify(finalFormData)
             });
             // After saving, we can finally move to dashboard or final view
             setView('dashboard');
@@ -183,13 +202,15 @@ export default function Wizard() {
     };
 
     const steps = [
-        { id: 1, title: "Start", icon: <User className="w-5 h-5" /> },
+        { id: 1, title: "Start", icon: <Sparkles className="w-5 h-5" /> },
         { id: 2, title: "Life", icon: <Heart className="w-5 h-5" /> },
         { id: 3, title: "Career", icon: <Briefcase className="w-5 h-5" /> },
-        { id: 4, title: "Finance", icon: <Shield className="w-5 h-5" /> },
+        { id: 4, title: "Reality", icon: <Briefcase className="w-5 h-5" /> },
         { id: 5, title: "Health", icon: <Sparkles className="w-5 h-5" /> },
-        { id: 6, title: "Ideal", icon: <Check className="w-5 h-5" /> },
-        { id: 7, title: "Net", icon: <Shield className="w-5 h-5" /> }
+        { id: 6, title: "Coverage", icon: <Shield className="w-5 h-5" /> },
+        { id: 7, title: "Gaps", icon: <Check className="w-5 h-5" /> },
+        { id: 8, title: "History", icon: <Briefcase className="w-5 h-5" /> },
+        { id: 9, title: "Match", icon: <Sparkles className="w-5 h-5" /> }
     ];
 
     if (initialLoading) {
@@ -207,19 +228,29 @@ export default function Wizard() {
             <div className="flex justify-between items-center mb-8 relative">
                 <div className="absolute top-1/2 left-0 w-full h-0.5 bg-white/20 -z-10 -translate-y-1/2 rounded-full"></div>
                 {steps.map((s) => (
-                    <div key={s.id} className="flex flex-col items-center gap-2 relative z-10 group">
+                    <button
+                        key={s.id}
+                        onClick={() => {
+                            if (!loading) {
+                                setStep(s.id);
+                                setView('wizard');
+                            }
+                        }}
+                        disabled={loading}
+                        className="flex flex-col items-center gap-2 relative z-10 group cursor-pointer disabled:cursor-not-allowed"
+                    >
                         <div
-                            className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${step >= s.id
+                            className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all duration-300 group-hover:scale-110 ${step >= s.id
                                 ? 'bg-brand-accent border-brand-accent text-brand-dark shadow-[0_0_20px_rgba(16,185,129,0.3)]'
-                                : 'bg-brand-dark border-white/20 text-white/40'
+                                : 'bg-brand-dark border-white/20 text-white/40 group-hover:border-white/40'
                                 }`}
                         >
                             {step > s.id ? <Check className="w-6 h-6" /> : s.icon}
                         </div>
-                        <span className={`text-xs font-bold uppercase tracking-wider transition-colors ${step >= s.id ? 'text-brand-accent' : 'text-white/40'}`}>
+                        <span className={`text-xs font-bold uppercase tracking-wider transition-colors ${step >= s.id ? 'text-brand-accent' : 'text-white/40 group-hover:text-white/70'}`}>
                             {s.title}
                         </span>
-                    </div>
+                    </button>
                 ))}
             </div>
 
@@ -230,7 +261,7 @@ export default function Wizard() {
                         userProfile={formData}
                         latestRecommendation={result}
                         history={history}
-                        onUpdatePlan={() => setView('wizard')}
+                        onUpdatePlan={() => { setView('wizard'); setStep(1); }}
                     />
                 </div>
             ) : (
@@ -246,12 +277,14 @@ export default function Wizard() {
                         {step === 3 && <Step03_CareerStage key="step3" formData={formData} updateField={updateField} />}
                         {step === 4 && <Step04_FinancialReality key="step4" formData={formData} updateField={updateField} />}
                         {step === 5 && <Step05_HealthSnapshot key="step5" formData={formData} updateField={updateField} />}
-                        {step === 6 && <Step05_Results key="step6" result={result} onAnalyzeGaps={handleNext} />}
-                        {step === 7 && <Step06_ExistingCoverage key="step7" formData={formData} updateField={updateField} />}
+                        {step === 6 && <Step06_ExistingCoverage key="step6" formData={formData} updateField={updateField} />}
+                        {step === 7 && <Step05_Results key="step7" result={result} formData={formData} onAnalyzeGaps={handleNext} />}
+                        {step === 8 && <Step07_ExistingPolicyDetails key="step8" formData={formData} updateField={updateField} />}
+                        {step === 9 && <Step09_ProductRecommendations key="step9" formData={formData} gapResult={result} onComplete={saveSafetyNet} />}
                     </AnimatePresence>
 
                     {/* Navigation Buttons */}
-                    {true && (
+                    {step < 9 && (
                         <div className="flex justify-between items-center pt-8 border-t border-white/10 mt-8">
                             <button
                                 onClick={handleBack}
@@ -266,22 +299,23 @@ export default function Wizard() {
 
                             <button
                                 onClick={
-                                    step === 5 ? (isStepValid() ? fetchRecommendation : () => alert("Please fill mandatory fields.")) :
-                                        step === 7 ? saveSafetyNet :
-                                            handleNext
+                                    step === 6 ? (isStepValid() ? fetchRecommendation : () => alert("Please fill mandatory fields.")) :
+                                        handleNext
                                 }
                                 disabled={loading}
                                 className="relative overflow-hidden bg-white text-brand-dark px-8 py-3 rounded-xl font-bold flex items-center shadow-lg hover:shadow-white/20 transition-all disabled:opacity-70 disabled:cursor-wait"
                             >
                                 <span className="relative z-10 flex items-center">
-                                    {loading ? 'Computing...' : (
+                                    {loading ? 'Computing...' :
                                         step === 1 ? 'Begin my protection story' :
                                             step === 2 ? 'Continue my story' :
                                                 step === 3 ? 'Next' :
                                                     step === 4 ? 'Continue' :
-                                                        step === 5 ? 'See my protection needs' :
-                                                            step === 6 ? 'Analyze My Gaps' : 'Complete Analysis'
-                                    )}
+                                                        step === 5 ? 'Next' :
+                                                            step === 6 ? 'Analyze My Gaps' :
+                                                                step === 7 ? 'Add Policy Details' :
+                                                                    step === 8 ? 'See Product Matches' : 'Next'
+                                    }
                                     {!loading && <ArrowRight className="w-4 h-4 ml-2" />}
                                 </span>
                             </button>

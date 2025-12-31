@@ -46,7 +46,17 @@ export default function Step06_ExistingCoverage({ formData, updateField }) {
                             {[true, false].map(val => (
                                 <button
                                     key={val ? 'yes' : 'no'}
-                                    onClick={() => updateField('has_life_insurance', val)}
+                                    onClick={() => {
+                                        updateField('has_life_insurance', val);
+                                        if (!val) {
+                                            updateField('existing_life_cover', "");
+                                            updateField('existing_life_cover_val', 0);
+                                            updateField('life_provider', "");
+                                            updateField('life_policy_name', "");
+                                            updateField('life_provider_custom', "");
+                                            updateField('life_policy_name_custom', "");
+                                        }
+                                    }}
                                     className={`py-4 rounded-2xl border transition-all duration-200 font-bold ${formData.has_life_insurance === val ? 'bg-pink-500/20 border-pink-500 text-white shadow-[0_0_15px_rgba(236,72,153,0.3)]' : 'bg-white/5 border-white/10 text-slate-500 hover:bg-white/10'}`}
                                 >
                                     {val ? 'Yes' : 'No'}
@@ -64,18 +74,19 @@ export default function Step06_ExistingCoverage({ formData, updateField }) {
                                 >
                                     <div className="flex justify-between items-end">
                                         <span className="text-xs font-bold text-slate-500 uppercase">Coverage Amount</span>
-                                        <span className="text-xl font-black text-white">{formatCurrency(formData.existing_life_cover_val || 0)}</span>
+                                        <span className="text-xl font-black text-white">{formatCurrency((formData.existing_life_cover_val || 0) / 100000)}</span>
                                     </div>
                                     <input
                                         type="range"
                                         min="0"
                                         max="500"
                                         step="5"
-                                        value={formData.existing_life_cover_val || 0}
+                                        value={(formData.existing_life_cover_val || 0) / 100000}
                                         onChange={(e) => {
-                                            const val = parseInt(e.target.value);
-                                            updateField('existing_life_cover_val', val);
-                                            updateField('existing_life_cover', formatCurrency(val));
+                                            const sliderVal = parseInt(e.target.value);
+                                            const absoluteVal = sliderVal * 100000;
+                                            updateField('existing_life_cover_val', absoluteVal);
+                                            updateField('existing_life_cover', formatCurrency(sliderVal));
                                         }}
                                         className="w-full accent-pink-500 h-2 bg-white/10 rounded-lg appearance-none cursor-pointer"
                                     />
@@ -108,7 +119,19 @@ export default function Step06_ExistingCoverage({ formData, updateField }) {
                             {[true, false].map(val => (
                                 <button
                                     key={val ? 'yes' : 'no'}
-                                    onClick={() => updateField('has_health_insurance', val)}
+                                    onClick={() => {
+                                        updateField('has_health_insurance', val);
+                                        if (!val) {
+                                            updateField('existing_health_cover', "");
+                                            updateField('existing_health_cover_val', 0);
+                                            updateField('health_source', "");
+                                            updateField('parents_covered', false);
+                                            updateField('health_provider', "");
+                                            updateField('health_policy_name', "");
+                                            updateField('health_provider_custom', "");
+                                            updateField('health_policy_name_custom', "");
+                                        }
+                                    }}
                                     className={`py-4 rounded-2xl border transition-all duration-200 font-bold ${formData.has_health_insurance === val ? 'bg-blue-500/20 border-blue-500 text-white shadow-[0_0_15px_rgba(59,130,246,0.3)]' : 'bg-white/5 border-white/10 text-slate-500 hover:bg-white/10'}`}
                                 >
                                     {val ? 'Yes' : 'No'}
@@ -148,18 +171,19 @@ export default function Step06_ExistingCoverage({ formData, updateField }) {
                                             <span className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
                                                 <Shield className="w-3 h-3" /> Cover Amount
                                             </span>
-                                            <span className="text-xl font-black text-white">{formatCurrency(formData.existing_health_cover_val || 0)}</span>
+                                            <span className="text-xl font-black text-white">{formatCurrency((formData.existing_health_cover_val || 0) / 100000)}</span>
                                         </div>
                                         <input
                                             type="range"
                                             min="0"
                                             max="200"
                                             step="1"
-                                            value={formData.existing_health_cover_val || 0}
+                                            value={(formData.existing_health_cover_val || 0) / 100000}
                                             onChange={(e) => {
-                                                const val = parseInt(e.target.value);
-                                                updateField('existing_health_cover_val', val);
-                                                updateField('existing_health_cover', formatCurrency(val));
+                                                const sliderVal = parseInt(e.target.value);
+                                                const absoluteVal = sliderVal * 100000;
+                                                updateField('existing_health_cover_val', absoluteVal);
+                                                updateField('existing_health_cover', formatCurrency(sliderVal));
                                             }}
                                             className="w-full accent-blue-500 h-2 bg-white/10 rounded-lg appearance-none cursor-pointer"
                                         />
@@ -173,21 +197,64 @@ export default function Step06_ExistingCoverage({ formData, updateField }) {
                                     </div>
 
                                     {/* Parents Coverage */}
-                                    <div className="space-y-3">
+                                    <div className="space-y-4">
                                         <label className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                                            <Users className="w-3 h-3" /> Does this cover your parents?
+                                            <Users className="w-3 h-3" /> Have you taken health insurance for your parents?
                                         </label>
                                         <div className="grid grid-cols-2 gap-3">
                                             {[true, false].map(val => (
                                                 <button
                                                     key={val ? 'yes-parents' : 'no-parents'}
-                                                    onClick={() => updateField('parents_covered', val)}
+                                                    onClick={() => {
+                                                        updateField('parents_covered', val);
+                                                        if (!val) {
+                                                            updateField('parents_health_cover', "");
+                                                            updateField('parents_health_cover_val', 0);
+                                                        }
+                                                    }}
                                                     className={`py-3 rounded-xl border font-bold transition-all ${formData.parents_covered === val ? 'bg-emerald-500/20 border-emerald-500 text-white' : 'bg-white/5 border-white/10 text-slate-500 hover:bg-white/10'}`}
                                                 >
                                                     {val ? 'Yes' : 'No'}
                                                 </button>
                                             ))}
                                         </div>
+
+                                        <AnimatePresence>
+                                            {formData.parents_covered && (
+                                                <motion.div
+                                                    initial={{ opacity: 0, height: 0 }}
+                                                    animate={{ opacity: 1, height: 'auto' }}
+                                                    exit={{ opacity: 0, height: 0 }}
+                                                    className="space-y-4 pt-2 overflow-hidden"
+                                                >
+                                                    <div className="flex justify-between items-end">
+                                                        <span className="text-xs font-bold text-slate-500 uppercase">Parents' Cover Amount</span>
+                                                        <span className="text-xl font-black text-white">{formatCurrency((formData.parents_health_cover_val || 0) / 100000)}</span>
+                                                    </div>
+                                                    <input
+                                                        type="range"
+                                                        min="0"
+                                                        max="200"
+                                                        step="1"
+                                                        value={(formData.parents_health_cover_val || 0) / 100000}
+                                                        onChange={(e) => {
+                                                            const sliderVal = parseInt(e.target.value);
+                                                            const absoluteVal = sliderVal * 100000;
+                                                            updateField('parents_health_cover_val', absoluteVal);
+                                                            updateField('parents_health_cover', formatCurrency(sliderVal));
+                                                        }}
+                                                        className="w-full accent-emerald-500 h-2 bg-white/10 rounded-lg appearance-none cursor-pointer"
+                                                    />
+                                                    <div className="flex justify-between text-[10px] text-slate-600 font-bold uppercase tracking-tighter">
+                                                        <span>0</span>
+                                                        <span>50 L</span>
+                                                        <span>1 Cr</span>
+                                                        <span>1.5 Cr</span>
+                                                        <span>2 Cr</span>
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
                                     </div>
                                 </motion.div>
                             )}
@@ -198,7 +265,7 @@ export default function Step06_ExistingCoverage({ formData, updateField }) {
 
             <div className="pt-6 border-t border-white/10 text-center">
                 <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-black">
-                    Next: View your gap analysis dashboard
+                    Next: Add your policy details
                 </p>
             </div>
         </StepWrapper>

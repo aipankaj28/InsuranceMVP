@@ -43,10 +43,19 @@ class User(Base):
     # Gap Analysis fields (Phase 2)
     has_life_insurance = Column(Boolean, default=False)
     existing_life_cover = Column(String) # Stored as string like "₹50 Lakhs"
+    existing_life_cover_val = Column(Integer, default=0)
     has_health_insurance = Column(Boolean, default=False)
     existing_health_cover = Column(String)
+    existing_health_cover_val = Column(Integer, default=0)
     health_source = Column(String) # Employer, Personal, Both
     parents_covered = Column(Boolean, default=False)
+    parents_health_cover = Column(String) # For parents' specific health cover
+    parents_health_cover_val = Column(Integer, default=0)
+    # Existing Policy Details
+    life_provider = Column(String)
+    life_policy_name = Column(String)
+    health_provider = Column(String)
+    health_policy_name = Column(String)
     
     created_at = Column(DateTime, default=datetime.utcnow)
     

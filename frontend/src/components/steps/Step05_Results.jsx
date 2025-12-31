@@ -3,13 +3,28 @@ import StepWrapper from './StepWrapper';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Heart, Shield, Code, ChevronDown, ChevronUp } from 'lucide-react';
 
-export default function Step05_Results({ result }) {
+export default function Step05_Results({ result, formData }) {
     const [showPrompt, setShowPrompt] = useState(false);
     if (!result) return null;
 
     const lifeCover = result.life_cover;
     const healthCover = result.health_cover;
     const features = result.recommended_features || result.features || [];
+
+    // Gap Calculations
+    const existingLifeVal = formData?.existing_life_cover_val || 0;
+    const idealLifeVal = result.life_cover_val || 0;
+    const lifeGap = Math.max(0, idealLifeVal - existingLifeVal);
+
+    const existingHealthVal = formData?.existing_health_cover_val || 0;
+    const idealHealthVal = result.health_cover_val || 0;
+    const healthGap = Math.max(0, idealHealthVal - existingHealthVal);
+
+    const formatINR = (val) => {
+        if (val >= 10000000) return `₹${(val / 10000000).toFixed(1)} Cr`;
+        if (val >= 100000) return `₹${(val / 100000).toFixed(0)} Lakh`;
+        return `₹${val.toLocaleString('en-IN')}`;
+    };
 
     return (
         <StepWrapper className="text-center space-y-6">
@@ -32,7 +47,6 @@ export default function Step05_Results({ result }) {
                     animate={{ opacity: 1, scale: 1 }}
                     className="bg-brand-accent/20 border border-brand-accent/30 px-6 py-4 rounded-3xl inline-block mb-4"
                 >
-                    <span className="text-xs font-black uppercase tracking-[0.3em] text-brand-accent block mb-1">Your Protection Persona</span>
                     <h2 className="text-2xl font-black text-white italic">"{result.persona_name}"</h2>
                 </motion.div>
             )}
@@ -52,20 +66,38 @@ export default function Step05_Results({ result }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <motion.div
                     whileHover={{ scale: 1.02 }}
-                    className="bg-blue-500/10 p-6 rounded-2xl border border-blue-500/20 backdrop-blur-sm"
+                    className="bg-blue-500/10 p-6 rounded-2xl border border-blue-500/20 backdrop-blur-sm relative overflow-hidden"
                 >
                     <Heart className="w-8 h-8 text-blue-400 mx-auto mb-3" />
                     <h3 className="text-xs uppercase tracking-widest text-blue-300 font-bold mb-1">Life Cover</h3>
                     <p className="text-3xl font-black text-white">{lifeCover || "Calculated below"}</p>
+                    {lifeGap > 0 ? (
+                        <div className="mt-3 inline-block bg-red-500/20 border border-red-500/30 px-3 py-1 rounded-full">
+                            <span className="text-[10px] font-black uppercase text-red-400 tracking-wider">Gap: {formatINR(lifeGap)}</span>
+                        </div>
+                    ) : (
+                        <div className="mt-3 inline-block bg-emerald-500/20 border border-emerald-500/30 px-3 py-1 rounded-full">
+                            <span className="text-[10px] font-black uppercase text-emerald-400 tracking-wider">Fully Covered</span>
+                        </div>
+                    )}
                 </motion.div>
 
                 <motion.div
                     whileHover={{ scale: 1.02 }}
-                    className="bg-brand-accent/10 p-6 rounded-2xl border border-brand-accent/20 backdrop-blur-sm"
+                    className="bg-brand-accent/10 p-6 rounded-2xl border border-brand-accent/20 backdrop-blur-sm relative overflow-hidden"
                 >
                     <Shield className="w-8 h-8 text-brand-accent mx-auto mb-3" />
                     <h3 className="text-xs uppercase tracking-widest text-emerald-300 font-bold mb-1">Health Cover</h3>
                     <p className="text-3xl font-black text-white">{healthCover || "Calculated below"}</p>
+                    {healthGap > 0 ? (
+                        <div className="mt-3 inline-block bg-red-500/20 border border-red-500/30 px-3 py-1 rounded-full">
+                            <span className="text-[10px] font-black uppercase text-red-400 tracking-wider">Gap: {formatINR(healthGap)}</span>
+                        </div>
+                    ) : (
+                        <div className="mt-3 inline-block bg-emerald-500/20 border border-emerald-500/30 px-3 py-1 rounded-full">
+                            <span className="text-[10px] font-black uppercase text-emerald-400 tracking-wider">Fully Covered</span>
+                        </div>
+                    )}
                 </motion.div>
             </div>
 
@@ -75,7 +107,12 @@ export default function Step05_Results({ result }) {
                         <span className="w-1.5 h-1.5 rounded-full bg-brand-accent"></span>
                         Why this coverage?
                     </h3>
-                    <p className="text-sm text-slate-400 leading-relaxed italic">"{result.reasoning}"</p>
+                    <p className="text-sm text-white font-medium leading-relaxed italic">"{result.summary || result.tagline}"</p>
+                    {result.reasoning && result.summary && (
+                        <p className="text-xs text-slate-400 leading-relaxed italic border-t border-white/5 pt-2 mt-1">
+                            {result.reasoning}
+                        </p>
+                    )}
                 </div>
             )}
 
