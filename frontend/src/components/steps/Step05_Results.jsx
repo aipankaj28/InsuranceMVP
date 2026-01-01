@@ -5,6 +5,15 @@ import { Sparkles, Heart, Shield, Code, ChevronDown, ChevronUp } from 'lucide-re
 
 export default function Step05_Results({ result, formData }) {
     const [showPrompt, setShowPrompt] = useState(false);
+    const [expandedReason, setExpandedReason] = useState(false);
+    const [expandedFeatures, setExpandedFeatures] = useState({});
+
+    const toggleFeature = (idx) => {
+        setExpandedFeatures(prev => ({
+            ...prev,
+            [idx]: !prev[idx]
+        }));
+    };
     if (!result) return null;
 
     const lifeCover = result.life_cover;
@@ -113,17 +122,35 @@ export default function Step05_Results({ result, formData }) {
             </div>
 
             {result.reasoning && (
-                <div className="text-left bg-white/5 p-6 rounded-2xl border border-white/10 space-y-3">
-                    <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-brand-accent"></span>
-                        Why this coverage?
-                    </h3>
-                    <p className="text-sm text-white font-medium leading-relaxed italic">"{result.summary || result.tagline}"</p>
-                    {result.reasoning && result.summary && (
-                        <p className="text-xs text-slate-400 leading-relaxed italic border-t border-white/5 pt-2 mt-1">
-                            {result.reasoning}
-                        </p>
-                    )}
+                <div
+                    className="text-left bg-white/5 border border-white/10 rounded-2xl overflow-hidden cursor-pointer hover:bg-white/10 transition-all group"
+                    onClick={() => setExpandedReason(!expandedReason)}
+                >
+                    <div className="p-5 md:p-6 space-y-3">
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                                <span className="w-1.5 h-1.5 rounded-full bg-brand-accent"></span>
+                                Why this coverage?
+                            </h3>
+                            {expandedReason ? <ChevronUp className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-500" />}
+                        </div>
+                        <p className="text-sm text-white font-medium leading-relaxed italic">"{result.summary || result.tagline}"</p>
+
+                        <AnimatePresence>
+                            {(expandedReason || !result.summary) && (
+                                <motion.div
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: 'auto', opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    className="overflow-hidden"
+                                >
+                                    <p className="text-xs text-slate-400 leading-relaxed italic border-t border-white/5 pt-3 mt-1">
+                                        {result.reasoning}
+                                    </p>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
                 </div>
             )}
 
@@ -135,12 +162,35 @@ export default function Step05_Results({ result, formData }) {
                     </h3>
                     <div className="grid grid-cols-1 gap-3">
                         {features.map((feature, idx) => (
-                            <div key={idx} className="bg-white/5 border border-white/10 p-4 rounded-xl hover:bg-white/10 transition-colors group">
-                                <div className="flex items-center justify-between mb-1">
-                                    <span className="font-bold text-brand-accent text-sm">{feature.name}</span>
-                                    <div className="text-[10px] bg-brand-accent/20 text-brand-accent px-2 py-0.5 rounded-full font-bold uppercase tracking-tighter">Recommended</div>
+                            <div
+                                key={idx}
+                                className="bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors group cursor-pointer"
+                                onClick={() => toggleFeature(idx)}
+                            >
+                                <div className="p-4">
+                                    <div className="flex items-center justify-between mb-1">
+                                        <div className="flex items-center gap-2">
+                                            <span className="font-bold text-brand-accent text-sm">{feature.name}</span>
+                                            <div className="text-[8px] md:text-[9px] bg-brand-accent/20 text-brand-accent px-1.5 py-0.5 rounded-full font-black uppercase tracking-tighter">Recommended</div>
+                                        </div>
+                                        {expandedFeatures[idx] ? <ChevronUp className="w-3.5 h-3.5 text-slate-500" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-500" />}
+                                    </div>
+
+                                    <AnimatePresence>
+                                        {expandedFeatures[idx] && (
+                                            <motion.div
+                                                initial={{ height: 0, opacity: 0 }}
+                                                animate={{ height: 'auto', opacity: 1 }}
+                                                exit={{ height: 0, opacity: 0 }}
+                                                className="overflow-hidden"
+                                            >
+                                                <p className="text-xs text-slate-400 leading-relaxed pt-2 border-t border-white/5 mt-2 group-hover:text-slate-300 transition-colors">
+                                                    {feature.reason}
+                                                </p>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
                                 </div>
-                                <p className="text-xs text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors">{feature.reason}</p>
                             </div>
                         ))}
                     </div>
@@ -180,12 +230,6 @@ export default function Step05_Results({ result, formData }) {
                 </div>
             )}
 
-            <button
-                onClick={() => window.location.reload()}
-                className="mt-4 text-sm text-slate-500 hover:text-white transition-colors underline decoration-dotted underline-offset-4"
-            >
-                Start a New Calculation
-            </button>
         </StepWrapper>
     );
 }

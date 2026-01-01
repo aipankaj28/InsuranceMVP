@@ -263,11 +263,6 @@ export default function Step06_ExistingCoverage({ formData, updateField }) {
                 </div>
             </div>
 
-            <div className="pt-4 md:pt-6 border-t border-white/10 text-center">
-                <p className="text-[9px] md:text-[10px] text-slate-500 uppercase tracking-[0.2em] font-black">
-                    Next: Add your policy details
-                </p>
-            </div>
         </StepWrapper>
     );
 }

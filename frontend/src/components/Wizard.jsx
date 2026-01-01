@@ -317,18 +317,15 @@ export default function Wizard() {
                                         handleNext
                                 }
                                 disabled={loading}
-                                className="relative overflow-hidden bg-white text-brand-dark px-6 py-2.5 md:px-8 md:py-3 rounded-xl font-bold flex items-center shadow-lg hover:shadow-white/20 transition-all disabled:opacity-70 disabled:cursor-wait text-sm md:text-base"
+                                className="relative overflow-hidden bg-white text-brand-dark px-5 py-2.5 md:px-7 md:py-3 rounded-xl font-bold flex items-center shadow-lg hover:shadow-white/20 transition-all disabled:opacity-70 disabled:cursor-wait text-sm md:text-base"
                             >
                                 <span className="relative z-10 flex items-center">
                                     {loading ? 'Computing...' :
-                                        step === 1 ? 'Begin my protection story' :
-                                            step === 2 ? 'Continue my story' :
-                                                step === 3 ? 'Next' :
-                                                    step === 4 ? 'Continue' :
-                                                        step === 5 ? 'Next' :
-                                                            step === 6 ? 'Analyze My Gaps' :
-                                                                step === 7 ? 'Add Policy Details' :
-                                                                    step === 8 ? 'See Product Matches' : 'Next'
+                                        (step === 1 || step === 2 || step === 3 || step === 5 || step === 9) ? 'Next' :
+                                            step === 4 ? 'Continue' :
+                                                step === 6 ? 'Analyze My Gaps' :
+                                                    step === 7 ? 'Add Policy Details' :
+                                                        step === 8 ? 'Recommend Plans' : 'Next'
                                     }
                                     {!loading && <ArrowRight className="w-4 h-4 ml-2" />}
                                 </span>

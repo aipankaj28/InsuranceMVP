@@ -77,7 +77,7 @@ export default function Step01_Splash({ formData, updateField }) {
             </div>
 
             <div className="text-center text-xs text-slate-500">
-                <p>Press "Begin my protection story" below to continue</p>
+                <p>Press "Next" below to continue</p>
             </div>
         </StepWrapper>
     );
