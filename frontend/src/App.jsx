@@ -32,7 +32,7 @@ function MainApp() {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 20 }}
                   onClick={() => { localStorage.removeItem('auth_token'); window.location.reload(); }}
-                  className="bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 text-red-500 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg backdrop-blur-md"
+                  className="bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 text-red-500 px-3 py-1.5 md:px-4 md:py-2 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all shadow-lg backdrop-blur-md"
                 >
                   Logout
                 </motion.button>
@@ -40,19 +40,19 @@ function MainApp() {
             </AnimatePresence>
             <button
               onClick={() => setShowLogout(!showLogout)}
-              className={`p-3 rounded-full border transition-all duration-300 shadow-xl backdrop-blur-md ${showLogout
+              className={`p-2 md:p-3 rounded-full border transition-all duration-300 shadow-xl backdrop-blur-md ${showLogout
                 ? 'bg-red-500 border-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.5)]'
                 : 'bg-white/5 border-white/10 text-slate-400 hover:text-white hover:bg-white/10'
                 }`}
             >
-              <Power className="w-5 h-5 md:w-6 md:h-6" />
+              <Power className="w-4 h-4 md:w-6 md:h-6" />
             </button>
           </div>
         )}
 
         <div className="text-center mb-6 md:mb-10 z-10 w-full px-2">
           <h1 className="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 mb-1 md:mb-3 tracking-tight">
-            Insurance <span className="text-brand-accent">Simplified</span> 🇮🇳
+            Insurance <span className="text-brand-accent">Simplified</span>
           </h1>
           <p className="text-slate-400 text-sm md:text-lg font-medium opacity-80">No jargon. Just answers. (MVP v0.3)</p>
         </div>
