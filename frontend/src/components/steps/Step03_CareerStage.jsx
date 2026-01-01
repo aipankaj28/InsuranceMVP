@@ -40,12 +40,12 @@ export default function Step03_CareerStage({ formData, updateField }) {
                 <p className="text-sm md:text-base text-slate-400">It supports your family's present and your parents' comfort.</p>
             </div>
 
-            <div className="grid grid-cols-1 gap-3">
+            <div className="grid grid-cols-1 gap-2 md:gap-3">
                 {stages.map(stage => (
                     <button
                         key={stage.id}
                         onClick={() => updateField('career_stage', stage.id)}
-                        className={`text-left p-5 rounded-2xl border transition-all duration-300 group ${formData.career_stage === stage.id ? 'bg-brand-accent/10 border-brand-accent ring-1 ring-brand-accent/50' : 'bg-white/5 border-white/10 hover:bg-white/10'}`}
+                        className={`text-left p-4 md:p-5 rounded-2xl border transition-all duration-300 group ${formData.career_stage === stage.id ? 'bg-brand-accent/10 border-brand-accent ring-1 ring-brand-accent/50' : 'bg-white/5 border-white/10 hover:bg-white/10'}`}
                     >
                         <div className="flex items-center justify-between mb-1">
                             <span className={`text-lg font-black transition-colors ${formData.career_stage === stage.id ? 'text-white' : 'text-slate-200'}`}>

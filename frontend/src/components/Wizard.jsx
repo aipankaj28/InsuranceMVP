@@ -225,33 +225,47 @@ export default function Wizard() {
     return (
         <div className="w-full max-w-2xl mx-auto px-4">
             {/* Progress Header */}
-            <div className="flex justify-between items-center mb-6 md:mb-8 relative overflow-x-auto pb-4 no-scrollbar snap-x">
-                <div className="absolute top-1/2 left-0 w-full h-0.5 bg-white/20 -z-10 -translate-y-1/2 rounded-full min-w-[600px]"></div>
-                {steps.map((s) => (
-                    <button
-                        key={s.id}
-                        onClick={() => {
-                            if (!loading) {
-                                setStep(s.id);
-                                setView('wizard');
-                            }
-                        }}
-                        disabled={loading}
-                        className="flex flex-col items-center gap-1.5 md:gap-2 relative z-10 group cursor-pointer disabled:cursor-not-allowed flex-shrink-0 snap-center px-2"
-                    >
-                        <div
-                            className={`w-9 h-9 md:w-12 md:h-12 rounded-full flex items-center justify-center border-2 transition-all duration-300 group-hover:scale-110 ${step >= s.id
-                                ? 'bg-brand-accent border-brand-accent text-brand-dark shadow-[0_0_20px_rgba(16,185,129,0.3)]'
-                                : 'bg-brand-dark border-white/20 text-white/40 group-hover:border-white/40'
-                                }`}
+            <div className="mb-6 md:mb-10">
+                {/* Desktop Stepper (Icon-based) */}
+                <div className="hidden md:flex justify-between items-center relative pb-4">
+                    <div className="absolute top-1/2 left-0 w-full h-0.5 bg-white/10 -z-10 -translate-y-1/2 rounded-full"></div>
+                    {steps.map((s) => (
+                        <button
+                            key={s.id}
+                            onClick={() => !loading && setStep(s.id)}
+                            disabled={loading}
+                            className="flex flex-col items-center gap-2 relative z-10 group cursor-pointer disabled:cursor-not-allowed"
                         >
-                            {step > s.id ? <Check className="w-4 h-4 md:w-6 md:h-6" /> : s.icon}
-                        </div>
-                        <span className={`text-[9px] md:text-xs font-bold uppercase tracking-wider transition-colors hidden md:block ${step >= s.id ? 'text-brand-accent' : 'text-white/40 group-hover:text-white/70'}`}>
-                            {s.title}
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300 group-hover:scale-110 ${step >= s.id
+                                ? 'bg-brand-accent border-brand-accent text-brand-dark shadow-[0_0_15px_rgba(16,185,129,0.3)]'
+                                : 'bg-brand-dark border-white/10 text-white/40 group-hover:border-white/40'
+                                }`}>
+                                {step > s.id ? <Check className="w-5 h-5" /> : s.icon}
+                            </div>
+                            <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${step >= s.id ? 'text-brand-accent' : 'text-slate-500'}`}>
+                                {s.title}
+                            </span>
+                        </button>
+                    ))}
+                </div>
+
+                {/* Mobile Stepper (Compact Progress Bar) */}
+                <div className="md:hidden space-y-3">
+                    <div className="flex justify-between items-end mb-1">
+                        <span className="text-[10px] font-black text-brand-accent uppercase tracking-[0.2em]">
+                            Progress: Step {step} of {steps.length}
                         </span>
-                    </button>
-                ))}
+                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic">
+                            {steps[step - 1].title}
+                        </span>
+                    </div>
+                    <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                        <div
+                            className="h-full bg-brand-accent transition-all duration-500 ease-out shadow-[0_0_10px_rgba(16,185,129,0.5)]"
+                            style={{ width: `${(step / steps.length) * 100}%` }}
+                        />
+                    </div>
+                </div>
             </div>
 
             {/* Dashboard View */}

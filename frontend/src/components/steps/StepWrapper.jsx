@@ -26,7 +26,7 @@ export default function StepWrapper({ children, className, ...props }) {
             animate="center"
             exit="exit"
             transition={{ duration: 0.3 }}
-            className={className}
+            className={`${className} px-1 md:px-0`}
             {...props}
         >
             {children}

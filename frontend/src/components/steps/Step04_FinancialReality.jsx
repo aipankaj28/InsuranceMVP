@@ -32,7 +32,7 @@ export default function Step04_FinancialReality({ formData, updateField }) {
                     <label className="block text-sm font-semibold text-slate-300 ml-1 flex items-center gap-2">
                         <IndianRupee className="w-4 h-4 text-emerald-400" /> Annual Income Bracket
                     </label>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-2 gap-2 md:gap-3">
                         {incomeBrackets.map(bracket => (
                             <button
                                 key={bracket}

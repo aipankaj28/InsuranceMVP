@@ -15,7 +15,9 @@ def log_now(msg):
 log_now("--- BACKEND MODULE LOADING ---")
 
 try:
-    from fastapi import FastAPI, HTTPException, Depends, Header
+    from fastapi import FastAPI, HTTPException, Depends, Header, Request
+    from fastapi.exceptions import RequestValidationError
+    from fastapi.responses import JSONResponse
     from fastapi.middleware.cors import CORSMiddleware
     from pydantic import BaseModel
     from sqlalchemy.orm import Session
@@ -81,6 +83,15 @@ app.add_middleware(
 log_now(f"CORS configured with origins: {origins}")
 log_now("CORS configuration complete.")
 
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    log_now(f"VALIDATION ERROR: {exc.errors()}")
+    log_now(f"BODY: {await request.body()}")
+    return JSONResponse(
+        status_code=422,
+        content={"detail": exc.errors(), "body": str(await request.body())},
+    )
+
 class UserData(BaseModel):
     first_name: str
     last_name: str
@@ -124,25 +135,25 @@ class VerifyRequest(BaseModel):
     otp: str
 
 class PolicyRecommendationRequest(BaseModel):
-    recommended_life_cover: str
-    recommended_life_cover_val: int
-    recommended_health_cover: str
-    recommended_health_cover_val: int
-    recommended_features: list[str]
-    has_life_insurance: bool
+    recommended_life_cover: Optional[str] = ""
+    recommended_life_cover_val: Optional[int] = 0
+    recommended_health_cover: Optional[str] = ""
+    recommended_health_cover_val: Optional[int] = 0
+    recommended_features: Optional[list[str]] = []
+    has_life_insurance: Optional[bool] = False
     existing_life_cover_val: Optional[int] = 0
     life_provider: Optional[str] = ""
     life_policy_name: Optional[str] = ""
-    has_health_insurance: bool
+    has_health_insurance: Optional[bool] = False
     existing_health_cover_val: Optional[int] = 0
     health_provider: Optional[str] = ""
     health_policy_name: Optional[str] = ""
     health_source: Optional[str] = ""
     # Profile context
-    first_name: str
-    age: int
-    income_level: str
-    city: str
+    first_name: Optional[str] = ""
+    age: Optional[int] = 30
+    income_level: Optional[str] = ""
+    city: Optional[str] = ""
 
 # Dependency to verify JWT
 async def get_current_user(authorization: str = Header(None)):
