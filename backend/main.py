@@ -4,6 +4,10 @@ import os
 import logging
 import traceback
 from typing import Dict, Optional
+from dotenv import load_dotenv
+
+# Load environment variables early
+load_dotenv()
 
 def log_now(msg):
     print(f"--- [STARTUP LOG] {msg}", file=sys.stdout, flush=True)

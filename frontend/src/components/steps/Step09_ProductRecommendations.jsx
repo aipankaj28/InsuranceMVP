@@ -29,6 +29,7 @@ export default function Step09_ProductRecommendations({ formData, gapResult, onC
                     }
                 }
 
+                console.log("DEBUG: Fetching products for gapResult:", gapResult);
                 const response = await fetch(`${API_BASE_URL}/api/policy-recommendations`, {
                     method: 'POST',
                     headers: {
@@ -59,6 +60,7 @@ export default function Step09_ProductRecommendations({ formData, gapResult, onC
 
                 if (!response.ok) throw new Error("Failed to fetch products");
                 const data = await response.json();
+                console.log("DEBUG: Received recommendations:", data);
                 setRecommendations(data);
             } catch (err) {
                 console.error(err);

@@ -167,16 +167,23 @@ Existing Life Policy:
 - Policy: {data.get('life_policy_name')}
 """
 
+        # Calculate gaps
+        life_gap_val = max(0, data.get('recommended_life_cover_val', 0) - data.get('existing_life_cover_val', 0))
+        health_gap_val = max(0, data.get('recommended_health_cover_val', 0) - data.get('existing_health_cover_val', 0))
+        
+        life_gap_str = f"₹{life_gap_val/10000000:.1f} Crore" if life_gap_val >= 10000000 else f"₹{life_gap_val/100000:.0f} Lakhs"
+        health_gap_str = f"₹{health_gap_val/100000:.0f} Lakhs"
+
         prompt = f"""You are an expert Indian insurance advisor. Based on the user's profile, gaps identified, and existing policy details, recommend 1 specific Life Insurance plan and 1 specific Health Insurance plan available in the Indian market ONLY IF NECESSARY.
 
 CRITICAL MATHEMATICAL RULES:
-1. ALWAYS compare the Recommended Ideal amount with the Existing amount numerically.
-2. RECOMMEND A NEW LIFE POLICY IF: Recommended Ideal Life Cover ({data.get('recommended_life_cover_val', 0)}) > Existing Life Cover Amount ({data.get('existing_life_cover_val', 0)}).
-   - For example: ₹5 Crore (50,000,000) is much greater than ₹60 Lakhs (6,000,000). If this appears, you MUST recommend a life policy.
-   - If (Recommended Ideal Life Cover <= Existing Life Cover Amount), set "life_recommendation" to null.
-3. RECOMMEND A NEW HEALTH POLICY IF: 
-   - Recommended Ideal Health Cover ({data.get('recommended_health_cover_val', 0)}) > Existing Health Cover Amount ({data.get('existing_health_cover_val', 0)}).
-   - OR their current policy likely lacks specific features like Maternity, Critical Illness, etc.
+1. RECOMMEND A NEW LIFE POLICY IF: Gap to Fill in Life Cover ({life_gap_val}) > 0.
+   - The "recommended_cover" in your JSON MUST be EXACTLY the Gap to Fill amount: {life_gap_str}.
+   - If Life Gap is 0, set "life_recommendation" to null.
+2. RECOMMEND A NEW HEALTH POLICY IF: 
+   - Gap to Fill in Health Cover ({health_gap_val}) > 0.
+   - The "recommended_cover" in your JSON MUST be EXACTLY the Gap to Fill amount: {health_gap_str}.
+   - OR their current policy likely lacks specific features like Maternity, Critical Illness, etc. In this case, recommend a top-up or new plan with at least {health_gap_str} cover.
    - If both amount and features are adequate, set "health_recommendation" to null.
 
 UNITS REMINDER:
@@ -186,33 +193,33 @@ UNITS REMINDER:
 Provide recommendations in EXACTLY this JSON format:
 {{
   "life_recommendation": {{
-    "product_name": "Specific Plan Name",
+    "product_name": "Specific Plan Name (e.g. HDFC Life Click 2 Protect)",
     "provider": "Company Name",
-    "recommended_cover": "Sum Assured (e.g. ₹1 Crore)",
-    "gap_filled": "How this specific plan fills the gap in their current portfolio.",
-    "why_this": "1-2 sentences explaining why this specific product fits their profile.",
+    "recommended_cover": "{life_gap_str}",
+    "gap_filled": "Briefly explain how this fills the shortfall.",
+    "why_this": "1-2 sentences on why this fits.",
     "key_benefits": ["Benefit 1", "Benefit 2"]
   }} or null,
   "health_recommendation": {{
-    "product_name": "Specific Plan Name",
+    "product_name": "Specific Plan Name (e.g. HDFC Ergo Optima Restore)",
     "provider": "Company Name",
-    "recommended_cover": "Sum Assured (e.g. ₹10 Lakhs)",
-    "feature_match_analysis": "Specifically mention how this matches the recommended gaps compared to their existing '{data.get('health_policy_name', 'None')}' policy.",
-    "gap_filled": "How this specific plan fills the amount or feature gap.",
-    "why_this": "1-2 sentences explaining why this specific product fits their profile.",
+    "recommended_cover": "{health_gap_str}",
+    "feature_match_analysis": "Mention missing features like Maternity/OPD if applicable.",
+    "gap_filled": "Briefly explain how this fills the shortfall.",
+    "why_this": "1-2 sentences on why this fits.",
     "key_benefits": ["Benefit 1", "Benefit 2"]
   }} or null,
-  "overall_narrative": "A personal 2-3 sentence summary of your strategy for them."
+  "overall_narrative": "A personal 2-3 sentence summary of your strategy."
 }}
 
 User Context:
 - Name: {data.get('first_name', 'User')}
-- Recommended Ideal Life Cover (Display): {data.get('recommended_life_cover', 'Not calculated')}
-- Recommended Ideal Life Cover (Numeric): {data.get('recommended_life_cover_val', 0)}
-- Existing Life Cover Amount (Numeric): {data.get('existing_life_cover_val', 0)}
-- Recommended Ideal Health Cover (Display): {data.get('recommended_health_cover', 'Not calculated')}
-- Recommended Ideal Health Cover (Numeric): {data.get('recommended_health_cover_val', 0)}
-- Existing Health Cover Amount (Numeric): {data.get('existing_health_cover_val', 0)}
+- Recommended Ideal Life Cover: {data.get('recommended_life_cover', 'Not calculated')}
+- Existing Life Cover: ₹{data.get('existing_life_cover_val', 0)/10000000 if data.get('existing_life_cover_val', 0) >= 10000000 else data.get('existing_life_cover_val', 0)/100000:.1f} {'Cr' if data.get('existing_life_cover_val', 0) >= 10000000 else 'L'}
+- SHORTFALL TO BE COVERED (LIFE): {life_gap_str}
+- Recommended Ideal Health Cover: {data.get('recommended_health_cover', 'Not calculated')}
+- Existing Health Cover: ₹{data.get('existing_health_cover_val', 0)/100000:.1f} Lakhs
+- SHORTFALL TO BE COVERED (HEALTH): {health_gap_str}
 - Recommended Features: {', '.join(data.get('recommended_features', []))}
 {existing_health_info}
 {existing_life_info}
