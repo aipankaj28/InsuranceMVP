@@ -11,8 +11,8 @@ export default function Step01_Splash({ formData, updateField }) {
                 <p className="text-base md:text-lg text-slate-300 max-w-lg mx-auto leading-relaxed">
                     Your work pays the bills. But what about your family's dreams? Your parents' health? Your future freedom?
                 </p>
-                <div className="pt-4">
-                    <p className="text-sm font-medium text-slate-400 bg-white/5 inline-block px-4 py-2 rounded-full border border-white/10">
+                <div className="pt-2">
+                    <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">
                         Tell us about yourself, and we'll build your protection story.
                     </p>
                 </div>
@@ -76,9 +76,7 @@ export default function Step01_Splash({ formData, updateField }) {
                 </div>
             </div>
 
-            <div className="text-center text-xs text-slate-500">
-                <p>Press "Next" below to continue</p>
-            </div>
+
         </StepWrapper>
     );
 }

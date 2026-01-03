@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 const API_BASE_URL = rawBaseUrl.startsWith('http') ? rawBaseUrl : `https://${rawBaseUrl}`;
 import { ArrowRight, ArrowLeft, Shield, Briefcase, User, Heart, Sparkles, Check } from 'lucide-react';
-import { AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import Step01_Splash from './steps/Step01_Splash';
 import Step02_LifeStage from './steps/Step02_LifeStage';
@@ -28,8 +28,10 @@ export default function Wizard() {
         support_parents: false,
         dob: "",
         career_stage: "Launch Pad",
-        income_level: "₹5-10 lakhs",
+        income_level: "₹5-7.5 lakhs - Standard Tier",
         employment_type: "Salaried (MNC/Large)",
+        company_name: "",
+        industry_type: "",
         smoking_status: "Never",
         family_health_history: ["No significant history"],
         lifestyle: "Moderately Active",
@@ -60,6 +62,60 @@ export default function Wizard() {
     const [initialLoading, setInitialLoading] = useState(true);
     const [view, setView] = useState('wizard'); // 'wizard' or 'dashboard'
 
+    const saveProgress = async (nextStep, currentFormData = formData) => {
+        try {
+            const token = localStorage.getItem('auth_token');
+            if (!token) return;
+
+            console.log(`Saving progress to step ${nextStep}...`, currentFormData);
+            const response = await fetch(`${API_BASE_URL}/api/user/save-progress`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    formData: currentFormData,
+                    current_step: nextStep
+                })
+            });
+            if (!response.ok) {
+                const errData = await response.json();
+                console.error("Save progress failed:", errData);
+            } else {
+                console.log("Progress saved successfully!");
+            }
+        } catch (error) {
+            console.error("Failed to save progress", error);
+        }
+    };
+
+    const handleNext = () => {
+        if (isStepValid()) {
+            const nextStep = step + 1;
+            setStep(nextStep);
+            saveProgress(nextStep);
+            window.scrollTo(0, 0);
+        } else {
+            alert("Please fill mandatory fields.");
+        }
+    };
+
+    const handleResume = () => {
+        setStep(resumeData.step);
+        setFormData(prev => ({ ...prev, ...resumeData.formData }));
+        setShowResumePrompt(false);
+    };
+
+    const handleStartOver = () => {
+        setStep(1);
+        saveProgress(1); // Reset step in DB
+        setShowResumePrompt(false);
+    };
+
+    const [showResumePrompt, setShowResumePrompt] = useState(false);
+    const [resumeData, setResumeData] = useState(null);
+
     useEffect(() => {
         const fetchProfile = async () => {
             try {
@@ -71,7 +127,7 @@ export default function Wizard() {
                 });
                 const data = await response.json();
 
-                if (data.profile && data.profile.first_name) {
+                if (data.profile) {
                     setFormData(prev => ({
                         ...prev,
                         ...data.profile
@@ -79,9 +135,12 @@ export default function Wizard() {
                 }
 
                 if (data.recommendations && data.recommendations.length > 0) {
-                    setResult(data.recommendations[0]); // Set latest as default result
+                    setResult(data.recommendations[0]);
                     setHistory(data.recommendations);
-                    setView('dashboard'); // Direct returning users to dashboard
+                    setView('dashboard');
+                } else if (data.profile && data.profile.current_step > 1) {
+                    setResumeData({ step: data.profile.current_step, formData: data.profile });
+                    setShowResumePrompt(true);
                 }
             } catch (error) {
                 console.error("Failed to fetch profile", error);
@@ -112,30 +171,18 @@ export default function Wizard() {
         return true;
     };
 
-    const handleNext = () => {
-        if (isStepValid()) {
-            setStep(prev => prev + 1);
-        } else {
-            alert("Please fill in all mandatory fields before proceeding.");
-        }
-    };
-
-    const handleBack = () => setStep(prev => prev - 1);
-
     const fetchRecommendation = async () => {
         setLoading(true);
         try {
             // Prep dependents for calculation
             const updatedDependents = {};
             if (formData.marital_status === "Married") updatedDependents["Spouse"] = true;
-            if (formData.support_parents) {
-                updatedDependents["Mother"] = true;
-                updatedDependents["Father"] = true;
-            }
             if (formData.num_children > 0) updatedDependents["Children"] = true;
+            if (formData.support_parents) updatedDependents["Parents"] = true;
 
             const finalPayload = {
                 ...formData,
+                is_smoker: formData.smoking_status !== "Never",
                 dependents: updatedDependents
             };
 
@@ -162,8 +209,11 @@ export default function Wizard() {
 
             const data = await response.json();
             setResult(data);
-            setHistory(prev => [data, ...prev]); // Add new recommendation to history
-            handleNext();
+            setHistory(prev => [data, ...prev]);
+
+            const nextStep = 6;
+            setStep(nextStep);
+            saveProgress(nextStep, formData);
         } catch (error) {
             console.error("Failed to fetch", error);
             alert("Oops! The insurance hamster fell off the wheel. Try again in a bit.");
@@ -172,7 +222,13 @@ export default function Wizard() {
         }
     };
 
-    const saveSafetyNet = async () => {
+    const handleBack = () => {
+        const prevStep = step - 1;
+        setStep(prevStep);
+        saveProgress(prevStep);
+    };
+
+    const saveSafetyNet = async (finalResult) => {
         setLoading(true);
         try {
             const token = localStorage.getItem('auth_token');
@@ -192,6 +248,15 @@ export default function Wizard() {
                 },
                 body: JSON.stringify(finalFormData)
             });
+
+            // Update the global result with the specific plans if provided
+            if (finalResult) {
+                setResult(prev => ({
+                    ...prev,
+                    ...finalResult
+                }));
+            }
+
             // After saving, we can finally move to dashboard or final view
             setView('dashboard');
         } catch (error) {
@@ -207,8 +272,8 @@ export default function Wizard() {
         { id: 3, title: "Career", icon: <Briefcase className="w-5 h-5" /> },
         { id: 4, title: "Reality", icon: <Briefcase className="w-5 h-5" /> },
         { id: 5, title: "Health", icon: <Sparkles className="w-5 h-5" /> },
-        { id: 6, title: "Coverage", icon: <Shield className="w-5 h-5" /> },
-        { id: 7, title: "Gaps", icon: <Check className="w-5 h-5" /> },
+        { id: 6, title: "Results", icon: <Check className="w-5 h-5" /> },
+        { id: 7, title: "Coverage", icon: <Shield className="w-5 h-5" /> },
         { id: 8, title: "History", icon: <Briefcase className="w-5 h-5" /> },
         { id: 9, title: "Match", icon: <Sparkles className="w-5 h-5" /> }
     ];
@@ -224,6 +289,47 @@ export default function Wizard() {
 
     return (
         <div className="w-full max-w-2xl mx-auto px-4">
+            {/* Resumption Prompt Overlay */}
+            <AnimatePresence>
+                {showResumePrompt && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                            className="bg-brand-dark border border-white/10 rounded-3xl p-8 max-w-md w-full shadow-2xl text-center"
+                        >
+                            <div className="w-16 h-16 bg-brand-accent/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <Sparkles className="w-8 h-8 text-brand-accent animate-pulse" />
+                            </div>
+                            <h2 className="text-2xl font-black text-white mb-2 italic">Resume Your Protection</h2>
+                            <p className="text-slate-400 text-sm leading-relaxed mb-8">
+                                We found your previous progress. Would you like to pick up where you left off at <span className="text-white font-bold">Step {resumeData?.step}</span>?
+                            </p>
+                            <div className="space-y-3">
+                                <button
+                                    onClick={handleResume}
+                                    className="w-full py-4 bg-brand-accent text-brand-dark rounded-2xl font-black shadow-lg shadow-brand-accent/20 hover:scale-[1.02] transition-transform flex items-center justify-center gap-2"
+                                >
+                                    Resume My Journey <ArrowRight className="w-4 h-4" />
+                                </button>
+                                <button
+                                    onClick={handleStartOver}
+                                    className="w-full py-4 bg-white/5 border border-white/10 text-slate-400 rounded-2xl font-bold hover:bg-white/10 transition-colors"
+                                >
+                                    Start Over from Scratch
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             {/* Progress Header */}
             <div className="mb-6 md:mb-10">
                 {/* Desktop Stepper (Icon-based) */}
@@ -276,6 +382,7 @@ export default function Wizard() {
                         latestRecommendation={result}
                         history={history}
                         onUpdatePlan={() => { setView('wizard'); setStep(1); }}
+                        onCompleteExistingDetails={() => { setView('wizard'); setStep(7); }}
                     />
                 </div>
             ) : (
@@ -291,8 +398,8 @@ export default function Wizard() {
                         {step === 3 && <Step03_CareerStage key="step3" formData={formData} updateField={updateField} />}
                         {step === 4 && <Step04_FinancialReality key="step4" formData={formData} updateField={updateField} />}
                         {step === 5 && <Step05_HealthSnapshot key="step5" formData={formData} updateField={updateField} />}
-                        {step === 6 && <Step06_ExistingCoverage key="step6" formData={formData} updateField={updateField} />}
-                        {step === 7 && <Step05_Results key="step7" result={result} formData={formData} onAnalyzeGaps={handleNext} />}
+                        {step === 6 && <Step05_Results key="step6" result={result} formData={formData} />}
+                        {step === 7 && <Step06_ExistingCoverage key="step7" formData={formData} updateField={updateField} />}
                         {step === 8 && <Step07_ExistingPolicyDetails key="step8" formData={formData} updateField={updateField} />}
                         {step === 9 && <Step09_ProductRecommendations key="step9" formData={formData} gapResult={result} onComplete={saveSafetyNet} />}
                     </AnimatePresence>
@@ -313,7 +420,7 @@ export default function Wizard() {
 
                             <button
                                 onClick={
-                                    step === 6 ? (isStepValid() ? fetchRecommendation : () => alert("Please fill mandatory fields.")) :
+                                    step === 5 ? (isStepValid() ? fetchRecommendation : () => alert("Please fill mandatory fields.")) :
                                         handleNext
                                 }
                                 disabled={loading}
@@ -321,10 +428,10 @@ export default function Wizard() {
                             >
                                 <span className="relative z-10 flex items-center">
                                     {loading ? 'Computing...' :
-                                        (step === 1 || step === 2 || step === 3 || step === 5 || step === 9) ? 'Next' :
+                                        (step === 1 || step === 2 || step === 3 || step === 7 || step === 9) ? 'Next' :
                                             step === 4 ? 'Continue' :
-                                                step === 6 ? 'Analyze My Gaps' :
-                                                    step === 7 ? 'Add Policy Details' :
+                                                step === 5 ? 'Analyze My Needs' :
+                                                    step === 6 ? 'Identify Gaps' :
                                                         step === 8 ? 'Recommend Plans' : 'Next'
                                     }
                                     {!loading && <ArrowRight className="w-4 h-4 ml-2" />}

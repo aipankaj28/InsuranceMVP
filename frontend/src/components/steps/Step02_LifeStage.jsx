@@ -1,5 +1,5 @@
 import StepWrapper from './StepWrapper';
-import { Calendar, Users, Heart, Baby } from 'lucide-react';
+import { Calendar, Heart, Baby } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 export default function Step02_LifeStage({ formData, updateField }) {
@@ -53,41 +53,20 @@ export default function Step02_LifeStage({ formData, updateField }) {
                     </div>
                 </div>
 
-                {/* Children and Parents */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {/* Number of Children */}
-                    <div className={`space-y-3 transition-all duration-300 ${formData.marital_status === 'Married' ? 'opacity-100 scale-100' : 'opacity-50 pointer-events-none'}`}>
-                        <label className="block text-sm font-semibold text-slate-300 ml-1 flex items-center gap-2">
-                            <Baby className="w-4 h-4 text-blue-400" /> Number of Children
-                        </label>
-                        <select
-                            value={formData.num_children || 0}
-                            onChange={(e) => updateField('num_children', parseInt(e.target.value))}
-                            className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white appearance-none"
-                        >
-                            {[0, 1, 2, '3+'].map(num => (
-                                <option key={num} value={typeof num === 'string' ? 3 : num} className="bg-brand-dark">{num}</option>
-                            ))}
-                        </select>
-                    </div>
-
-                    {/* Support Parents */}
-                    <div className="space-y-3">
-                        <label className="block text-sm font-semibold text-slate-300 ml-1 flex items-center gap-2">
-                            <Users className="w-4 h-4 text-emerald-400" /> Support Parents?
-                        </label>
-                        <div className="grid grid-cols-2 gap-3 h-[58px]">
-                            {[true, false].map(val => (
-                                <button
-                                    key={val ? 'yes' : 'no'}
-                                    onClick={() => updateField('support_parents', val)}
-                                    className={`rounded-xl border transition-all duration-200 ${formData.support_parents === val ? 'bg-brand-accent/20 border-brand-accent text-white' : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'}`}
-                                >
-                                    <span className="text-sm font-bold">{val ? 'Yes' : 'No'}</span>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
+                {/* Children Selector */}
+                <div className="space-y-3">
+                    <label className="block text-sm font-semibold text-slate-300 ml-1 flex items-center gap-2">
+                        <Baby className="w-4 h-4 text-blue-400" /> Number of Children
+                    </label>
+                    <select
+                        value={formData.num_children || 0}
+                        onChange={(e) => updateField('num_children', parseInt(e.target.value))}
+                        className="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none text-white appearance-none"
+                    >
+                        {[0, 1, 2, '3+'].map(num => (
+                            <option key={num} value={typeof num === 'string' ? 3 : num} className="bg-brand-dark">{num}</option>
+                        ))}
+                    </select>
                 </div>
 
                 {/* Date of Birth */}

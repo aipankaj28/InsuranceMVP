@@ -1,7 +1,30 @@
+import { useState, useEffect } from 'react';
 import StepWrapper from './StepWrapper';
 import { Rocket, TrendingUp, Trophy, Target } from 'lucide-react';
 
 export default function Step03_CareerStage({ formData, updateField }) {
+    useEffect(() => {
+        if (formData.dob) {
+            const birthDate = new Date(formData.dob);
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const m = today.getMonth() - birthDate.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+
+            let autoStage = "";
+            if (age >= 21 && age <= 24) autoStage = "Launch Pad";
+            else if (age >= 25 && age <= 32) autoStage = "Growth Gear";
+            else if (age >= 33 && age <= 39) autoStage = "Peak Performer";
+            else if (age >= 40) autoStage = "Legacy Builder";
+
+            if (autoStage) {
+                updateField('career_stage', autoStage);
+            }
+        }
+    }, [formData.dob]);
+
     const stages = [
         {
             id: 'Launch Pad',
