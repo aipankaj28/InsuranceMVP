@@ -46,19 +46,6 @@ export default function Step05_HealthSnapshot({ formData, updateField }) {
                 <p className="text-sm md:text-base text-slate-400">A few quick questions to understand your health priorities.</p>
             </div>
 
-            {/* Health Dashboard Visual */}
-            <div className="flex justify-around bg-white/5 border border-white/10 p-4 md:p-6 rounded-2xl">
-                <div className={`p-2 md:p-3 rounded-full transition-all duration-300 ${formData.smoking_status === 'Never' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-white/5 text-slate-600'}`}>
-                    <Cigarette className="w-5 h-5 md:w-6 md:h-6" />
-                </div>
-                <div className={`p-2 md:p-3 rounded-full transition-all duration-300 ${(formData.family_health_history || []).includes('No significant history') ? 'bg-blue-500/20 text-blue-400' : 'bg-white/5 text-slate-600'}`}>
-                    <Heart className="w-5 h-5 md:w-6 md:h-6" />
-                </div>
-                <div className={`p-2 md:p-3 rounded-full transition-all duration-300 ${formData.lifestyle === 'Very Active' ? 'bg-brand-accent/20 text-brand-accent' : 'bg-white/5 text-slate-600'}`}>
-                    <Activity className="w-5 h-5 md:w-6 md:h-6" />
-                </div>
-            </div>
-
             <div className="space-y-4 md:space-y-6">
                 {/* Tobacco */}
                 <div className="space-y-2 md:space-y-3">
