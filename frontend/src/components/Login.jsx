@@ -44,7 +44,7 @@ const Login = () => {
                         <span className="text-2xl md:text-3xl">🔐</span>
                     </div>
                     <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
-                        {step === 1 ? 'Welcome Back' : 'Verify Identity'}
+                        {step === 1 ? 'Secure Login' : 'Verify Identity'}
                     </h2>
                     <p className="text-slate-400">
                         {step === 1
