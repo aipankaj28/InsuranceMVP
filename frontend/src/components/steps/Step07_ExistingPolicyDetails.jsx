@@ -57,9 +57,7 @@ export default function Step07_ExistingPolicyDetails({ formData, updateField }) 
     return (
         <StepWrapper className="space-y-6 md:space-y-10">
             <div className="text-center space-y-2">
-                <div className="inline-block bg-brand-accent/20 border border-brand-accent/30 px-3 py-1 rounded-full mb-1">
-                    <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-brand-accent">Phase 3: Policy Inventory</span>
-                </div>
+
                 <h2 className="text-2xl md:text-3xl font-black text-white leading-tight">Share your <span className="text-brand-accent text-italic">policy</span> details</h2>
                 <p className="text-xs md:text-sm text-slate-400 max-w-md mx-auto">
                     Knowing your provider and policy helps us analyze benefits more accurately.

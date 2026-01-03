@@ -11,6 +11,15 @@ export default function Step09_ProductRecommendations({ formData, gapResult, onC
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showPrompt, setShowPrompt] = useState(false);
+    const [expandedOverall, setExpandedOverall] = useState(true);
+    const [expandedLife, setExpandedLife] = useState({});
+    const [expandedHealth, setExpandedHealth] = useState({});
+    const [showLifeResults, setShowLifeResults] = useState(true);
+    const [showHealthResults, setShowHealthResults] = useState(true);
+    const [expandedBenefits, setExpandedBenefits] = useState({});
+
+    const toggleLife = (idx) => setExpandedLife(prev => ({ ...prev, [idx]: !prev[idx] }));
+    const toggleHealth = (idx) => setExpandedHealth(prev => ({ ...prev, [idx]: !prev[idx] }));
 
     useEffect(() => {
         const fetchProductRecs = async () => {
@@ -93,7 +102,7 @@ export default function Step09_ProductRecommendations({ formData, gapResult, onC
         );
     }
 
-    const { life_recommendation, health_recommendation, overall_narrative } = recommendations;
+    const { life_recommendations = [], health_recommendations = [], overall_narrative } = recommendations;
 
     return (
         <StepWrapper className="space-y-6 md:space-y-8">
@@ -103,163 +112,322 @@ export default function Step09_ProductRecommendations({ formData, gapResult, onC
                     <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400">AI Product Matching Engine</span>
                 </div>
                 <h2 className="text-2xl md:text-3xl font-black text-white mb-2 italic">"My Final Handpicked Selection"</h2>
-                <p className="text-slate-400 text-xs md:text-sm max-w-lg mx-auto leading-relaxed">
-                    {overall_narrative}
-                </p>
+
+                <div
+                    className="max-w-xl mx-auto cursor-pointer group"
+                    onClick={() => setExpandedOverall(!expandedOverall)}
+                >
+                    <div className="flex items-center justify-center gap-2 mb-1">
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 group-hover:text-slate-300">Analysis Summary</span>
+                        {expandedOverall ? <ChevronUp className="w-3 h-3 text-slate-500" /> : <ChevronDown className="w-3 h-3 text-slate-500" />}
+                    </div>
+                    <AnimatePresence>
+                        {expandedOverall && (
+                            <motion.p
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                className="text-slate-400 text-xs md:text-sm leading-relaxed overflow-hidden"
+                            >
+                                {overall_narrative}
+                            </motion.p>
+                        )}
+                    </AnimatePresence>
+                    {!expandedOverall && (
+                        <p className="text-slate-500 text-xs italic truncate px-4 opacity-50">
+                            {overall_narrative}
+                        </p>
+                    )}
+                </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Life Insurance Recommendation */}
-                {life_recommendation ? (
-                    <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="bg-white/5 border border-white/10 rounded-3xl p-6 relative group overflow-hidden"
+                {/* Life Insurance Recommendations */}
+                <div className="space-y-4">
+                    <div
+                        className="flex items-center justify-center md:justify-start gap-2 cursor-pointer group mb-2"
+                        onClick={() => setShowLifeResults(!showLifeResults)}
                     >
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-pink-500/5 rounded-full blur-3xl -z-10" />
-                        <div className="flex items-center gap-3 mb-6">
-                            <div className="w-10 h-10 rounded-xl bg-pink-500/20 flex items-center justify-center">
-                                <HeartPulse className="w-6 h-6 text-pink-500" />
-                            </div>
-                            <div>
-                                <h3 className="text-white font-black text-lg">Top Life Choice</h3>
-                                <p className="text-[10px] text-pink-400 uppercase font-black tracking-widest">Bridging your coverage gap</p>
-                            </div>
-                        </div>
+                        <h3 className="text-xl font-black text-white italic group-hover:text-pink-400 transition-colors">Life Insurance</h3>
+                        {showLifeResults ? <ChevronUp className="w-5 h-5 text-slate-500 group-hover:text-pink-400" /> : <ChevronDown className="w-5 h-5 text-slate-500 group-hover:text-pink-400" />}
+                    </div>
 
-                        <div className="mb-6">
-                            <div className="text-[10px] font-black uppercase text-pink-400 tracking-widest mb-1">Recommended Policy</div>
-                            <h4 className="text-white font-black text-xl mb-1">{life_recommendation.product_name}</h4>
-                            <p className="text-slate-400 font-bold text-sm mb-4">By {life_recommendation.provider}</p>
+                    <AnimatePresence>
+                        {showLifeResults && (
+                            <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                className="space-y-6 overflow-hidden"
+                            >
+                                {life_recommendations.length > 0 ? (
+                                    life_recommendations.map((rec, idx) => (
+                                        <motion.div
+                                            key={`life-${idx}`}
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: idx * 0.1 }}
+                                            className="bg-white/5 border border-white/10 rounded-3xl p-6 relative group overflow-hidden"
+                                        >
+                                            <div className="absolute top-0 right-0 w-32 h-32 bg-pink-500/5 rounded-full blur-3xl -z-10" />
+                                            <div className="flex items-center gap-3 mb-6">
+                                                <div className="w-10 h-10 rounded-xl bg-pink-500/20 flex items-center justify-center">
+                                                    <HeartPulse className="w-6 h-6 text-pink-500" />
+                                                </div>
+                                                <div>
+                                                    <h3 className="text-white font-black text-lg">
+                                                        {idx === 0 ? "Top Life Choice" : `Life Option #${idx + 1}`}
+                                                    </h3>
+                                                    <p className="text-[10px] text-pink-400 uppercase font-black tracking-widest">Bridging your coverage gap</p>
+                                                </div>
+                                            </div>
 
-                            <div className="bg-pink-500/10 border border-pink-500/20 rounded-2xl p-4 mb-4">
-                                <div className="text-[10px] font-black uppercase text-pink-500 tracking-widest mb-1">Recommended Sum Assured</div>
-                                <div className="text-2xl font-black text-white">{life_recommendation.recommended_cover}</div>
-                            </div>
-                        </div>
+                                            <div className="mb-6">
+                                                <div className="text-[10px] font-black uppercase text-pink-400 tracking-widest mb-1">Recommended Policy</div>
+                                                <h4 className="text-white font-black text-xl mb-1">{rec.product_name}</h4>
+                                                <p className="text-slate-400 font-bold text-sm mb-4">By {rec.provider}</p>
 
-                        <div className="space-y-4 mb-6">
-                            <div className="bg-white/5 border border-white/5 rounded-2xl p-4">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                                    <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Gap Filled</span>
-                                </div>
-                                <p className="text-xs text-slate-300 leading-relaxed font-medium">
-                                    {life_recommendation.gap_filled}
-                                </p>
-                            </div>
+                                                <div className="bg-pink-500/10 border border-pink-500/20 rounded-2xl p-4 mb-4">
+                                                    <div className="text-[10px] font-black uppercase text-pink-500 tracking-widest mb-1">Recommended Sum Assured</div>
+                                                    <div className="text-2xl font-black text-white">{rec.recommended_cover}</div>
+                                                </div>
+                                            </div>
 
-                            <div className="space-y-2">
-                                {(life_recommendation.key_benefits || []).map((benefit, i) => (
-                                    <div key={i} className="flex items-start gap-2">
-                                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 mt-0.5" />
-                                        <span className="text-xs text-slate-400 font-medium">{benefit}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
+                                            <div className="space-y-4 mb-6">
+                                                <div
+                                                    className="bg-white/5 border border-white/5 rounded-2xl p-4 cursor-pointer hover:bg-white/10 transition-colors"
+                                                    onClick={() => toggleLife(idx)}
+                                                >
+                                                    <div className="flex items-center justify-between mb-2">
+                                                        <div className="flex items-center gap-2">
+                                                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                                                            <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Gap Analysis & Strategy</span>
+                                                        </div>
+                                                        {expandedLife[idx] ? <ChevronUp className="w-3.5 h-3.5 text-slate-500" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-500" />}
+                                                    </div>
 
-                        <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
-                            <div className="flex items-center gap-2 mb-2">
-                                <Info className="w-3.5 h-3.5 text-slate-500" />
-                                <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Why I chose this</span>
-                            </div>
-                            <p className="text-xs text-slate-400 italic leading-relaxed">"{life_recommendation.why_this}"</p>
-                        </div>
-                    </motion.div>
-                ) : (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="bg-white/5 border border-dashed border-white/10 rounded-3xl p-8 flex flex-col items-center justify-center text-center opacity-60"
+                                                    <AnimatePresence initial={false}>
+                                                        {expandedLife[idx] ? (
+                                                            <motion.div
+                                                                initial={{ height: 0, opacity: 0 }}
+                                                                animate={{ height: 'auto', opacity: 1 }}
+                                                                exit={{ height: 0, opacity: 0 }}
+                                                                className="overflow-hidden"
+                                                            >
+                                                                <p className="text-xs text-slate-300 leading-relaxed font-medium mb-4">
+                                                                    {rec.gap_filled}
+                                                                </p>
+                                                                <div className="bg-white/5 rounded-xl p-3 border border-white/5 mb-4">
+                                                                    <div className="flex items-center gap-2 mb-2">
+                                                                        <Info className="w-3 h-3 text-slate-500" />
+                                                                        <span className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Why I chose this</span>
+                                                                    </div>
+                                                                    <p className="text-[11px] text-slate-400 italic leading-relaxed">"{rec.why_this}"</p>
+                                                                </div>
+                                                            </motion.div>
+                                                        ) : (
+                                                            <p className="text-xs text-slate-500 truncate italic">
+                                                                {rec.why_this}
+                                                            </p>
+                                                        )}
+                                                    </AnimatePresence>
+                                                </div>
+
+                                                <div className="space-y-2">
+                                                    <div
+                                                        className="flex items-center justify-between cursor-pointer group"
+                                                        onClick={() => setExpandedBenefits(prev => ({ ...prev, [`life-${idx}`]: !prev[`life-${idx}`] }))}
+                                                    >
+                                                        <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest group-hover:text-slate-300">Key Benefits</span>
+                                                        {expandedBenefits[`life-${idx}`] ? <ChevronUp className="w-3.5 h-3.5 text-slate-500" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-500" />}
+                                                    </div>
+
+                                                    <AnimatePresence>
+                                                        {expandedBenefits[`life-${idx}`] && (
+                                                            <motion.div
+                                                                initial={{ height: 0, opacity: 0 }}
+                                                                animate={{ height: 'auto', opacity: 1 }}
+                                                                exit={{ height: 0, opacity: 0 }}
+                                                                className="overflow-hidden"
+                                                            >
+                                                                {(rec.key_benefits || []).map((benefit, i) => (
+                                                                    <div key={i} className="flex items-start gap-2 mb-2">
+                                                                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 mt-0.5" />
+                                                                        <span className="text-xs text-slate-400 font-medium">{benefit}</span>
+                                                                    </div>
+                                                                ))}
+                                                            </motion.div>
+                                                        )}
+                                                    </AnimatePresence>
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    ))
+                                ) : (
+                                    <motion.div
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        className="bg-white/5 border border-dashed border-white/10 rounded-3xl p-8 flex flex-col items-center justify-center text-center opacity-60 h-full min-h-[300px]"
+                                    >
+                                        <ShieldCheck className="w-12 h-12 text-slate-500 mb-4" />
+                                        <h3 className="text-white font-bold mb-2">Life Cover is Solid</h3>
+                                        <p className="text-xs text-slate-400 max-w-[200px]">Your existing Life Insurance of {formData.existing_life_cover} meets your current needs. No new policy required.</p>
+                                    </motion.div>
+                                )}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
+
+                {/* Health Insurance Recommendations */}
+                <div className="space-y-4">
+                    <div
+                        className="flex items-center justify-center md:justify-start gap-2 cursor-pointer group mb-2"
+                        onClick={() => setShowHealthResults(!showHealthResults)}
                     >
-                        <ShieldCheck className="w-12 h-12 text-slate-500 mb-4" />
-                        <h3 className="text-white font-bold mb-2">Life Cover is Solid</h3>
-                        <p className="text-xs text-slate-400 max-w-[200px]">Your existing Life Insurance of {formData.existing_life_cover} meets your current needs. No new policy required.</p>
-                    </motion.div>
-                )}
+                        <h3 className="text-xl font-black text-white italic group-hover:text-blue-400 transition-colors">Health Insurance</h3>
+                        {showHealthResults ? <ChevronUp className="w-5 h-5 text-slate-500 group-hover:text-blue-400" /> : <ChevronDown className="w-5 h-5 text-slate-500 group-hover:text-blue-400" />}
+                    </div>
 
-                {/* Health Insurance Recommendation */}
-                {health_recommendation ? (
-                    <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="bg-white/5 border border-white/10 rounded-3xl p-6 relative group overflow-hidden"
-                    >
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl -z-10" />
-                        <div className="flex items-center gap-3 mb-6">
-                            <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center">
-                                <ShieldCheck className="w-6 h-6 text-blue-500" />
-                            </div>
-                            <div>
-                                <h3 className="text-white font-black text-lg">Top Health Match</h3>
-                                <p className="text-[10px] text-blue-400 uppercase font-black tracking-widest">Optimizing your medical safety net</p>
-                            </div>
-                        </div>
+                    <AnimatePresence>
+                        {showHealthResults && (
+                            <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                className="space-y-6 overflow-hidden"
+                            >
+                                {health_recommendations.length > 0 ? (
+                                    health_recommendations.map((rec, idx) => (
+                                        <motion.div
+                                            key={`health-${idx}`}
+                                            initial={{ opacity: 0, x: 20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: idx * 0.1 }}
+                                            className="bg-white/5 border border-white/10 rounded-3xl p-6 relative group overflow-hidden"
+                                        >
+                                            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl -z-10" />
+                                            <div className="flex items-center gap-3 mb-6">
+                                                <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center">
+                                                    <ShieldCheck className="w-6 h-6 text-blue-500" />
+                                                </div>
+                                                <div>
+                                                    <h3 className="text-white font-black text-lg">
+                                                        {idx === 0 ? "Top Health Match" : `Health Option #${idx + 1}`}
+                                                    </h3>
+                                                    <p className="text-[10px] text-blue-400 uppercase font-black tracking-widest">Optimizing your medical safety net</p>
+                                                </div>
+                                            </div>
 
-                        <div className="mb-6">
-                            <div className="text-[10px] font-black uppercase text-blue-400 tracking-widest mb-1">Recommended Policy</div>
-                            <h4 className="text-white font-black text-xl mb-1">{health_recommendation.product_name}</h4>
-                            <p className="text-slate-400 font-bold text-sm mb-4">By {health_recommendation.provider}</p>
+                                            <div className="mb-6">
+                                                <div className="text-[10px] font-black uppercase text-blue-400 tracking-widest mb-1">Recommended Policy</div>
+                                                <h4 className="text-white font-black text-xl mb-1">{rec.product_name}</h4>
+                                                <p className="text-slate-400 font-bold text-sm mb-4">By {rec.provider}</p>
 
-                            <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-4 mb-4">
-                                <div className="text-[10px] font-black uppercase text-blue-500 tracking-widest mb-1">Recommended Sum Insured</div>
-                                <div className="text-2xl font-black text-white">{health_recommendation.recommended_cover}</div>
-                            </div>
-                        </div>
+                                                <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-4 mb-4">
+                                                    <div className="text-[10px] font-black uppercase text-blue-500 tracking-widest mb-1">Recommended Sum Insured</div>
+                                                    <div className="text-2xl font-black text-white">{rec.recommended_cover}</div>
+                                                </div>
+                                            </div>
 
-                        <div className="space-y-4">
-                            <div className="bg-brand-accent/5 rounded-2xl p-4 border border-brand-accent/10">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <Sparkles className="w-3.5 h-3.5 text-brand-accent" />
-                                    <span className="text-[10px] font-black uppercase text-brand-accent tracking-widest">Gap & Feature Analysis</span>
-                                </div>
-                                <p className="text-xs text-brand-accent/80 font-medium leading-relaxed mb-3">
-                                    {health_recommendation.gap_filled}
-                                </p>
-                                <p className="text-[11px] text-slate-400 italic">
-                                    {health_recommendation.feature_match_analysis}
-                                </p>
-                            </div>
+                                            <div className="space-y-4">
+                                                <div
+                                                    className="bg-brand-accent/5 rounded-2xl p-4 border border-brand-accent/10 cursor-pointer hover:bg-brand-accent/10 transition-colors"
+                                                    onClick={() => toggleHealth(idx)}
+                                                >
+                                                    <div className="flex items-center justify-between mb-2">
+                                                        <div className="flex items-center gap-2">
+                                                            <Sparkles className="w-3.5 h-3.5 text-brand-accent" />
+                                                            <span className="text-[10px] font-black uppercase text-brand-accent tracking-widest">Gap & Feature Analysis</span>
+                                                        </div>
+                                                        {expandedHealth[idx] ? <ChevronUp className="w-3.5 h-3.5 text-slate-500" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-500" />}
+                                                    </div>
 
-                            <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <Info className="w-3.5 h-3.5 text-slate-500" />
-                                    <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Strategic Reasoning</span>
-                                </div>
-                                <p className="text-xs text-slate-400 italic leading-relaxed">"{health_recommendation.why_this}"</p>
-                            </div>
+                                                    <AnimatePresence initial={false}>
+                                                        {expandedHealth[idx] ? (
+                                                            <motion.div
+                                                                initial={{ height: 0, opacity: 0 }}
+                                                                animate={{ height: 'auto', opacity: 1 }}
+                                                                exit={{ height: 0, opacity: 0 }}
+                                                                className="overflow-hidden"
+                                                            >
+                                                                <p className="text-xs text-brand-accent/80 font-medium leading-relaxed mb-3">
+                                                                    {rec.gap_filled}
+                                                                </p>
+                                                                <p className="text-[11px] text-slate-400 italic mb-4">
+                                                                    {rec.feature_match_analysis}
+                                                                </p>
 
-                            <div className="space-y-2 mt-4">
-                                {(health_recommendation.key_benefits || []).map((benefit, i) => (
-                                    <div key={i} className="flex items-start gap-2">
-                                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 mt-0.5" />
-                                        <span className="text-xs text-slate-400 font-medium">{benefit}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </motion.div>
-                ) : (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="bg-white/5 border border-dashed border-white/10 rounded-3xl p-8 flex flex-col items-center justify-center text-center opacity-60"
-                    >
-                        <CheckCircle2 className="w-12 h-12 text-slate-500 mb-4" />
-                        <h3 className="text-white font-bold mb-2">Health Cover is Robust</h3>
-                        <p className="text-xs text-slate-400 max-w-[200px]">Your existing Health Insurance with {formData.health_provider} covers both amount and essential features. You are well projected.</p>
-                    </motion.div>
-                )}
+                                                                <div className="bg-white/5 rounded-xl p-3 border border-white/5">
+                                                                    <div className="flex items-center gap-2 mb-2">
+                                                                        <Info className="w-3 h-3 text-slate-500" />
+                                                                        <span className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Strategic Reasoning</span>
+                                                                    </div>
+                                                                    <p className="text-[11px] text-slate-400 italic leading-relaxed">"{rec.why_this}"</p>
+                                                                </div>
+                                                            </motion.div>
+                                                        ) : (
+                                                            <p className="text-xs text-slate-500 truncate italic">
+                                                                {rec.why_this}
+                                                            </p>
+                                                        )}
+                                                    </AnimatePresence>
+                                                </div>
+
+                                                <div className="space-y-2 mt-2">
+                                                    <div
+                                                        className="flex items-center justify-between cursor-pointer group"
+                                                        onClick={() => setExpandedBenefits(prev => ({ ...prev, [`health-${idx}`]: !prev[`health-${idx}`] }))}
+                                                    >
+                                                        <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest group-hover:text-slate-300">Key Benefits</span>
+                                                        {expandedBenefits[`health-${idx}`] ? <ChevronUp className="w-3.5 h-3.5 text-slate-500" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-500" />}
+                                                    </div>
+
+                                                    <AnimatePresence>
+                                                        {expandedBenefits[`health-${idx}`] && (
+                                                            <motion.div
+                                                                initial={{ height: 0, opacity: 0 }}
+                                                                animate={{ height: 'auto', opacity: 1 }}
+                                                                exit={{ height: 0, opacity: 0 }}
+                                                                className="overflow-hidden"
+                                                            >
+                                                                {(rec.key_benefits || []).map((benefit, i) => (
+                                                                    <div key={i} className="flex items-start gap-2 mb-2">
+                                                                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 mt-0.5" />
+                                                                        <span className="text-xs text-slate-400 font-medium">{benefit}</span>
+                                                                    </div>
+                                                                ))}
+                                                            </motion.div>
+                                                        )}
+                                                    </AnimatePresence>
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    ))
+                                ) : (
+                                    <motion.div
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        className="bg-white/5 border border-dashed border-white/10 rounded-3xl p-8 flex flex-col items-center justify-center text-center opacity-60 h-full min-h-[300px]"
+                                    >
+                                        <CheckCircle2 className="w-12 h-12 text-slate-500 mb-4" />
+                                        <h3 className="text-white font-bold mb-2">Health Cover is Robust</h3>
+                                        <p className="text-xs text-slate-400 max-w-[200px]">Your existing Health Insurance with {formData.health_provider} covers both amount and essential features. You are well projected.</p>
+                                    </motion.div>
+                                )}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
             </div>
 
             <div className="flex flex-col items-center gap-6 pt-8">
                 <button
-                    onClick={onComplete}
+                    onClick={() => onComplete(recommendations)}
                     className="group relative bg-white text-brand-dark px-6 py-3 md:px-10 md:py-4 rounded-xl md:rounded-2xl font-black text-base md:text-lg shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:shadow-[0_0_50px_rgba(255,255,255,0.4)] transition-all hover:scale-105 active:scale-95 overflow-hidden"
                 >
                     <span className="relative z-10 flex items-center gap-2 md:gap-3">
-                        Finish & Secure My Future
+                        Finish
                         <ArrowRight className="w-4 h-4 md:w-5 md:h-5 transition-transform group-hover:translate-x-1" />
                     </span>
                     <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-500/10 to-emerald-500/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />

@@ -24,11 +24,31 @@ def get_city_tier(city_name: str) -> str:
     return "Tier 3"
 
 def parse_income(income_level: str) -> int:
+    # New Tier Mapping
+    tier_mapping = {
+        "Essential Tier": 400000,
+        "Standard Tier": 625000,
+        "Enhanced Tier": 1125000,
+        "Premium Tier": 2000000,
+        "Comprehensive Tier": 3250000,
+        "Elite Tier": 5000000
+    }
+    
+    # Check if any tier name is in the string
+    for tier, val in tier_mapping.items():
+        if tier in income_level:
+            return val
+
+    # Old Mapping / Fallback heuristics
     mapping = {
         "<5L": 400000,
         "5-10L": 750000,
         "10-20L": 1500000,
-        ">20L": 2500000
+        ">20L": 2500000,
+        "Under ₹5 lakhs": 400000,
+        "₹5-10 lakhs": 750000,
+        "₹10-20 lakhs": 1500000,
+        "₹35+ lakhs": 4000000
     }
     return mapping.get(income_level, 500000)
 
@@ -166,7 +186,7 @@ Existing Life Policy:
 - Provider: {data.get('life_provider')}
 - Policy: {data.get('life_policy_name')}
 """
-
+        
         # Calculate gaps
         life_gap_val = max(0, data.get('recommended_life_cover_val', 0) - data.get('existing_life_cover_val', 0))
         health_gap_val = max(0, data.get('recommended_health_cover_val', 0) - data.get('existing_health_cover_val', 0))
@@ -174,41 +194,45 @@ Existing Life Policy:
         life_gap_str = f"₹{life_gap_val/10000000:.1f} Crore" if life_gap_val >= 10000000 else f"₹{life_gap_val/100000:.0f} Lakhs"
         health_gap_str = f"₹{health_gap_val/100000:.0f} Lakhs"
 
-        prompt = f"""You are an expert Indian insurance advisor. Based on the user's profile, gaps identified, and existing policy details, recommend 1 specific Life Insurance plan and 1 specific Health Insurance plan available in the Indian market ONLY IF NECESSARY.
+        prompt = f"""You are an expert Indian insurance advisor. Based on the user's profile, gaps identified, and existing policy details, recommend UP TO 3 specific Life Insurance plans and UP TO 3 specific Health Insurance plans available in the Indian market ONLY IF NECESSARY.
 
 CRITICAL MATHEMATICAL RULES:
-1. RECOMMEND A NEW LIFE POLICY IF: Gap to Fill in Life Cover ({life_gap_val}) > 0.
-   - The "recommended_cover" in your JSON MUST be EXACTLY the Gap to Fill amount: {life_gap_str}.
-   - If Life Gap is 0, set "life_recommendation" to null.
-2. RECOMMEND A NEW HEALTH POLICY IF: 
+1. RECOMMEND NEW LIFE POLICIES IF: Gap to Fill in Life Cover ({life_gap_val}) > 0.
+   - For each recommended plan, "recommended_cover" MUST be EXACTLY the Gap to Fill amount: {life_gap_str}.
+   - If Life Gap is 0, set "life_recommendations" to an empty list [].
+2. RECOMMEND NEW HEALTH POLICIES IF: 
    - Gap to Fill in Health Cover ({health_gap_val}) > 0.
-   - The "recommended_cover" in your JSON MUST be EXACTLY the Gap to Fill amount: {health_gap_str}.
-   - OR their current policy likely lacks specific features like Maternity, Critical Illness, etc. In this case, recommend a top-up or new plan with at least {health_gap_str} cover.
-   - If both amount and features are adequate, set "health_recommendation" to null.
+   - For each recommended plan, "recommended_cover" MUST be EXACTLY the Gap to Fill amount: {health_gap_str}.
+   - OR their current policy likely lacks specific features like Maternity, Critical Illness, etc. In this case, recommend top-up or new plans with at least {health_gap_str} cover.
+   - If both amount and features are adequate, set "health_recommendations" to an empty list [].
 
 UNITS REMINDER:
 - 1 Crore = 1,00,00,000 (7 Zeros)
 - 10 Lakhs = 10,00,000 (6 Zeros)
 
-Provide recommendations in EXACTLY this JSON format:
+Provide recommendations in EXACTLY this JSON format (provide UP TO 3 for each list):
 {{
-  "life_recommendation": {{
-    "product_name": "Specific Plan Name (e.g. HDFC Life Click 2 Protect)",
-    "provider": "Company Name",
-    "recommended_cover": "{life_gap_str}",
-    "gap_filled": "Briefly explain how this fills the shortfall.",
-    "why_this": "1-2 sentences on why this fits.",
-    "key_benefits": ["Benefit 1", "Benefit 2"]
-  }} or null,
-  "health_recommendation": {{
-    "product_name": "Specific Plan Name (e.g. HDFC Ergo Optima Restore)",
-    "provider": "Company Name",
-    "recommended_cover": "{health_gap_str}",
-    "feature_match_analysis": "Mention missing features like Maternity/OPD if applicable.",
-    "gap_filled": "Briefly explain how this fills the shortfall.",
-    "why_this": "1-2 sentences on why this fits.",
-    "key_benefits": ["Benefit 1", "Benefit 2"]
-  }} or null,
+  "life_recommendations": [
+    {{
+      "product_name": "Specific Plan Name (e.g. HDFC Life Click 2 Protect)",
+      "provider": "Company Name",
+      "recommended_cover": "{life_gap_str}",
+      "gap_filled": "Briefly explain how this fills the shortfall.",
+      "why_this": "1-2 sentences on why this fits.",
+      "key_benefits": ["Benefit 1", "Benefit 2"]
+    }}
+  ],
+  "health_recommendations": [
+    {{
+      "product_name": "Specific Plan Name (e.g. HDFC Ergo Optima Restore)",
+      "provider": "Company Name",
+      "recommended_cover": "{health_gap_str}",
+      "feature_match_analysis": "Mention missing features like Maternity/OPD if applicable.",
+      "gap_filled": "Briefly explain how this fills the shortfall.",
+      "why_this": "1-2 sentences on why this fits.",
+      "key_benefits": ["Benefit 1", "Benefit 2"]
+    }}
+  ],
   "overall_narrative": "A personal 2-3 sentence summary of your strategy."
 }}
 
@@ -244,20 +268,20 @@ Be very specific about product names available in India. Use a FIRST-PERSON NARR
         traceback.print_exc()
         # Fallback basic response
         return {
-            "life_recommendation": {
-                "product_name": "Term Life Insurance Plan",
-                "provider": "Leading Private Insurer",
+            "life_recommendations": [{
+                "product_name": "Premium Term Life Plan",
+                "provider": "Leading Indian Insurer",
                 "why_this": "I recommend a comprehensive term plan to secure your family's future.",
                 "key_benefits": ["High Sum Assured", "Critical Illness Add-on"]
-            },
-            "health_recommendation": {
-                "product_name": "Comprehensive Health Plan",
+            }],
+            "health_recommendations": [{
+                "product_name": "Comprehensive Health Guard",
                 "provider": "Leading Health Insurer",
                 "feature_match_analysis": "This plan provides the comprehensive coverage your profile requires.",
                 "why_this": "I suggest this for its wide hospital network and no-claim bonus.",
                 "key_benefits": ["Cashless Treatment", "No Room Rent Limit"]
-            },
-            "overall_narrative": "I've chosen these plans to ensure you have a robust financial safety net that covers both life risks and medical emergencies."
+            }],
+            "overall_narrative": "I've chosen these plans to ensure you have multiple robust options for your financial safety net."
         }
 
 # ============================================================================

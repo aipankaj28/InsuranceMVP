@@ -40,6 +40,8 @@ class User(Base):
     lifestyle = Column(String)
     smoking_status = Column(String) # Never, Occasionally, Regularly
     family_health_history = Column(JSON) # List of conditions
+    company_name = Column(String)
+    industry_type = Column(String)
     # Gap Analysis fields (Phase 2)
     has_life_insurance = Column(Boolean, default=False)
     existing_life_cover = Column(String) # Stored as string like "₹50 Lakhs"
@@ -62,6 +64,8 @@ class User(Base):
     # JSON field for dependents structure
     dependents_data = Column(JSON)
     num_children = Column(Integer, default=0)
+    is_smoker = Column(Boolean, default=False)
+    current_step = Column(Integer, default=1)
 
     recommendations = relationship("Recommendation", back_populates="user")
 
@@ -71,7 +75,9 @@ class Recommendation(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     life_cover = Column(String)
+    life_cover_val = Column(Integer, default=0)
     health_cover = Column(String)
+    health_cover_val = Column(Integer, default=0)
     persona_name = Column(String)
     tagline = Column(String)
     details = Column(String)
@@ -80,6 +86,8 @@ class Recommendation(Base):
     icon = Column(String)
     prompt_sent = Column(String) # Store the prompt for debugging
     mode = Column(String) # AI or RULE
+    life_recommendations = Column(JSON) # Array of specific life plans (Phase 2)
+    health_recommendations = Column(JSON) # Array of specific health plans (Phase 2)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("User", back_populates="recommendations")

@@ -93,20 +93,22 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     )
 
 class UserData(BaseModel):
-    first_name: str
-    last_name: str
-    dob: str
-    mobile: str
-    income_level: str
-    city: str
-    gender: str
-    marital_status: str
-    support_parents: bool
-    career_stage: str
-    employment_type: str
-    lifestyle: str
-    smoking_status: str
-    family_health_history: list[str]
+    first_name: Optional[str] = ""
+    last_name: Optional[str] = ""
+    dob: Optional[str] = ""
+    mobile: Optional[str] = ""
+    income_level: Optional[str] = ""
+    city: Optional[str] = ""
+    gender: Optional[str] = ""
+    marital_status: Optional[str] = "Single"
+    support_parents: Optional[bool] = False
+    career_stage: Optional[str] = ""
+    employment_type: Optional[str] = ""
+    lifestyle: Optional[str] = ""
+    smoking_status: Optional[str] = ""
+    family_health_history: Optional[list[str]] = []
+    company_name: Optional[str] = ""
+    industry_type: Optional[str] = ""
     is_smoker: Optional[bool] = False
     dependents: Optional[Dict[str, bool]] = {}
     num_children: Optional[int] = 0
@@ -126,6 +128,10 @@ class UserData(BaseModel):
     life_policy_name: Optional[str] = ""
     health_provider: Optional[str] = ""
     health_policy_name: Optional[str] = ""
+
+class ProgressRequest(BaseModel):
+    formData: UserData
+    current_step: int
 
 class LoginRequest(BaseModel):
     email: str
@@ -211,10 +217,7 @@ async def verify(request: VerifyRequest):
 def get_recommendation(data: UserData, user_payload = Depends(get_current_user), db: Session = Depends(get_db)):
     email = user_payload.get("sub")
     
-    # Calculate recommendation
-    result = calculate_recommendation(data.model_dump())
-    
-    # Persist or update User data
+    # Persist or update User data BEFORE calculating (as requested for Phase 1 end)
     user = db.query(User).filter(User.email == email).first()
     if not user:
         user = User(email=email)
@@ -234,6 +237,8 @@ def get_recommendation(data: UserData, user_payload = Depends(get_current_user),
     user.lifestyle = data.lifestyle
     user.smoking_status = data.smoking_status
     user.family_health_history = data.family_health_history
+    user.company_name = data.company_name
+    user.industry_type = data.industry_type
     user.num_children = data.num_children
     user.dependents_data = data.dependents
     user.is_smoker = data.is_smoker
@@ -254,11 +259,18 @@ def get_recommendation(data: UserData, user_payload = Depends(get_current_user),
     user.health_provider = data.health_provider if data.has_health_insurance else ""
     user.health_policy_name = data.health_policy_name if data.has_health_insurance else ""
     
+    db.commit() # Save user progress before calling potentially slow LLM
+
+    # Calculate recommendation
+    result = calculate_recommendation(data.model_dump())
+    
     # Save the recommendation
     db_recommendation = Recommendation(
         user=user,
         life_cover=result.get("life_cover"),
+        life_cover_val=result.get("life_cover_val"),
         health_cover=result.get("health_cover"),
+        health_cover_val=result.get("health_cover_val"),
         persona_name=result.get("persona_name"),
         tagline=result.get("tagline"),
         details=result.get("tagline"), # Fallback
@@ -278,9 +290,20 @@ def get_recommendation(data: UserData, user_payload = Depends(get_current_user),
     return result
 
 @app.post("/api/policy-recommendations")
-def get_policy_recommendations(request: PolicyRecommendationRequest, user_payload = Depends(get_current_user)):
+def get_policy_recommendations(request: PolicyRecommendationRequest, user_payload = Depends(get_current_user), db: Session = Depends(get_db)):
     from logic import calculate_policy_recommendations_ai
     result = calculate_policy_recommendations_ai(request.model_dump())
+    
+    # Persist the Phase 2 recommendations to the latest record
+    email = user_payload.get("sub")
+    user = db.query(User).filter(User.email == email).first()
+    if user:
+        latest_rec = db.query(Recommendation).filter(Recommendation.user_id == user.id).order_by(Recommendation.created_at.desc()).first()
+        if latest_rec:
+            latest_rec.life_recommendations = result.get("life_recommendations")
+            latest_rec.health_recommendations = result.get("health_recommendations")
+            db.commit()
+
     result["show_debug"] = os.getenv("SHOW_DEBUG_INFO", "false").lower() == "true"
     return result
 
@@ -295,6 +318,24 @@ def get_user_profile(user_payload = Depends(get_current_user), db: Session = Dep
     # Get all recommendations sorted by most recent first
     all_recs = db.query(Recommendation).filter(Recommendation.user_id == user.id).order_by(Recommendation.created_at.desc()).all()
     
+    recs_data = [
+        {
+            "id": rec.id,
+            "life_cover": rec.life_cover,
+            "life_cover_val": rec.life_cover_val,
+            "health_cover": rec.health_cover,
+            "health_cover_val": rec.health_cover_val,
+            "persona_name": rec.persona_name,
+            "tagline": rec.tagline or rec.details,
+            "reasoning": rec.reasoning,
+            "recommended_features": rec.features,
+            "icon": rec.icon,
+            "mode": rec.mode,
+            "prompt_sent": rec.prompt_sent,
+            "created_at": rec.created_at.isoformat()
+        } for rec in all_recs
+    ]
+
     return {
         "profile": {
             "first_name": user.first_name,
@@ -313,6 +354,9 @@ def get_user_profile(user_payload = Depends(get_current_user), db: Session = Dep
             "family_health_history": user.family_health_history,
             "dependents": user.dependents_data,
             "num_children": user.num_children,
+            "company_name": user.company_name,
+            "industry_type": user.industry_type,
+            "current_step": user.current_step,
             "has_life_insurance": user.has_life_insurance,
             "existing_life_cover": user.existing_life_cover,
             "existing_life_cover_val": user.existing_life_cover_val,
@@ -328,23 +372,71 @@ def get_user_profile(user_payload = Depends(get_current_user), db: Session = Dep
             "health_provider": user.health_provider,
             "health_policy_name": user.health_policy_name
         },
-        "recommendations": [
-            {
-                "id": rec.id,
-                "life_cover": rec.life_cover,
-                "health_cover": rec.health_cover,
-                "persona_name": rec.persona_name,
-                "tagline": rec.tagline or rec.details,
-                "reasoning": rec.reasoning,
-                "recommended_features": rec.features,
-                "icon": rec.icon,
-                "mode": rec.mode,
-                "prompt_sent": rec.prompt_sent,
-                "created_at": rec.created_at.isoformat()
-            } for rec in all_recs
-        ],
+        "recommendations": recs_data,
         "show_debug": os.getenv("SHOW_DEBUG_INFO", "false").lower() == "true"
     }
+
+@app.post("/api/user/save-progress")
+def save_progress(request: ProgressRequest, user_payload = Depends(get_current_user), db: Session = Depends(get_db)):
+    email = user_payload.get("sub")
+    log_now(f"Saving progress for {email} to step {request.current_step}")
+    user = db.query(User).filter(User.email == email).first()
+    
+    if not user:
+        log_now(f"User {email} not found, creating new record.")
+        user = User(email=email)
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+    
+    data = request.formData
+    user.first_name = data.first_name
+    user.last_name = data.last_name
+    user.dob = data.dob
+    user.mobile = data.mobile
+    user.income_level = data.income_level
+    user.city = data.city
+    user.gender = data.gender
+    user.marital_status = data.marital_status
+    user.support_parents = data.support_parents
+    user.career_stage = data.career_stage
+    user.employment_type = data.employment_type
+    user.lifestyle = data.lifestyle
+    user.smoking_status = data.smoking_status
+    user.family_health_history = data.family_health_history
+    user.company_name = data.company_name
+    user.industry_type = data.industry_type
+    user.dependents_data = data.dependents
+    user.num_children = data.num_children
+    
+    # Phase 2 persistence
+    user.has_life_insurance = data.has_life_insurance
+    user.existing_life_cover = data.existing_life_cover
+    user.existing_life_cover_val = data.existing_life_cover_val
+    user.has_health_insurance = data.has_health_insurance
+    user.existing_health_cover = data.existing_health_cover
+    user.existing_health_cover_val = data.existing_health_cover_val
+    user.health_source = data.health_source
+    user.parents_covered = data.parents_covered
+    user.parents_health_cover = data.parents_health_cover
+    user.parents_health_cover_val = data.parents_health_cover_val
+    user.life_provider = data.life_provider
+    user.life_policy_name = data.life_policy_name
+    user.health_provider = data.health_provider
+    user.health_policy_name = data.health_policy_name
+    
+    # Update progress
+    user.current_step = request.current_step
+    
+    try:
+        db.commit()
+        log_now(f"Progress saved successfully for {email}")
+    except Exception as e:
+        db.rollback()
+        log_now(f"Failed to commit progress for {email}: {str(e)}")
+        raise HTTPException(status_code=500, detail="Database error")
+
+    return {"message": "Progress saved successfully"}
 
 if __name__ == "__main__":
     import uvicorn

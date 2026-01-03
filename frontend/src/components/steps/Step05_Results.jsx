@@ -6,6 +6,7 @@ import { Sparkles, Heart, Shield, Code, ChevronDown, ChevronUp } from 'lucide-re
 export default function Step05_Results({ result, formData }) {
     const [showPrompt, setShowPrompt] = useState(false);
     const [expandedReason, setExpandedReason] = useState(false);
+    const [expandedFeatureList, setExpandedFeatureList] = useState(false);
     const [expandedFeatures, setExpandedFeatures] = useState({});
 
     const toggleFeature = (idx) => {
@@ -31,14 +32,9 @@ export default function Step05_Results({ result, formData }) {
         existing_health: formData?.existing_health_cover_val
     });
 
-    // Gap Calculations
-    const existingLifeVal = formData?.existing_life_cover_val || 0;
+    // Ideal Calculations (derived from result)
     const idealLifeVal = result.life_cover_val || 0;
-    const lifeGap = Math.max(0, idealLifeVal - existingLifeVal);
-
-    const existingHealthVal = formData?.existing_health_cover_val || 0;
     const idealHealthVal = result.health_cover_val || 0;
-    const healthGap = Math.max(0, idealHealthVal - existingHealthVal);
 
     const formatINR = (val) => {
         if (val >= 10000000) return `₹${(val / 10000000).toFixed(1)} Cr`;
@@ -91,15 +87,6 @@ export default function Step05_Results({ result, formData }) {
                     <Heart className="w-6 h-6 md:w-8 md:h-8 text-blue-400 mx-auto mb-2 md:mb-3" />
                     <h3 className="text-[10px] md:text-xs uppercase tracking-widest text-blue-300 font-bold mb-1">Life Cover</h3>
                     <p className="text-2xl md:text-3xl font-black text-white">{lifeCover || "Calculated below"}</p>
-                    {lifeGap > 0 ? (
-                        <div className="mt-3 inline-block bg-red-500/20 border border-red-500/30 px-3 py-1 rounded-full">
-                            <span className="text-[10px] font-black uppercase text-red-400 tracking-wider">Gap: {formatINR(lifeGap)}</span>
-                        </div>
-                    ) : (
-                        <div className="mt-3 inline-block bg-emerald-500/20 border border-emerald-500/30 px-3 py-1 rounded-full">
-                            <span className="text-[10px] font-black uppercase text-emerald-400 tracking-wider">Fully Covered</span>
-                        </div>
-                    )}
                 </motion.div>
 
                 <motion.div
@@ -109,15 +96,6 @@ export default function Step05_Results({ result, formData }) {
                     <Shield className="w-6 h-6 md:w-8 md:h-8 text-brand-accent mx-auto mb-2 md:mb-3" />
                     <h3 className="text-[10px] md:text-xs uppercase tracking-widest text-emerald-300 font-bold mb-1">Health Cover</h3>
                     <p className="text-2xl md:text-3xl font-black text-white">{healthCover || "Calculated below"}</p>
-                    {healthGap > 0 ? (
-                        <div className="mt-3 inline-block bg-red-500/20 border border-red-500/30 px-3 py-1 rounded-full">
-                            <span className="text-[10px] font-black uppercase text-red-400 tracking-wider">Gap: {formatINR(healthGap)}</span>
-                        </div>
-                    ) : (
-                        <div className="mt-3 inline-block bg-emerald-500/20 border border-emerald-500/30 px-3 py-1 rounded-full">
-                            <span className="text-[10px] font-black uppercase text-emerald-400 tracking-wider">Fully Covered</span>
-                        </div>
-                    )}
                 </motion.div>
             </div>
 
@@ -156,44 +134,60 @@ export default function Step05_Results({ result, formData }) {
 
             {features.length > 0 && (
                 <div className="text-left space-y-4">
-                    <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
-                        Recommended Plan Features
-                    </h3>
-                    <div className="grid grid-cols-1 gap-3">
-                        {features.map((feature, idx) => (
-                            <div
-                                key={idx}
-                                className="bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors group cursor-pointer"
-                                onClick={() => toggleFeature(idx)}
-                            >
-                                <div className="p-4">
-                                    <div className="flex items-center justify-between mb-1">
-                                        <div className="flex items-center gap-2">
-                                            <span className="font-bold text-brand-accent text-sm">{feature.name}</span>
-                                            <div className="text-[8px] md:text-[9px] bg-brand-accent/20 text-brand-accent px-1.5 py-0.5 rounded-full font-black uppercase tracking-tighter">Recommended</div>
-                                        </div>
-                                        {expandedFeatures[idx] ? <ChevronUp className="w-3.5 h-3.5 text-slate-500" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-500" />}
-                                    </div>
-
-                                    <AnimatePresence>
-                                        {expandedFeatures[idx] && (
-                                            <motion.div
-                                                initial={{ height: 0, opacity: 0 }}
-                                                animate={{ height: 'auto', opacity: 1 }}
-                                                exit={{ height: 0, opacity: 0 }}
-                                                className="overflow-hidden"
-                                            >
-                                                <p className="text-xs text-slate-400 leading-relaxed pt-2 border-t border-white/5 mt-2 group-hover:text-slate-300 transition-colors">
-                                                    {feature.reason}
-                                                </p>
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
-                                </div>
-                            </div>
-                        ))}
+                    <div
+                        className="flex items-center justify-between cursor-pointer group"
+                        onClick={() => setExpandedFeatureList(!expandedFeatureList)}
+                    >
+                        <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
+                            Recommended Plan Features
+                        </h3>
+                        {expandedFeatureList ? <ChevronUp className="w-4 h-4 text-slate-500 group-hover:text-white transition-colors" /> : <ChevronDown className="w-4 h-4 text-slate-500 group-hover:text-white transition-colors" />}
                     </div>
+
+                    <AnimatePresence>
+                        {expandedFeatureList && (
+                            <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                className="grid grid-cols-1 gap-3 overflow-hidden"
+                            >
+                                {features.map((feature, idx) => (
+                                    <div
+                                        key={idx}
+                                        className="bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors group cursor-pointer"
+                                        onClick={() => toggleFeature(idx)}
+                                    >
+                                        <div className="p-4">
+                                            <div className="flex items-center justify-between mb-1">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="font-bold text-brand-accent text-sm">{feature.name}</span>
+                                                    <div className="text-[8px] md:text-[9px] bg-brand-accent/20 text-brand-accent px-1.5 py-0.5 rounded-full font-black uppercase tracking-tighter">Recommended</div>
+                                                </div>
+                                                {expandedFeatures[idx] ? <ChevronUp className="w-3.5 h-3.5 text-slate-500" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-500" />}
+                                            </div>
+
+                                            <AnimatePresence>
+                                                {expandedFeatures[idx] && (
+                                                    <motion.div
+                                                        initial={{ height: 0, opacity: 0 }}
+                                                        animate={{ height: 'auto', opacity: 1 }}
+                                                        exit={{ height: 0, opacity: 0 }}
+                                                        className="overflow-hidden"
+                                                    >
+                                                        <p className="text-xs text-slate-400 leading-relaxed pt-2 border-t border-white/5 mt-2 group-hover:text-slate-300 transition-colors">
+                                                            {feature.reason}
+                                                        </p>
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
+                                        </div>
+                                    </div>
+                                ))}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
             )}
 

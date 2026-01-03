@@ -1,84 +1,63 @@
 import sqlite3
 import os
 
-db_path = os.path.join("backend", "data", "insurance_wizard.db")
+def migrate():
+    db_path = os.path.join("backend", "data", "insurance_wizard.db")
+    if not os.path.exists(db_path):
+        print(f"Database not found at {db_path}. No migration needed.")
+        return
 
-if os.path.exists(db_path):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
-    
-    # Add is_smoker
-    try:
-        cursor.execute("ALTER TABLE users ADD COLUMN is_smoker BOOLEAN DEFAULT 0")
-        print("Successfully added is_smoker column.")
-    except sqlite3.OperationalError:
-        print("Column is_smoker already exists.")
-    
-    # Add gender
-    try:
-        cursor.execute("ALTER TABLE users ADD COLUMN gender TEXT")
-        print("Successfully added gender column.")
-    except sqlite3.OperationalError:
-        print("Column gender already exists.")
-    
-    # Add reasoning
-    try:
-        cursor.execute("ALTER TABLE recommendations ADD COLUMN reasoning TEXT")
-        print("Successfully added reasoning column.")
-    except sqlite3.OperationalError:
-        print("Column reasoning already exists.")
 
-    # Add features
-    try:
-        cursor.execute("ALTER TABLE recommendations ADD COLUMN features JSON")
-        print("Successfully added features column.")
-    except sqlite3.OperationalError:
-        print("Column features already exists.")
+    # Migrations for users table
+    cursor.execute("PRAGMA table_info(users)")
+    existing_users_columns = [col[1] for col in cursor.fetchall()]
     
-    # New Onboarding v2 columns - recommendations
-    rec_cols = [
-        ("persona_name", "TEXT"),
-        ("tagline", "TEXT"),
-        ("prompt_sent", "TEXT")
+    users_columns_to_add = [
+        ("current_step", "INTEGER DEFAULT 1"),
+        ("is_smoker", "BOOLEAN DEFAULT 0"),
+        ("company_name", "VARCHAR"),
+        ("industry_type", "VARCHAR")
     ]
-    for col_name, col_type in rec_cols:
-        try:
-            cursor.execute(f"ALTER TABLE recommendations ADD COLUMN {col_name} {col_type}")
-            print(f"Successfully added {col_name} to recommendations.")
-        except sqlite3.OperationalError:
-            print(f"Column {col_name} already exists in recommendations.")
 
-    # New Onboarding v2 columns - users
-    v2_cols = [
-        ("marital_status", "TEXT"),
-        ("support_parents", "BOOLEAN DEFAULT 0"),
-        ("career_stage", "TEXT"),
-        ("employment_type", "TEXT"),
-        ("lifestyle", "TEXT"),
-        ("smoking_status", "TEXT"),
-        ("family_health_history", "JSON"),
-        ("has_life_insurance", "BOOLEAN DEFAULT 0"),
-        ("existing_life_cover", "TEXT"),
-        ("has_health_insurance", "BOOLEAN DEFAULT 0"),
-        ("existing_health_cover", "TEXT"),
-        ("health_source", "TEXT"),
-        ("parents_covered", "BOOLEAN DEFAULT 0"),
-        # Phase 3 Fields
-        ("life_provider", "TEXT"),
-        ("life_policy_name", "TEXT"),
-        ("health_provider", "TEXT"),
-        ("health_policy_name", "TEXT"),
-        ("parents_health_cover", "TEXT")
+    for col_name, col_def in users_columns_to_add:
+        if col_name not in existing_users_columns:
+            print(f"Adding column {col_name} to users table...")
+            try:
+                cursor.execute(f"ALTER TABLE users ADD COLUMN {col_name} {col_def}")
+                conn.commit()
+                print(f"Column {col_name} added successfully.")
+            except Exception as e:
+                print(f"Failed to add column {col_name} to users: {e}")
+        else:
+            print(f"Column {col_name} already exists in users table.")
+
+    # Migrations for recommendations table
+    cursor.execute("PRAGMA table_info(recommendations)")
+    existing_rec_columns = [col[1] for col in cursor.fetchall()]
+    
+    rec_columns_to_add = [
+        ("life_recommendations", "JSON"),
+        ("health_recommendations", "JSON"),
+        ("life_cover_val", "INTEGER DEFAULT 0"),
+        ("health_cover_val", "INTEGER DEFAULT 0")
     ]
-    
-    for col_name, col_type in v2_cols:
-        try:
-            cursor.execute(f"ALTER TABLE users ADD COLUMN {col_name} {col_type}")
-            print(f"Successfully added {col_name} column.")
-        except sqlite3.OperationalError:
-            print(f"Column {col_name} already exists.")
-    
-    conn.commit()
+
+    for col_name, col_def in rec_columns_to_add:
+        if col_name not in existing_rec_columns:
+            print(f"Adding column {col_name} to recommendations table...")
+            try:
+                cursor.execute(f"ALTER TABLE recommendations ADD COLUMN {col_name} {col_def}")
+                conn.commit()
+                print(f"Column {col_name} added successfully.")
+            except Exception as e:
+                print(f"Failed to add column {col_name} to recommendations: {e}")
+        else:
+            print(f"Column {col_name} already exists in recommendations table.")
+
     conn.close()
-else:
-    print(f"Database file not found at {db_path}. It will be created on next startup.")
+    print("Migration check complete.")
+
+if __name__ == "__main__":
+    migrate()
