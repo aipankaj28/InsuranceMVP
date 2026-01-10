@@ -1,17 +1,187 @@
 @import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
-@theme {
+:root {
+  /* Default Dark Mode (Current Brand) */
+  --bg-auth-main: #0B0F19;
+  --bg-auth-card: rgba(255, 255, 255, 0.08);
+  /* White/8% */
+  --bg-auth-input: rgba(255, 255, 255, 0.05);
+  --border-auth-card: rgba(255, 255, 255, 0.1);
+
+  --text-auth-primary: #e2e8f0;
+  /* Slate 200 */
+  --text-auth-label: #e2e8f0;
+  /* Slate 200 */
+  --text-auth-muted: #94a3b8;
+  /* Slate 400 */
+  --text-auth-placeholder: #64748b;
+  /* Slate 500 */
+  --text-success: #34d399;
+  /* Emerald 400 - for success messages */
+
+  --btn-primary-bg: #3B82F6;
+  --btn-primary-hover: #2563EB;
+  --btn-primary-text: #FFFFFF;
+
+  /* Legacy Brand Vars - kept for compatibility */
   --color-brand-dark: #0B0F19;
   --color-brand-primary: #3B82F6;
   --color-brand-accent: #10B981;
   --color-brand-surface: rgba(255, 255, 255, 0.08);
+}
+
+.light {
+  /* Emper.ai Light Theme */
+  --bg-auth-main: #F0F9FF;
+  /* Soft Cyan/Alice Blue */
+  --bg-auth-card: #FFFFFF;
+  --bg-auth-input: #F8FAFC;
+  /* Slate 50 */
+  --border-auth-card: #CBD5E1;
+  /* Slate 300 - More visible border */
+
+  --text-auth-primary: #0F172A;
+  /* Slate 900 - Dark text for high contrast */
+  --text-auth-label: #1E293B;
+  /* Slate 800 - Very dark for labels */
+  --text-auth-muted: #334155;
+  /* Slate 700 - Darker for better readability */
+  --text-auth-placeholder: #64748B;
+  /* Slate 500 - Darker placeholder */
+  --text-success: #059669;
+  /* Emerald 600 - darker green for light mode */
+
+  --btn-primary-bg: #3B82F6;
+  /* Bright Blue */
+  --btn-primary-hover: #2563EB;
+  --btn-primary-text: #FFFFFF;
+}
+
+/* Light mode placeholder styling */
+.light input::placeholder,
+.light select::placeholder {
+  color: var(--text-auth-placeholder) !important;
+  opacity: 1;
+}
+
+.light input,
+.light select,
+.light textarea {
+  color: var(--text-auth-primary) !important;
+}
+
+/* Ensure proper contrast for all interactive elements in light mode */
+.light button {
+  color: var(--text-auth-primary);
+}
+
+.light label {
+  color: var(--text-auth-label) !important;
+}
+
+/* Date input styling for light mode */
+.light input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.5);
+}
+
+.light select option {
+  background-color: var(--bg-auth-main);
+  color: var(--text-auth-primary);
+}
+
+/* Range slider styling for better visibility in both themes */
+input[type="range"] {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  background: transparent !important;
+  cursor: pointer;
+}
+
+/* Specific class for our custom sliders */
+.slider-custom {
+  background: #94a3b8 !important;
+  height: 4px !important;
+  border-radius: 2px !important;
+  border: 1px solid #64748b !important;
+  outline: none !important;
+}
+
+/* Dark mode slider track */
+input[type="range"]::-webkit-slider-track {
+  background: rgba(255, 255, 255, 0.2) !important;
+  height: 4px !important;
+  border-radius: 2px !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  height: 18px !important;
+  width: 18px !important;
+  border-radius: 50% !important;
+  background: currentColor !important;
+  border: 2px solid #ffffff !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
+  cursor: pointer !important;
+}
+
+input[type="range"]::-moz-range-track {
+  background: rgba(255, 255, 255, 0.2) !important;
+  height: 4px !important;
+  border-radius: 2px !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+input[type="range"]::-moz-range-thumb {
+  height: 18px !important;
+  width: 18px !important;
+  border-radius: 50% !important;
+  background: currentColor !important;
+  border: 2px solid #ffffff !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
+  cursor: pointer !important;
+}
+
+/* Light mode specific slider styling - much more visible */
+.light .slider-custom {
+  background: #64748b !important;
+  border: 1px solid #475569 !important;
+}
+
+.light input[type="range"]::-webkit-slider-track {
+  background: #64748b !important;
+  border: 1px solid #475569 !important;
+}
+
+.light input[type="range"]::-moz-range-track {
+  background: #64748b !important;
+  border: 1px solid #475569 !important;
+}
+
+.light input[type="range"]::-webkit-slider-thumb {
+  border: 2px solid #ffffff !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3) !important;
+}
+
+.light input[type="range"]::-moz-range-thumb {
+  border: 2px solid #ffffff !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3) !important;
+}
+
+@theme {
+  --color-brand-dark: var(--color-brand-dark);
+  --color-brand-primary: var(--color-brand-primary);
+  --color-brand-accent: var(--color-brand-accent);
+  --color-brand-surface: var(--color-brand-surface);
 
   --font-sans: "Outfit", sans-serif;
-
   --backdrop-blur-xs: 2px;
 }
 
 body {
-  @apply bg-brand-dark text-slate-200 antialiased font-sans selection:bg-brand-accent selection:text-brand-dark overflow-x-hidden;
+  @apply antialiased font-sans selection:bg-brand-accent selection:text-brand-dark overflow-x-hidden;
+  background-color: var(--bg-auth-main);
+  color: var(--text-auth-primary);
 }

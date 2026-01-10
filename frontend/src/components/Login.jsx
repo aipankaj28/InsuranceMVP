@@ -38,15 +38,19 @@ const Login = () => {
 
     return (
         <div className="w-full max-w-md mx-auto p-4 md:p-6 z-10">
-            <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-6 md:p-8 shadow-2xl">
+            <div className="backdrop-blur-xl rounded-3xl p-6 md:p-8 shadow-2xl" style={{ 
+                backgroundColor: 'var(--bg-auth-card)', 
+                borderColor: 'var(--border-auth-card)',
+                border: '1px solid'
+            }}>
                 <div className="text-center mb-6 md:mb-8">
                     <div className="inline-flex items-center justify-center w-14 h-14 md:w-16 md:h-16 bg-brand-accent/20 rounded-xl md:rounded-2xl mb-4">
                         <span className="text-2xl md:text-3xl">🔐</span>
                     </div>
-                    <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
+                    <h2 className="text-2xl md:text-3xl font-bold mb-2" style={{ color: 'var(--text-auth-primary)' }}>
                         {step === 1 ? 'Secure Login' : 'Verify Identity'}
                     </h2>
-                    <p className="text-slate-400">
+                    <p style={{ color: 'var(--text-auth-muted)' }}>
                         {step === 1
                             ? 'Enter your email to receive an OTP'
                             : `We've sent a code to ${email}`}
@@ -62,11 +66,16 @@ const Login = () => {
                 {step === 1 ? (
                     <form onSubmit={handleSendOtp} className="space-y-6">
                         <div>
-                            <label className="block text-slate-300 text-sm font-medium mb-2 ml-1">Email Address</label>
+                            <label className="block text-sm font-medium mb-2 ml-1" style={{ color: 'var(--text-auth-label)' }}>Email Address</label>
                             <input
                                 type="email"
                                 required
-                                className="w-full bg-slate-900/50 border border-white/10 rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-brand-accent/50 transition-all placeholder:text-slate-600"
+                                className="w-full border rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-brand-accent/50 transition-all"
+                                style={{ 
+                                    backgroundColor: 'var(--bg-auth-input)',
+                                    borderColor: 'var(--border-auth-card)',
+                                    color: 'var(--text-auth-primary)'
+                                }}
                                 placeholder="pankaj@example.com"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
@@ -83,12 +92,17 @@ const Login = () => {
                 ) : (
                     <form onSubmit={handleVerifyOtp} className="space-y-6">
                         <div>
-                            <label className="block text-slate-300 text-sm font-medium mb-2 ml-1">Verification Code</label>
+                            <label className="block text-sm font-medium mb-2 ml-1" style={{ color: 'var(--text-auth-label)' }}>Verification Code</label>
                             <input
                                 type="text"
                                 required
                                 maxLength={6}
-                                className="w-full bg-slate-900/50 border border-white/10 rounded-2xl px-5 py-4 text-white text-center text-2xl tracking-[1em] font-bold focus:outline-none focus:ring-2 focus:ring-brand-accent/50 transition-all placeholder:text-slate-600"
+                                className="w-full border rounded-2xl px-5 py-4 text-center text-2xl tracking-[1em] font-bold focus:outline-none focus:ring-2 focus:ring-brand-accent/50 transition-all"
+                                style={{ 
+                                    backgroundColor: 'var(--bg-auth-input)',
+                                    borderColor: 'var(--border-auth-card)',
+                                    color: 'var(--text-auth-primary)'
+                                }}
                                 placeholder="000000"
                                 value={otp}
                                 onChange={(e) => setOtp(e.target.value)}
@@ -104,7 +118,8 @@ const Login = () => {
                         <button
                             type="button"
                             onClick={() => setStep(1)}
-                            className="w-full text-slate-400 text-sm hover:text-white transition-colors"
+                            className="w-full text-sm hover:text-white transition-colors"
+                            style={{ color: 'var(--text-auth-muted)' }}
                         >
                             Back to email
                         </button>
@@ -112,8 +127,8 @@ const Login = () => {
                 )}
 
                 <div className="mt-8 text-center">
-                    <p className="text-slate-500 text-xs">
-                        By logging in, you agree to our <span className="text-slate-400 underline cursor-pointer">Terms of Service</span>
+                    <p className="text-xs" style={{ color: 'var(--text-auth-placeholder)' }}>
+                        By logging in, you agree to our <span className="underline cursor-pointer" style={{ color: 'var(--text-auth-muted)' }}>Terms of Service</span>
                     </p>
                 </div>
             </div>

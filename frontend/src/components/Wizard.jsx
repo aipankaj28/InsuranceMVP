@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useThemeStyles } from '../hooks/useThemeStyles';
 
 const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 const API_BASE_URL = rawBaseUrl.startsWith('http') ? rawBaseUrl : `https://${rawBaseUrl}`;
@@ -17,6 +18,7 @@ import Step09_ProductRecommendations from './steps/Step09_ProductRecommendations
 import Dashboard from './Dashboard';
 
 export default function Wizard() {
+    const themeStyles = useThemeStyles();
     const [step, setStep] = useState(1);
     const [formData, setFormData] = useState({
         first_name: "",
@@ -280,9 +282,9 @@ export default function Wizard() {
 
     if (initialLoading) {
         return (
-            <div className="flex flex-col items-center justify-center p-20 text-white">
+            <div className="flex flex-col items-center justify-center p-20">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-accent mb-4"></div>
-                <p className="text-slate-400 font-medium">Loading your profile...</p>
+                <p className="font-medium" style={{ color: 'var(--text-auth-muted)' }}>Loading your profile...</p>
             </div>
         );
     }
@@ -303,13 +305,17 @@ export default function Wizard() {
                             animate={{ scale: 1, opacity: 1, y: 0 }}
                             exit={{ scale: 0.9, opacity: 0, y: 20 }}
                             className="bg-brand-dark border border-white/10 rounded-3xl p-8 max-w-md w-full shadow-2xl text-center"
+                            style={{ 
+                                backgroundColor: 'var(--bg-auth-card)', 
+                                borderColor: 'var(--border-auth-card)' 
+                            }}
                         >
                             <div className="w-16 h-16 bg-brand-accent/20 rounded-full flex items-center justify-center mx-auto mb-6">
                                 <Sparkles className="w-8 h-8 text-brand-accent animate-pulse" />
                             </div>
-                            <h2 className="text-2xl font-black text-white mb-2 italic">Resume Your Protection</h2>
-                            <p className="text-slate-400 text-sm leading-relaxed mb-8">
-                                We found your previous progress. Would you like to pick up where you left off at <span className="text-white font-bold">Step {resumeData?.step}</span>?
+                            <h2 className="text-2xl font-black mb-2 italic" style={{ color: 'var(--text-auth-primary)' }}>Resume Your Protection</h2>
+                            <p className="text-sm leading-relaxed mb-8" style={{ color: 'var(--text-auth-muted)' }}>
+                                We found your previous progress. Would you like to pick up where you left off at <span className="font-bold" style={{ color: 'var(--text-auth-primary)' }}>Step {resumeData?.step}</span>?
                             </p>
                             <div className="space-y-3">
                                 <button
@@ -320,7 +326,12 @@ export default function Wizard() {
                                 </button>
                                 <button
                                     onClick={handleStartOver}
-                                    className="w-full py-4 bg-white/5 border border-white/10 text-slate-400 rounded-2xl font-bold hover:bg-white/10 transition-colors"
+                                    className="w-full py-4 border rounded-2xl font-bold transition-colors"
+                                    style={{ 
+                                        backgroundColor: 'var(--bg-auth-input)',
+                                        borderColor: 'var(--border-auth-card)',
+                                        color: 'var(--text-auth-muted)'
+                                    }}
                                 >
                                     Start Over from Scratch
                                 </button>
@@ -344,11 +355,19 @@ export default function Wizard() {
                         >
                             <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300 group-hover:scale-110 ${step >= s.id
                                 ? 'bg-brand-accent border-brand-accent text-brand-dark shadow-[0_0_15px_rgba(16,185,129,0.3)]'
-                                : 'bg-brand-dark border-white/10 text-white/40 group-hover:border-white/40'
-                                }`}>
+                                : `border-2 ${themeStyles.cardBorder.replace('border-', 'border-')} ${themeStyles.textMuted} group-hover:border-opacity-40`
+                                }`} 
+                                style={step < s.id ? { 
+                                    backgroundColor: 'var(--bg-auth-main)',
+                                    borderColor: 'var(--border-auth-card)',
+                                    color: 'var(--text-auth-placeholder)'
+                                } : {}}
+                            >
                                 {step > s.id ? <Check className="w-5 h-5" /> : s.icon}
                             </div>
-                            <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${step >= s.id ? 'text-brand-accent' : 'text-slate-500'}`}>
+                            <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${step >= s.id ? 'text-brand-accent' : ''}`}
+                                style={step < s.id ? { color: 'var(--text-auth-placeholder)' } : {}}
+                            >
                                 {s.title}
                             </span>
                         </button>
@@ -365,7 +384,7 @@ export default function Wizard() {
                             {steps[step - 1].title}
                         </span>
                     </div>
-                    <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                    <div className="h-1.5 w-full rounded-full overflow-hidden" style={{ backgroundColor: 'var(--bg-auth-input)' }}>
                         <div
                             className="h-full bg-brand-accent transition-all duration-500 ease-out shadow-[0_0_10px_rgba(16,185,129,0.5)]"
                             style={{ width: `${(step / steps.length) * 100}%` }}
@@ -387,7 +406,12 @@ export default function Wizard() {
                 </div>
             ) : (
                 /* Wizard Card */
-                <div className="bg-brand-surface backdrop-blur-xl border border-white/10 rounded-3xl p-5 md:p-10 shadow-2xl overflow-hidden relative">
+                <div className="backdrop-blur-xl rounded-3xl p-5 md:p-10 shadow-2xl overflow-hidden relative" 
+                     style={{ 
+                         backgroundColor: 'var(--bg-auth-card)', 
+                         borderColor: 'var(--border-auth-card)',
+                         border: '1px solid'
+                     }}>
 
                     {/* Decorative glow inside card */}
                     <div className="absolute top-0 right-0 w-64 h-64 bg-brand-primary/10 rounded-full blur-[80px] -z-10 pointer-events-none" />
@@ -406,14 +430,16 @@ export default function Wizard() {
 
                     {/* Navigation Buttons */}
                     {step < 9 && (
-                        <div className="flex justify-between items-center pt-6 md:pt-8 border-t border-white/10 mt-6 md:mt-8">
+                        <div className="flex justify-between items-center pt-6 md:pt-8 mt-6 md:mt-8" 
+                             style={{ borderTopColor: 'var(--border-auth-card)', borderTopWidth: '1px' }}>
                             <button
                                 onClick={handleBack}
                                 disabled={step === 1}
                                 className={`flex items-center px-4 py-2 rounded-lg font-medium transition-colors ${step === 1
-                                    ? 'text-white/20 cursor-not-allowed'
-                                    : 'text-slate-400 hover:text-white hover:bg-white/5'
+                                    ? 'cursor-not-allowed opacity-20'
+                                    : 'hover:bg-opacity-5'
                                     }`}
+                                style={step === 1 ? { color: 'var(--text-auth-placeholder)' } : { color: 'var(--text-auth-muted)' }}
                             >
                                 <ArrowLeft className="w-4 h-4 mr-2" /> Back
                             </button>
@@ -425,6 +451,10 @@ export default function Wizard() {
                                 }
                                 disabled={loading}
                                 className="relative overflow-hidden bg-white text-brand-dark px-5 py-2.5 md:px-7 md:py-3 rounded-xl font-bold flex items-center shadow-lg hover:shadow-white/20 transition-all disabled:opacity-70 disabled:cursor-wait text-sm md:text-base"
+                                style={{
+                                    backgroundColor: 'var(--btn-primary-bg)',
+                                    color: 'var(--btn-primary-text)'
+                                }}
                             >
                                 <span className="relative z-10 flex items-center">
                                     {loading ? 'Computing...' :

@@ -1,8 +1,10 @@
 import { Shield, Heart, User, RefreshCw, MapPin, Users, Sparkles, HeartPulse, CheckCircle2, Info, ChevronUp, ChevronDown, LayoutGrid, List } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
+import { useThemeStyles } from '../hooks/useThemeStyles';
 
 export default function Dashboard({ userProfile, latestRecommendation, history, onUpdatePlan, onCompleteExistingDetails }) {
+    const themeStyles = useThemeStyles();
     const isPhase2Incomplete = userProfile.current_step < 9;
     const [view, setView] = useState((latestRecommendation?.life_recommendations?.length || latestRecommendation?.health_recommendations?.length) ? 'products' : 'gaps');
     const [expandedLife, setExpandedLife] = useState({});
@@ -58,17 +60,22 @@ export default function Dashboard({ userProfile, latestRecommendation, history, 
                     {/* Left Actions (Desktop) */}
                     <div className="hidden md:flex justify-start">
                         {hasProducts && (
-                            <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
+                            <div className="flex p-1 rounded-xl border" style={{ 
+                                backgroundColor: 'var(--bg-auth-input)', 
+                                borderColor: 'var(--border-auth-card)' 
+                            }}>
                                 <button
                                     onClick={() => setView('gaps')}
-                                    className={`p-2 rounded-lg transition-all ${view === 'gaps' ? 'bg-brand-accent text-brand-dark shadow-sm' : 'text-slate-500 hover:text-white'}`}
+                                    className={`p-2 rounded-lg transition-all ${view === 'gaps' ? 'bg-brand-accent text-brand-dark shadow-sm' : 'hover:bg-opacity-5'}`}
+                                    style={view !== 'gaps' ? { color: 'var(--text-auth-muted)' } : {}}
                                     title="Gap Analysis View"
                                 >
                                     <LayoutGrid className="w-4 h-4" />
                                 </button>
                                 <button
                                     onClick={() => setView('products')}
-                                    className={`p-2 rounded-lg transition-all ${view === 'products' ? 'bg-brand-accent text-brand-dark shadow-sm' : 'text-slate-500 hover:text-white'}`}
+                                    className={`p-2 rounded-lg transition-all ${view === 'products' ? 'bg-brand-accent text-brand-dark shadow-sm' : 'hover:bg-opacity-5'}`}
+                                    style={view !== 'products' ? { color: 'var(--text-auth-muted)' } : {}}
                                     title="Product Selection View"
                                 >
                                     <List className="w-4 h-4" />
@@ -79,10 +86,10 @@ export default function Dashboard({ userProfile, latestRecommendation, history, 
 
                     {/* Center Title & Subtitle */}
                     <div className="text-center">
-                        <h2 className="text-2xl md:text-3xl lg:text-4xl font-black text-white mb-2 italic">Protection Dashboard</h2>
-                        <p className="text-sm md:text-base text-slate-400">
+                        <h2 className="text-2xl md:text-3xl lg:text-4xl font-black mb-2 italic" style={{ color: 'var(--text-auth-primary)' }}>Protection Dashboard</h2>
+                        <p className="text-sm md:text-base" style={{ color: 'var(--text-auth-muted)' }}>
                             {view === 'gaps' ? (
-                                <>Comparing your <span className="text-brand-accent">Ideal Shield</span> with your <span className="text-white">Existing Net</span>.</>
+                                <>Comparing your <span className="text-brand-accent">Ideal Shield</span> with your <span style={{ color: 'var(--text-auth-primary)' }}>Existing Net</span>.</>
                             ) : (
                                 <>Your <span className="text-brand-accent">AI-Matched</span> Policy Portfolio</>
                             )}
@@ -96,16 +103,21 @@ export default function Dashboard({ userProfile, latestRecommendation, history, 
                 {/* Mobile View Toggle */}
                 {hasProducts && (
                     <div className="flex md:hidden justify-center mt-4">
-                        <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
+                        <div className="flex p-1 rounded-xl border" style={{ 
+                            backgroundColor: 'var(--bg-auth-input)', 
+                            borderColor: 'var(--border-auth-card)' 
+                        }}>
                             <button
                                 onClick={() => setView('gaps')}
-                                className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${view === 'gaps' ? 'bg-brand-accent text-brand-dark' : 'text-slate-500'}`}
+                                className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${view === 'gaps' ? 'bg-brand-accent text-brand-dark' : ''}`}
+                                style={view !== 'gaps' ? { color: 'var(--text-auth-muted)' } : {}}
                             >
                                 Gaps
                             </button>
                             <button
                                 onClick={() => setView('products')}
-                                className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${view === 'products' ? 'bg-brand-accent text-brand-dark' : 'text-slate-500'}`}
+                                className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${view === 'products' ? 'bg-brand-accent text-brand-dark' : ''}`}
+                                style={view !== 'products' ? { color: 'var(--text-auth-muted)' } : {}}
                             >
                                 Products
                             </button>
@@ -126,26 +138,32 @@ export default function Dashboard({ userProfile, latestRecommendation, history, 
                         {/* Gap Analysis Dashboard */}
                         <div className="grid grid-cols-1 gap-6">
                             {/* Life Insurance Gap */}
-                            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 relative overflow-hidden group">
+                            <div className="border rounded-3xl p-6 relative overflow-hidden group" style={{ 
+                                backgroundColor: 'var(--bg-auth-input)', 
+                                borderColor: 'var(--border-auth-card)' 
+                            }}>
                                 <div className="flex justify-between items-start mb-6">
                                     <div>
-                                        <h4 className="text-lg font-bold text-white flex items-center gap-2">
+                                        <h4 className="text-lg font-bold flex items-center gap-2" style={{ color: 'var(--text-auth-primary)' }}>
                                             <Heart className="w-5 h-5 text-pink-500" /> Life Insurance Gap
                                         </h4>
-                                        <p className="text-xs text-slate-500 mt-1 uppercase tracking-wider">Additional protection Suggested</p>
+                                        <p className="text-xs mt-1 uppercase tracking-wider" style={{ color: 'var(--text-auth-muted)' }}>Additional protection Suggested</p>
                                     </div>
                                     {!isPhase2Incomplete && (
                                         <div className="text-right">
                                             <span className={`text-2xl font-black ${lifeGap > 0 ? 'text-pink-500' : 'text-emerald-500'}`}>
                                                 {lifeGap > 0 ? `+${formatLakhs(lifeGap)}` : 'Fully Protected'}
                                             </span>
-                                            <div className="text-[10px] font-bold text-slate-600 uppercase">Gap Amount</div>
+                                            <div className="text-[10px] font-bold uppercase" style={{ color: 'var(--text-auth-placeholder)' }}>Gap Amount</div>
                                         </div>
                                     )}
                                 </div>
 
                                 <div className="space-y-3">
-                                    <div className="h-3 bg-white/5 rounded-full overflow-hidden flex border border-white/5">
+                                    <div className="h-3 rounded-full overflow-hidden flex border" style={{ 
+                                        backgroundColor: 'var(--bg-auth-input)', 
+                                        borderColor: 'var(--border-auth-card)' 
+                                    }}>
                                         <div
                                             className="h-full bg-pink-500/20 border-r border-pink-500/50 transition-all duration-1000"
                                             style={{ width: `${Math.min(100, (existingLife / Math.max(1, idealLife)) * 100)}%` }}
@@ -158,33 +176,39 @@ export default function Dashboard({ userProfile, latestRecommendation, history, 
                                         )}
                                     </div>
                                     <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
-                                        <span className="text-slate-500">Current: {userProfile.existing_life_cover || "None"}</span>
-                                        <span className="text-white">AI Ideal: {life_cover}</span>
+                                        <span style={{ color: 'var(--text-auth-muted)' }}>Current: {userProfile.existing_life_cover || "None"}</span>
+                                        <span style={{ color: 'var(--text-auth-primary)' }}>AI Ideal: {life_cover}</span>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Health Insurance Gap */}
-                            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 relative overflow-hidden group">
+                            <div className="border rounded-3xl p-6 relative overflow-hidden group" style={{ 
+                                backgroundColor: 'var(--bg-auth-input)', 
+                                borderColor: 'var(--border-auth-card)' 
+                            }}>
                                 <div className="flex justify-between items-start mb-6">
                                     <div>
-                                        <h4 className="text-lg font-bold text-white flex items-center gap-2">
+                                        <h4 className="text-lg font-bold flex items-center gap-2" style={{ color: 'var(--text-auth-primary)' }}>
                                             <Shield className="w-5 h-5 text-blue-500" /> Health Insurance Gap
                                         </h4>
-                                        <p className="text-xs text-slate-500 mt-1 uppercase tracking-wider">Suggested Medical Buffer</p>
+                                        <p className="text-xs mt-1 uppercase tracking-wider" style={{ color: 'var(--text-auth-muted)' }}>Suggested Medical Buffer</p>
                                     </div>
                                     {!isPhase2Incomplete && (
                                         <div className="text-right">
                                             <span className={`text-2xl font-black ${healthGap > 0 ? 'text-blue-500' : 'text-emerald-500'}`}>
                                                 {healthGap > 0 ? `+${formatLakhs(healthGap)}` : 'Fully Protected'}
                                             </span>
-                                            <div className="text-[10px] font-bold text-slate-600 uppercase">Gap Amount</div>
+                                            <div className="text-[10px] font-bold uppercase" style={{ color: 'var(--text-auth-placeholder)' }}>Gap Amount</div>
                                         </div>
                                     )}
                                 </div>
 
                                 <div className="space-y-3">
-                                    <div className="h-3 bg-white/5 rounded-full overflow-hidden flex border border-white/5">
+                                    <div className="h-3 rounded-full overflow-hidden flex border" style={{ 
+                                        backgroundColor: 'var(--bg-auth-input)', 
+                                        borderColor: 'var(--border-auth-card)' 
+                                    }}>
                                         <div
                                             className="h-full bg-blue-500/20 border-r border-blue-500/50 transition-all duration-1000"
                                             style={{ width: `${Math.min(100, (existingHealth / Math.max(1, idealHealth)) * 100)}%` }}
@@ -197,8 +221,8 @@ export default function Dashboard({ userProfile, latestRecommendation, history, 
                                         )}
                                     </div>
                                     <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
-                                        <span className="text-slate-500">Current: {userProfile.existing_health_cover || "None"}</span>
-                                        <span className="text-white">AI Ideal: {health_cover}</span>
+                                        <span style={{ color: 'var(--text-auth-muted)' }}>Current: {userProfile.existing_health_cover || "None"}</span>
+                                        <span style={{ color: 'var(--text-auth-primary)' }}>AI Ideal: {health_cover}</span>
                                     </div>
                                 </div>
                             </div>
@@ -218,7 +242,7 @@ export default function Dashboard({ userProfile, latestRecommendation, history, 
                                 <span className="text-3xl">{icon}</span>
                                 <div className="flex-1">
                                     <div className="flex items-center justify-between mb-1">
-                                        <h4 className="text-white font-bold">Our AI's Strategic Reasoning</h4>
+                                        <h4 className="font-bold" style={{ color: 'var(--text-auth-primary)' }}>Our AI's Strategic Reasoning</h4>
                                         {expandedReasoning ? <ChevronUp className="w-5 h-5 text-brand-accent" /> : <ChevronDown className="w-5 h-5 text-brand-accent" />}
                                     </div>
 
@@ -230,9 +254,12 @@ export default function Dashboard({ userProfile, latestRecommendation, history, 
                                                 exit={{ height: 0, opacity: 0 }}
                                                 className="overflow-hidden"
                                             >
-                                                <p className="text-slate-200 leading-relaxed italic text-sm font-medium mb-2 mt-2">"{latestRecommendation.summary || reasoning || details}"</p>
+                                                <p className="leading-relaxed italic text-sm font-medium mb-2 mt-2" style={{ color: 'var(--text-auth-label)' }}>"{latestRecommendation.summary || reasoning || details}"</p>
                                                 {(latestRecommendation.summary && reasoning) && (
-                                                    <p className="text-slate-400 leading-relaxed text-xs opacity-80 border-t border-white/10 pt-2">
+                                                    <p className="leading-relaxed text-xs opacity-80 border-t pt-2" style={{ 
+                                                        color: 'var(--text-auth-muted)', 
+                                                        borderTopColor: 'var(--border-auth-card)' 
+                                                    }}>
                                                         {reasoning}
                                                     </p>
                                                 )}
@@ -240,7 +267,7 @@ export default function Dashboard({ userProfile, latestRecommendation, history, 
                                         )}
                                     </AnimatePresence>
                                     {!expandedReasoning && (
-                                        <p className="text-slate-400 text-xs italic truncate max-w-md opacity-70">
+                                        <p className="text-xs italic truncate max-w-md opacity-70" style={{ color: 'var(--text-auth-muted)' }}>
                                             "{latestRecommendation.summary || reasoning || details}"
                                         </p>
                                     )}
@@ -263,21 +290,32 @@ export default function Dashboard({ userProfile, latestRecommendation, history, 
                                     <HeartPulse className="w-4 h-4" /> Recommended Life Plans
                                 </h4>
                                 {life_recommendations.map((rec, idx) => (
-                                    <div key={`life-${idx}`} className="bg-white/5 border border-white/10 rounded-2xl p-5 relative overflow-hidden group">
+                                    <div key={`life-${idx}`} className="rounded-2xl p-5 relative overflow-hidden group" style={{
+                                        backgroundColor: 'var(--bg-auth-card)',
+                                        borderWidth: '1px',
+                                        borderStyle: 'solid',
+                                        borderColor: 'var(--border-auth-card)'
+                                    }}>
                                         <div className="absolute top-0 right-0 w-24 h-24 bg-pink-500/5 rounded-full blur-2xl -z-10" />
                                         <div className="mb-4">
-                                            <h5 className="text-white font-black text-base mb-0.5">{rec.product_name}</h5>
-                                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{rec.provider}</p>
+                                            <h5 className="font-black text-base mb-0.5" style={{ color: 'var(--text-auth-primary)' }}>{rec.product_name}</h5>
+                                            <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--text-auth-muted)' }}>{rec.provider}</p>
                                         </div>
                                         <div className="bg-pink-500/5 border border-pink-500/10 rounded-xl p-3 mb-4">
                                             <div className="text-[8px] font-black uppercase text-pink-500 tracking-widest mb-0.5">Recommended Cover</div>
-                                            <div className="text-lg font-black text-white">{rec.recommended_cover}</div>
+                                            <div className="text-lg font-black" style={{ color: 'var(--text-auth-primary)' }}>{rec.recommended_cover}</div>
                                         </div>
                                         <div
-                                            className="bg-white/5 border border-white/5 rounded-xl p-3 cursor-pointer hover:bg-white/10 transition-colors mb-4"
+                                            className="rounded-xl p-3 cursor-pointer hover:bg-white/10 transition-colors mb-4"
+                                            style={{
+                                                backgroundColor: 'var(--bg-auth-input)',
+                                                borderWidth: '1px',
+                                                borderStyle: 'solid',
+                                                borderColor: 'var(--border-auth-card)'
+                                            }}
                                             onClick={() => toggleLife(idx)}
                                         >
-                                            <div className="flex items-center justify-between text-[9px] font-black uppercase text-slate-500 tracking-widest">
+                                            <div className="flex items-center justify-between text-[9px] font-black uppercase tracking-widest" style={{ color: 'var(--text-auth-muted)' }}>
                                                 <span>AI Reasoning</span>
                                                 {expandedLife[idx] ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                                             </div>
@@ -289,14 +327,14 @@ export default function Dashboard({ userProfile, latestRecommendation, history, 
                                                         exit={{ height: 0, opacity: 0 }}
                                                         className="overflow-hidden mt-2"
                                                     >
-                                                        <p className="text-[10px] text-slate-400 italic leading-relaxed">"{rec.why_this}"</p>
+                                                        <p className="text-[10px] italic leading-relaxed" style={{ color: 'var(--text-auth-muted)' }}>"{rec.why_this}"</p>
                                                     </motion.div>
                                                 )}
                                             </AnimatePresence>
                                         </div>
                                         <div className="space-y-1.5">
                                             {(rec.key_benefits || []).slice(0, 2).map((benefit, i) => (
-                                                <div key={i} className="flex items-start gap-1.5 text-[10px] text-slate-400">
+                                                <div key={i} className="flex items-start gap-1.5 text-[10px]" style={{ color: 'var(--text-auth-muted)' }}>
                                                     <CheckCircle2 className="w-3 h-3 text-emerald-500 mt-0.5" />
                                                     <span>{benefit}</span>
                                                 </div>
@@ -312,21 +350,32 @@ export default function Dashboard({ userProfile, latestRecommendation, history, 
                                     <Shield className="w-4 h-4" /> Recommended Health Plans
                                 </h4>
                                 {health_recommendations.map((rec, idx) => (
-                                    <div key={`health-${idx}`} className="bg-white/5 border border-white/10 rounded-2xl p-5 relative overflow-hidden group">
+                                    <div key={`health-${idx}`} className="rounded-2xl p-5 relative overflow-hidden group" style={{
+                                        backgroundColor: 'var(--bg-auth-card)',
+                                        borderWidth: '1px',
+                                        borderStyle: 'solid',
+                                        borderColor: 'var(--border-auth-card)'
+                                    }}>
                                         <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl -z-10" />
                                         <div className="mb-4">
-                                            <h5 className="text-white font-black text-base mb-0.5">{rec.product_name}</h5>
-                                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{rec.provider}</p>
+                                            <h5 className="font-black text-base mb-0.5" style={{ color: 'var(--text-auth-primary)' }}>{rec.product_name}</h5>
+                                            <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--text-auth-muted)' }}>{rec.provider}</p>
                                         </div>
                                         <div className="bg-blue-500/5 border border-blue-500/10 rounded-xl p-3 mb-4">
                                             <div className="text-[8px] font-black uppercase text-blue-500 tracking-widest mb-0.5">Recommended Sum Insured</div>
-                                            <div className="text-lg font-black text-white">{rec.recommended_cover}</div>
+                                            <div className="text-lg font-black" style={{ color: 'var(--text-auth-primary)' }}>{rec.recommended_cover}</div>
                                         </div>
                                         <div
-                                            className="bg-white/5 border border-white/5 rounded-xl p-3 cursor-pointer hover:bg-white/10 transition-colors mb-4"
+                                            className="rounded-xl p-3 cursor-pointer hover:bg-white/10 transition-colors mb-4"
+                                            style={{
+                                                backgroundColor: 'var(--bg-auth-input)',
+                                                borderWidth: '1px',
+                                                borderStyle: 'solid',
+                                                borderColor: 'var(--border-auth-card)'
+                                            }}
                                             onClick={() => toggleHealth(idx)}
                                         >
-                                            <div className="flex items-center justify-between text-[9px] font-black uppercase text-slate-500 tracking-widest">
+                                            <div className="flex items-center justify-between text-[9px] font-black uppercase tracking-widest" style={{ color: 'var(--text-auth-muted)' }}>
                                                 <span>AI Reasoning</span>
                                                 {expandedHealth[idx] ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                                             </div>
@@ -338,14 +387,14 @@ export default function Dashboard({ userProfile, latestRecommendation, history, 
                                                         exit={{ height: 0, opacity: 0 }}
                                                         className="overflow-hidden mt-2"
                                                     >
-                                                        <p className="text-[10px] text-slate-400 italic leading-relaxed">"{rec.why_this}"</p>
+                                                        <p className="text-[10px] italic leading-relaxed" style={{ color: 'var(--text-auth-muted)' }}>"{rec.why_this}"</p>
                                                     </motion.div>
                                                 )}
                                             </AnimatePresence>
                                         </div>
                                         <div className="space-y-1.5">
                                             {(rec.key_benefits || []).slice(0, 2).map((benefit, i) => (
-                                                <div key={i} className="flex items-start gap-1.5 text-[10px] text-slate-400">
+                                                <div key={i} className="flex items-start gap-1.5 text-[10px]" style={{ color: 'var(--text-auth-muted)' }}>
                                                     <CheckCircle2 className="w-3 h-3 text-emerald-500 mt-0.5" />
                                                     <span>{benefit}</span>
                                                 </div>
@@ -361,13 +410,21 @@ export default function Dashboard({ userProfile, latestRecommendation, history, 
 
             {/* Profile Context */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="flex items-center gap-3 text-slate-300 bg-white/5 p-4 rounded-2xl border border-white/5">
+                <div className="flex items-center gap-3 p-4 rounded-2xl border" style={{ 
+                    color: 'var(--text-auth-label)', 
+                    backgroundColor: 'var(--bg-auth-input)', 
+                    borderColor: 'var(--border-auth-card)' 
+                }}>
                     <MapPin className="w-4 h-4 text-brand-accent" />
-                    <span className="text-xs uppercase font-black tracking-widest">City: <strong className="text-white">{city}</strong></span>
+                    <span className="text-xs uppercase font-black tracking-widest">City: <strong style={{ color: 'var(--text-auth-primary)' }}>{city}</strong></span>
                 </div>
-                <div className="flex items-center gap-3 text-slate-300 bg-white/5 p-4 rounded-2xl border border-white/5">
+                <div className="flex items-center gap-3 p-4 rounded-2xl border" style={{ 
+                    color: 'var(--text-auth-label)', 
+                    backgroundColor: 'var(--bg-auth-input)', 
+                    borderColor: 'var(--border-auth-card)' 
+                }}>
                     <Users className="w-4 h-4 text-brand-accent" />
-                    <span className="text-xs uppercase font-black tracking-widest">Family: <strong className="text-white">{activeDependents.join(', ') || 'Self Only'}</strong></span>
+                    <span className="text-xs uppercase font-black tracking-widest">Family: <strong style={{ color: 'var(--text-auth-primary)' }}>{activeDependents.join(', ') || 'Self Only'}</strong></span>
                 </div>
             </div>
 
@@ -375,7 +432,16 @@ export default function Dashboard({ userProfile, latestRecommendation, history, 
             <div className="flex flex-col sm:flex-row gap-3 pt-4">
                 <button
                     onClick={onUpdatePlan}
-                    className={`flex-1 ${isPhase2Incomplete ? 'bg-white/5 border border-white/10 text-slate-400' : 'bg-white text-brand-dark shadow-xl hover:shadow-white/10'} px-4 py-3 md:px-6 md:py-3 rounded-xl font-bold text-sm md:text-base flex items-center justify-center transition-all group active:scale-95`}
+                    className={`flex-1 px-4 py-3 md:px-6 md:py-3 rounded-xl font-bold text-sm md:text-base flex items-center justify-center transition-all group active:scale-95 ${
+                        isPhase2Incomplete 
+                            ? 'border' 
+                            : 'bg-white text-brand-dark shadow-xl hover:shadow-white/10'
+                    }`}
+                    style={isPhase2Incomplete ? { 
+                        backgroundColor: 'var(--bg-auth-input)', 
+                        borderColor: 'var(--border-auth-card)', 
+                        color: 'var(--text-auth-muted)' 
+                    } : {}}
                 >
                     <RefreshCw className="w-4 h-4 mr-2 group-hover:rotate-180 transition-transform duration-500" />
                     Start Over

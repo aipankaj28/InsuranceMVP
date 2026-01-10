@@ -63,7 +63,7 @@ export default function Step05_Results({ result, formData }) {
                     animate={{ opacity: 1, scale: 1 }}
                     className="bg-brand-accent/20 border border-brand-accent/30 px-6 py-4 rounded-3xl inline-block mb-4"
                 >
-                    <h2 className="text-2xl font-black text-white italic">"{result.persona_name}"</h2>
+                    <h2 className="text-2xl font-black italic" style={{ color: 'var(--text-auth-primary)' }}>"{result.persona_name}"</h2>
                 </motion.div>
             )}
 
@@ -73,8 +73,8 @@ export default function Step05_Results({ result, formData }) {
             </div>
 
             <div className="max-w-md mx-auto">
-                <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-2">Your Personalized Shield</h2>
-                <p className="text-xs md:text-sm text-slate-400 leading-relaxed px-4 font-medium italic">
+                <h2 className="text-2xl md:text-3xl font-extrabold mb-2" style={{ color: 'var(--text-auth-primary)' }}>Your Personalized Shield</h2>
+                <p className="text-xs md:text-sm leading-relaxed px-4 font-medium italic" style={{ color: 'var(--text-auth-muted)' }}>
                     {result.tagline || result.details || "We've crafted the perfect plan for your needs."}
                 </p>
             </div>
@@ -86,7 +86,7 @@ export default function Step05_Results({ result, formData }) {
                 >
                     <Heart className="w-6 h-6 md:w-8 md:h-8 text-blue-400 mx-auto mb-2 md:mb-3" />
                     <h3 className="text-[10px] md:text-xs uppercase tracking-widest text-blue-300 font-bold mb-1">Life Cover</h3>
-                    <p className="text-2xl md:text-3xl font-black text-white">{lifeCover || "Calculated below"}</p>
+                    <p className="text-2xl md:text-3xl font-black" style={{ color: 'var(--text-auth-primary)' }}>{lifeCover || "Calculated below"}</p>
                 </motion.div>
 
                 <motion.div
@@ -95,24 +95,28 @@ export default function Step05_Results({ result, formData }) {
                 >
                     <Shield className="w-6 h-6 md:w-8 md:h-8 text-brand-accent mx-auto mb-2 md:mb-3" />
                     <h3 className="text-[10px] md:text-xs uppercase tracking-widest text-emerald-300 font-bold mb-1">Health Cover</h3>
-                    <p className="text-2xl md:text-3xl font-black text-white">{healthCover || "Calculated below"}</p>
+                    <p className="text-2xl md:text-3xl font-black" style={{ color: 'var(--text-auth-primary)' }}>{healthCover || "Calculated below"}</p>
                 </motion.div>
             </div>
 
             {result.reasoning && (
                 <div
-                    className="text-left bg-white/5 border border-white/10 rounded-2xl overflow-hidden cursor-pointer hover:bg-white/10 transition-all group"
+                    className="text-left border rounded-2xl overflow-hidden cursor-pointer transition-all group"
+                    style={{ 
+                        backgroundColor: 'var(--bg-auth-input)', 
+                        borderColor: 'var(--border-auth-card)' 
+                    }}
                     onClick={() => setExpandedReason(!expandedReason)}
                 >
                     <div className="p-5 md:p-6 space-y-3">
                         <div className="flex items-center justify-between">
-                            <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                            <h3 className="text-sm font-bold uppercase tracking-wider flex items-center gap-2" style={{ color: 'var(--text-auth-primary)' }}>
                                 <span className="w-1.5 h-1.5 rounded-full bg-brand-accent"></span>
                                 Why this coverage?
                             </h3>
-                            {expandedReason ? <ChevronUp className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-500" />}
+                            {expandedReason ? <ChevronUp className="w-4 h-4" style={{ color: 'var(--text-auth-placeholder)' }} /> : <ChevronDown className="w-4 h-4" style={{ color: 'var(--text-auth-placeholder)' }} />}
                         </div>
-                        <p className="text-sm text-white font-medium leading-relaxed italic">"{result.summary || result.tagline}"</p>
+                        <p className="text-sm font-medium leading-relaxed italic" style={{ color: 'var(--text-auth-primary)' }}>"{result.summary || result.tagline}"</p>
 
                         <AnimatePresence>
                             {(expandedReason || !result.summary) && (
@@ -122,7 +126,10 @@ export default function Step05_Results({ result, formData }) {
                                     exit={{ height: 0, opacity: 0 }}
                                     className="overflow-hidden"
                                 >
-                                    <p className="text-xs text-slate-400 leading-relaxed italic border-t border-white/5 pt-3 mt-1">
+                                    <p className="text-xs leading-relaxed italic border-t pt-3 mt-1" style={{ 
+                                        color: 'var(--text-auth-muted)', 
+                                        borderTopColor: 'var(--border-auth-card)' 
+                                    }}>
                                         {result.reasoning}
                                     </p>
                                 </motion.div>
@@ -138,11 +145,11 @@ export default function Step05_Results({ result, formData }) {
                         className="flex items-center justify-between cursor-pointer group"
                         onClick={() => setExpandedFeatureList(!expandedFeatureList)}
                     >
-                        <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                        <h3 className="text-sm font-bold uppercase tracking-wider flex items-center gap-2" style={{ color: 'var(--text-auth-primary)' }}>
                             <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
                             Recommended Plan Features
                         </h3>
-                        {expandedFeatureList ? <ChevronUp className="w-4 h-4 text-slate-500 group-hover:text-white transition-colors" /> : <ChevronDown className="w-4 h-4 text-slate-500 group-hover:text-white transition-colors" />}
+                        {expandedFeatureList ? <ChevronUp className="w-4 h-4 transition-colors" style={{ color: 'var(--text-auth-placeholder)' }} /> : <ChevronDown className="w-4 h-4 transition-colors" style={{ color: 'var(--text-auth-placeholder)' }} />}
                     </div>
 
                     <AnimatePresence>
@@ -156,7 +163,11 @@ export default function Step05_Results({ result, formData }) {
                                 {features.map((feature, idx) => (
                                     <div
                                         key={idx}
-                                        className="bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors group cursor-pointer"
+                                        className="border rounded-xl transition-colors group cursor-pointer"
+                                        style={{ 
+                                            backgroundColor: 'var(--bg-auth-input)', 
+                                            borderColor: 'var(--border-auth-card)' 
+                                        }}
                                         onClick={() => toggleFeature(idx)}
                                     >
                                         <div className="p-4">
@@ -165,7 +176,7 @@ export default function Step05_Results({ result, formData }) {
                                                     <span className="font-bold text-brand-accent text-sm">{feature.name}</span>
                                                     <div className="text-[8px] md:text-[9px] bg-brand-accent/20 text-brand-accent px-1.5 py-0.5 rounded-full font-black uppercase tracking-tighter">Recommended</div>
                                                 </div>
-                                                {expandedFeatures[idx] ? <ChevronUp className="w-3.5 h-3.5 text-slate-500" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-500" />}
+                                                {expandedFeatures[idx] ? <ChevronUp className="w-3.5 h-3.5" style={{ color: 'var(--text-auth-placeholder)' }} /> : <ChevronDown className="w-3.5 h-3.5" style={{ color: 'var(--text-auth-placeholder)' }} />}
                                             </div>
 
                                             <AnimatePresence>
@@ -176,7 +187,10 @@ export default function Step05_Results({ result, formData }) {
                                                         exit={{ height: 0, opacity: 0 }}
                                                         className="overflow-hidden"
                                                     >
-                                                        <p className="text-xs text-slate-400 leading-relaxed pt-2 border-t border-white/5 mt-2 group-hover:text-slate-300 transition-colors">
+                                                        <p className="text-xs leading-relaxed pt-2 border-t mt-2 transition-colors" style={{ 
+                                                            color: 'var(--text-auth-muted)', 
+                                                            borderTopColor: 'var(--border-auth-card)' 
+                                                        }}>
                                                             {feature.reason}
                                                         </p>
                                                     </motion.div>
@@ -193,10 +207,11 @@ export default function Step05_Results({ result, formData }) {
 
             {/* Debug Section (Collapsible) */}
             {result.show_debug && result.prompt_sent && (
-                <div className="mt-8 border-t border-white/10 pt-8">
+                <div className="mt-8 border-t pt-8" style={{ borderTopColor: 'var(--border-auth-card)' }}>
                     <button
                         onClick={() => setShowPrompt(!showPrompt)}
-                        className="flex items-center gap-2 mx-auto text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-white transition-colors group"
+                        className="flex items-center gap-2 mx-auto text-[10px] font-black uppercase tracking-widest transition-colors group"
+                        style={{ color: 'var(--text-auth-placeholder)' }}
                     >
                         <Code className="w-3 h-3 transition-transform group-hover:scale-110" />
                         {showPrompt ? 'Hide Debug Prompt' : 'Show Debug Prompt'}
@@ -211,10 +226,13 @@ export default function Step05_Results({ result, formData }) {
                                 exit={{ height: 0, opacity: 0 }}
                                 className="overflow-hidden"
                             >
-                                <div className="mt-4 text-left bg-black/40 border border-white/10 p-4 rounded-xl font-mono text-[10px] max-w-full overflow-x-auto leading-relaxed text-slate-400 whitespace-pre-wrap max-h-64 overflow-y-auto custom-scrollbar">
-                                    <div className="flex items-center justify-between mb-2 pb-2 border-b border-white/5">
+                                <div className="mt-4 text-left bg-black/40 border p-4 rounded-xl font-mono text-[10px] max-w-full overflow-x-auto leading-relaxed whitespace-pre-wrap max-h-64 overflow-y-auto custom-scrollbar" style={{ 
+                                    borderColor: 'var(--border-auth-card)', 
+                                    color: 'var(--text-auth-muted)' 
+                                }}>
+                                    <div className="flex items-center justify-between mb-2 pb-2 border-b" style={{ borderBottomColor: 'var(--border-auth-card)' }}>
                                         <span className="text-blue-400 font-bold">RAW PROMPT SENT TO LLM</span>
-                                        <span className="text-[8px] bg-slate-800 px-2 py-0.5 rounded text-slate-500 uppercase">ReadOnly</span>
+                                        <span className="text-[8px] bg-slate-800 px-2 py-0.5 rounded uppercase" style={{ color: 'var(--text-auth-placeholder)' }}>ReadOnly</span>
                                     </div>
                                     {result.prompt_sent}
                                 </div>

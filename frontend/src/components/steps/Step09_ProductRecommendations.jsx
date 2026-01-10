@@ -12,11 +12,11 @@ export default function Step09_ProductRecommendations({ formData, gapResult, onC
     const [error, setError] = useState(null);
     const [showPrompt, setShowPrompt] = useState(false);
     const [expandedOverall, setExpandedOverall] = useState(true);
-    const [expandedLife, setExpandedLife] = useState({});
-    const [expandedHealth, setExpandedHealth] = useState({});
+    const [expandedLife, setExpandedLife] = useState({ 0: true }); // Only first expanded by default
+    const [expandedHealth, setExpandedHealth] = useState({ 0: true }); // Only first expanded by default
     const [showLifeResults, setShowLifeResults] = useState(true);
     const [showHealthResults, setShowHealthResults] = useState(true);
-    const [expandedBenefits, setExpandedBenefits] = useState({});
+    const [expandedBenefits, setExpandedBenefits] = useState({ 'life-0': true, 'health-0': true }); // Only first ones expanded
 
     const toggleLife = (idx) => setExpandedLife(prev => ({ ...prev, [idx]: !prev[idx] }));
     const toggleHealth = (idx) => setExpandedHealth(prev => ({ ...prev, [idx]: !prev[idx] }));
@@ -87,8 +87,8 @@ export default function Step09_ProductRecommendations({ formData, gapResult, onC
             <StepWrapper className="text-center py-20">
                 <div className="flex flex-col items-center gap-4">
                     <Loader2 className="w-12 h-12 text-brand-accent animate-spin" />
-                    <h2 className="text-xl font-bold text-white">I'm scanning the market for you...</h2>
-                    <p className="text-sm text-slate-400 italic">Matching your needs with thousands of Indian insurance plans.</p>
+                    <h2 className="text-xl font-bold mb-2" style={{ color: 'var(--text-auth-primary)' }}>I'm scanning the market for you...</h2>
+                    <p className="text-sm italic" style={{ color: 'var(--text-auth-muted)' }}>Matching your needs with thousands of Indian insurance plans.</p>
                 </div>
             </StepWrapper>
         );
@@ -105,21 +105,21 @@ export default function Step09_ProductRecommendations({ formData, gapResult, onC
     const { life_recommendations = [], health_recommendations = [], overall_narrative } = recommendations;
 
     return (
-        <StepWrapper className="space-y-6 md:space-y-8">
+        <StepWrapper className="space-y-4 md:space-y-6">
             <div className="text-center">
                 <div className="bg-emerald-500/10 border border-emerald-500/20 px-4 py-1.5 rounded-full inline-flex items-center gap-2 backdrop-blur-md mb-2 md:mb-4">
                     <Sparkles className="w-4 h-4 text-emerald-400" />
                     <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400">AI Product Matching Engine</span>
                 </div>
-                <h2 className="text-2xl md:text-3xl font-black text-white mb-2 italic">"My Final Handpicked Selection"</h2>
+                <h2 className="text-2xl md:text-3xl font-black mb-2 italic" style={{ color: 'var(--text-auth-primary)' }}>"My Final Handpicked Selection"</h2>
 
                 <div
                     className="max-w-xl mx-auto cursor-pointer group"
                     onClick={() => setExpandedOverall(!expandedOverall)}
                 >
                     <div className="flex items-center justify-center gap-2 mb-1">
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 group-hover:text-slate-300">Analysis Summary</span>
-                        {expandedOverall ? <ChevronUp className="w-3 h-3 text-slate-500" /> : <ChevronDown className="w-3 h-3 text-slate-500" />}
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] group-hover:text-slate-300" style={{ color: 'var(--text-auth-placeholder)' }}>Analysis Summary</span>
+                        {expandedOverall ? <ChevronUp className="w-3 h-3" style={{ color: 'var(--text-auth-placeholder)' }} /> : <ChevronDown className="w-3 h-3" style={{ color: 'var(--text-auth-placeholder)' }} />}
                     </div>
                     <AnimatePresence>
                         {expandedOverall && (
@@ -127,29 +127,30 @@ export default function Step09_ProductRecommendations({ formData, gapResult, onC
                                 initial={{ height: 0, opacity: 0 }}
                                 animate={{ height: 'auto', opacity: 1 }}
                                 exit={{ height: 0, opacity: 0 }}
-                                className="text-slate-400 text-xs md:text-sm leading-relaxed overflow-hidden"
+                                className="text-xs md:text-sm leading-relaxed overflow-hidden"
+                                style={{ color: 'var(--text-auth-muted)' }}
                             >
                                 {overall_narrative}
                             </motion.p>
                         )}
                     </AnimatePresence>
                     {!expandedOverall && (
-                        <p className="text-slate-500 text-xs italic truncate px-4 opacity-50">
+                        <p className="text-xs italic truncate px-4 opacity-50" style={{ color: 'var(--text-auth-placeholder)' }}>
                             {overall_narrative}
                         </p>
                     )}
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Life Insurance Recommendations */}
-                <div className="space-y-4">
+                <div className="space-y-3">
                     <div
                         className="flex items-center justify-center md:justify-start gap-2 cursor-pointer group mb-2"
                         onClick={() => setShowLifeResults(!showLifeResults)}
                     >
-                        <h3 className="text-xl font-black text-white italic group-hover:text-pink-400 transition-colors">Life Insurance</h3>
-                        {showLifeResults ? <ChevronUp className="w-5 h-5 text-slate-500 group-hover:text-pink-400" /> : <ChevronDown className="w-5 h-5 text-slate-500 group-hover:text-pink-400" />}
+                        <h3 className="text-xl font-black italic group-hover:text-pink-400 transition-colors" style={{ color: 'var(--text-auth-primary)' }}>Life Insurance</h3>
+                        {showLifeResults ? <ChevronUp className="w-5 h-5 group-hover:text-pink-400" style={{ color: 'var(--text-auth-placeholder)' }} /> : <ChevronDown className="w-5 h-5 group-hover:text-pink-400" style={{ color: 'var(--text-auth-placeholder)' }} />}
                     </div>
 
                     <AnimatePresence>
@@ -158,7 +159,7 @@ export default function Step09_ProductRecommendations({ formData, gapResult, onC
                                 initial={{ height: 0, opacity: 0 }}
                                 animate={{ height: 'auto', opacity: 1 }}
                                 exit={{ height: 0, opacity: 0 }}
-                                className="space-y-6 overflow-hidden"
+                                className="space-y-3 overflow-hidden"
                             >
                                 {life_recommendations.length > 0 ? (
                                     life_recommendations.map((rec, idx) => (
@@ -167,7 +168,13 @@ export default function Step09_ProductRecommendations({ formData, gapResult, onC
                                             initial={{ opacity: 0, x: -20 }}
                                             animate={{ opacity: 1, x: 0 }}
                                             transition={{ delay: idx * 0.1 }}
-                                            className="bg-white/5 border border-white/10 rounded-3xl p-6 relative group overflow-hidden"
+                                            className="rounded-2xl p-4 relative group overflow-hidden"
+                                            style={{
+                                                backgroundColor: 'var(--bg-auth-card)',
+                                                borderWidth: '1px',
+                                                borderStyle: 'solid',
+                                                borderColor: 'var(--border-auth-card)'
+                                            }}
                                         >
                                             <div className="absolute top-0 right-0 w-32 h-32 bg-pink-500/5 rounded-full blur-3xl -z-10" />
                                             <div className="flex items-center gap-3 mb-6">
@@ -175,7 +182,7 @@ export default function Step09_ProductRecommendations({ formData, gapResult, onC
                                                     <HeartPulse className="w-6 h-6 text-pink-500" />
                                                 </div>
                                                 <div>
-                                                    <h3 className="text-white font-black text-lg">
+                                                    <h3 className="font-black text-lg" style={{ color: 'var(--text-auth-primary)' }}>
                                                         {idx === 0 ? "Top Life Choice" : `Life Option #${idx + 1}`}
                                                     </h3>
                                                     <p className="text-[10px] text-pink-400 uppercase font-black tracking-widest">Bridging your coverage gap</p>
@@ -184,26 +191,32 @@ export default function Step09_ProductRecommendations({ formData, gapResult, onC
 
                                             <div className="mb-6">
                                                 <div className="text-[10px] font-black uppercase text-pink-400 tracking-widest mb-1">Recommended Policy</div>
-                                                <h4 className="text-white font-black text-xl mb-1">{rec.product_name}</h4>
-                                                <p className="text-slate-400 font-bold text-sm mb-4">By {rec.provider}</p>
+                                                <h4 className="font-black text-xl mb-1" style={{ color: 'var(--text-auth-primary)' }}>{rec.product_name}</h4>
+                                                <p className="font-bold text-sm mb-4" style={{ color: 'var(--text-auth-muted)' }}>By {rec.provider}</p>
 
                                                 <div className="bg-pink-500/10 border border-pink-500/20 rounded-2xl p-4 mb-4">
                                                     <div className="text-[10px] font-black uppercase text-pink-500 tracking-widest mb-1">Recommended Sum Assured</div>
-                                                    <div className="text-2xl font-black text-white">{rec.recommended_cover}</div>
+                                                    <div className="text-2xl font-black" style={{ color: 'var(--text-auth-primary)' }}>{rec.recommended_cover}</div>
                                                 </div>
                                             </div>
 
                                             <div className="space-y-4 mb-6">
                                                 <div
-                                                    className="bg-white/5 border border-white/5 rounded-2xl p-4 cursor-pointer hover:bg-white/10 transition-colors"
+                                                    className="rounded-2xl p-4 cursor-pointer hover:bg-white/10 transition-colors"
+                                                    style={{
+                                                        backgroundColor: 'var(--bg-auth-input)',
+                                                        borderWidth: '1px',
+                                                        borderStyle: 'solid',
+                                                        borderColor: 'var(--border-auth-card)'
+                                                    }}
                                                     onClick={() => toggleLife(idx)}
                                                 >
                                                     <div className="flex items-center justify-between mb-2">
                                                         <div className="flex items-center gap-2">
                                                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                                                            <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Gap Analysis & Strategy</span>
+                                                            <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: 'var(--text-auth-placeholder)' }}>Gap Analysis & Strategy</span>
                                                         </div>
-                                                        {expandedLife[idx] ? <ChevronUp className="w-3.5 h-3.5 text-slate-500" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-500" />}
+                                                        {expandedLife[idx] ? <ChevronUp className="w-3.5 h-3.5" style={{ color: 'var(--text-auth-placeholder)' }} /> : <ChevronDown className="w-3.5 h-3.5" style={{ color: 'var(--text-auth-placeholder)' }} />}
                                                     </div>
 
                                                     <AnimatePresence initial={false}>
@@ -214,15 +227,20 @@ export default function Step09_ProductRecommendations({ formData, gapResult, onC
                                                                 exit={{ height: 0, opacity: 0 }}
                                                                 className="overflow-hidden"
                                                             >
-                                                                <p className="text-xs text-slate-300 leading-relaxed font-medium mb-4">
+                                                                <p className="text-xs leading-relaxed font-medium mb-4" style={{ color: 'var(--text-auth-muted)' }}>
                                                                     {rec.gap_filled}
                                                                 </p>
-                                                                <div className="bg-white/5 rounded-xl p-3 border border-white/5 mb-4">
+                                                                <div className="rounded-xl p-3 mb-4" style={{
+                                                                    backgroundColor: 'var(--bg-auth-input)',
+                                                                    borderWidth: '1px',
+                                                                    borderStyle: 'solid',
+                                                                    borderColor: 'var(--border-auth-card)'
+                                                                }}>
                                                                     <div className="flex items-center gap-2 mb-2">
-                                                                        <Info className="w-3 h-3 text-slate-500" />
-                                                                        <span className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Why I chose this</span>
+                                                                        <Info className="w-3 h-3" style={{ color: 'var(--text-auth-placeholder)' }} />
+                                                                        <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: 'var(--text-auth-placeholder)' }}>Why I chose this</span>
                                                                     </div>
-                                                                    <p className="text-[11px] text-slate-400 italic leading-relaxed">"{rec.why_this}"</p>
+                                                                    <p className="text-[11px] italic leading-relaxed" style={{ color: 'var(--text-auth-muted)' }}>"{rec.why_this}"</p>
                                                                 </div>
                                                             </motion.div>
                                                         ) : (
@@ -238,8 +256,8 @@ export default function Step09_ProductRecommendations({ formData, gapResult, onC
                                                         className="flex items-center justify-between cursor-pointer group"
                                                         onClick={() => setExpandedBenefits(prev => ({ ...prev, [`life-${idx}`]: !prev[`life-${idx}`] }))}
                                                     >
-                                                        <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest group-hover:text-slate-300">Key Benefits</span>
-                                                        {expandedBenefits[`life-${idx}`] ? <ChevronUp className="w-3.5 h-3.5 text-slate-500" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-500" />}
+                                                        <span className="text-[10px] font-black uppercase tracking-widest group-hover:text-slate-300" style={{ color: 'var(--text-auth-placeholder)' }}>Key Benefits</span>
+                                                        {expandedBenefits[`life-${idx}`] ? <ChevronUp className="w-3.5 h-3.5" style={{ color: 'var(--text-auth-placeholder)' }} /> : <ChevronDown className="w-3.5 h-3.5" style={{ color: 'var(--text-auth-placeholder)' }} />}
                                                     </div>
 
                                                     <AnimatePresence>
@@ -253,7 +271,7 @@ export default function Step09_ProductRecommendations({ formData, gapResult, onC
                                                                 {(rec.key_benefits || []).map((benefit, i) => (
                                                                     <div key={i} className="flex items-start gap-2 mb-2">
                                                                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 mt-0.5" />
-                                                                        <span className="text-xs text-slate-400 font-medium">{benefit}</span>
+                                                                        <span className="text-xs font-medium" style={{ color: 'var(--text-auth-muted)' }}>{benefit}</span>
                                                                     </div>
                                                                 ))}
                                                             </motion.div>
@@ -267,11 +285,17 @@ export default function Step09_ProductRecommendations({ formData, gapResult, onC
                                     <motion.div
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
-                                        className="bg-white/5 border border-dashed border-white/10 rounded-3xl p-8 flex flex-col items-center justify-center text-center opacity-60 h-full min-h-[300px]"
+                                        className="rounded-2xl p-6 flex flex-col items-center justify-center text-center opacity-60 h-full min-h-[200px]"
+                                        style={{
+                                            backgroundColor: 'var(--bg-auth-input)',
+                                            borderWidth: '1px',
+                                            borderStyle: 'dashed',
+                                            borderColor: 'var(--border-auth-card)'
+                                        }}
                                     >
-                                        <ShieldCheck className="w-12 h-12 text-slate-500 mb-4" />
-                                        <h3 className="text-white font-bold mb-2">Life Cover is Solid</h3>
-                                        <p className="text-xs text-slate-400 max-w-[200px]">Your existing Life Insurance of {formData.existing_life_cover} meets your current needs. No new policy required.</p>
+                                        <ShieldCheck className="w-12 h-12 mb-4" style={{ color: 'var(--text-auth-placeholder)' }} />
+                                        <h3 className="font-bold mb-2" style={{ color: 'var(--text-auth-primary)' }}>Life Cover is Solid</h3>
+                                        <p className="text-xs max-w-[200px]" style={{ color: 'var(--text-auth-muted)' }}>Your existing Life Insurance of {formData.existing_life_cover} meets your current needs. No new policy required.</p>
                                     </motion.div>
                                 )}
                             </motion.div>
@@ -280,13 +304,13 @@ export default function Step09_ProductRecommendations({ formData, gapResult, onC
                 </div>
 
                 {/* Health Insurance Recommendations */}
-                <div className="space-y-4">
+                <div className="space-y-3">
                     <div
                         className="flex items-center justify-center md:justify-start gap-2 cursor-pointer group mb-2"
                         onClick={() => setShowHealthResults(!showHealthResults)}
                     >
-                        <h3 className="text-xl font-black text-white italic group-hover:text-blue-400 transition-colors">Health Insurance</h3>
-                        {showHealthResults ? <ChevronUp className="w-5 h-5 text-slate-500 group-hover:text-blue-400" /> : <ChevronDown className="w-5 h-5 text-slate-500 group-hover:text-blue-400" />}
+                        <h3 className="text-xl font-black italic group-hover:text-blue-400 transition-colors" style={{ color: 'var(--text-auth-primary)' }}>Health Insurance</h3>
+                        {showHealthResults ? <ChevronUp className="w-5 h-5 group-hover:text-blue-400" style={{ color: 'var(--text-auth-placeholder)' }} /> : <ChevronDown className="w-5 h-5 group-hover:text-blue-400" style={{ color: 'var(--text-auth-placeholder)' }} />}
                     </div>
 
                     <AnimatePresence>
@@ -295,7 +319,7 @@ export default function Step09_ProductRecommendations({ formData, gapResult, onC
                                 initial={{ height: 0, opacity: 0 }}
                                 animate={{ height: 'auto', opacity: 1 }}
                                 exit={{ height: 0, opacity: 0 }}
-                                className="space-y-6 overflow-hidden"
+                                className="space-y-3 overflow-hidden"
                             >
                                 {health_recommendations.length > 0 ? (
                                     health_recommendations.map((rec, idx) => (
@@ -304,7 +328,13 @@ export default function Step09_ProductRecommendations({ formData, gapResult, onC
                                             initial={{ opacity: 0, x: 20 }}
                                             animate={{ opacity: 1, x: 0 }}
                                             transition={{ delay: idx * 0.1 }}
-                                            className="bg-white/5 border border-white/10 rounded-3xl p-6 relative group overflow-hidden"
+                                            className="rounded-2xl p-4 relative group overflow-hidden"
+                                            style={{
+                                                backgroundColor: 'var(--bg-auth-card)',
+                                                borderWidth: '1px',
+                                                borderStyle: 'solid',
+                                                borderColor: 'var(--border-auth-card)'
+                                            }}
                                         >
                                             <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl -z-10" />
                                             <div className="flex items-center gap-3 mb-6">
@@ -312,7 +342,7 @@ export default function Step09_ProductRecommendations({ formData, gapResult, onC
                                                     <ShieldCheck className="w-6 h-6 text-blue-500" />
                                                 </div>
                                                 <div>
-                                                    <h3 className="text-white font-black text-lg">
+                                                    <h3 className="font-black text-lg" style={{ color: 'var(--text-auth-primary)' }}>
                                                         {idx === 0 ? "Top Health Match" : `Health Option #${idx + 1}`}
                                                     </h3>
                                                     <p className="text-[10px] text-blue-400 uppercase font-black tracking-widest">Optimizing your medical safety net</p>
@@ -321,12 +351,12 @@ export default function Step09_ProductRecommendations({ formData, gapResult, onC
 
                                             <div className="mb-6">
                                                 <div className="text-[10px] font-black uppercase text-blue-400 tracking-widest mb-1">Recommended Policy</div>
-                                                <h4 className="text-white font-black text-xl mb-1">{rec.product_name}</h4>
-                                                <p className="text-slate-400 font-bold text-sm mb-4">By {rec.provider}</p>
+                                                <h4 className="font-black text-xl mb-1" style={{ color: 'var(--text-auth-primary)' }}>{rec.product_name}</h4>
+                                                <p className="font-bold text-sm mb-4" style={{ color: 'var(--text-auth-muted)' }}>By {rec.provider}</p>
 
                                                 <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-4 mb-4">
                                                     <div className="text-[10px] font-black uppercase text-blue-500 tracking-widest mb-1">Recommended Sum Insured</div>
-                                                    <div className="text-2xl font-black text-white">{rec.recommended_cover}</div>
+                                                    <div className="text-2xl font-black" style={{ color: 'var(--text-auth-primary)' }}>{rec.recommended_cover}</div>
                                                 </div>
                                             </div>
 
@@ -340,7 +370,7 @@ export default function Step09_ProductRecommendations({ formData, gapResult, onC
                                                             <Sparkles className="w-3.5 h-3.5 text-brand-accent" />
                                                             <span className="text-[10px] font-black uppercase text-brand-accent tracking-widest">Gap & Feature Analysis</span>
                                                         </div>
-                                                        {expandedHealth[idx] ? <ChevronUp className="w-3.5 h-3.5 text-slate-500" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-500" />}
+                                                        {expandedHealth[idx] ? <ChevronUp className="w-3.5 h-3.5" style={{ color: 'var(--text-auth-placeholder)' }} /> : <ChevronDown className="w-3.5 h-3.5" style={{ color: 'var(--text-auth-placeholder)' }} />}
                                                     </div>
 
                                                     <AnimatePresence initial={false}>
@@ -351,19 +381,24 @@ export default function Step09_ProductRecommendations({ formData, gapResult, onC
                                                                 exit={{ height: 0, opacity: 0 }}
                                                                 className="overflow-hidden"
                                                             >
-                                                                <p className="text-xs text-brand-accent/80 font-medium leading-relaxed mb-3">
+                                                                <p className="text-xs font-medium leading-relaxed mb-3" style={{ color: 'var(--text-auth-muted)' }}>
                                                                     {rec.gap_filled}
                                                                 </p>
-                                                                <p className="text-[11px] text-slate-400 italic mb-4">
+                                                                <p className="text-[11px] italic mb-4" style={{ color: 'var(--text-auth-muted)' }}>
                                                                     {rec.feature_match_analysis}
                                                                 </p>
 
-                                                                <div className="bg-white/5 rounded-xl p-3 border border-white/5">
+                                                                <div className="rounded-xl p-3" style={{
+                                                                    backgroundColor: 'var(--bg-auth-input)',
+                                                                    borderWidth: '1px',
+                                                                    borderStyle: 'solid',
+                                                                    borderColor: 'var(--border-auth-card)'
+                                                                }}>
                                                                     <div className="flex items-center gap-2 mb-2">
-                                                                        <Info className="w-3 h-3 text-slate-500" />
-                                                                        <span className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Strategic Reasoning</span>
+                                                                        <Info className="w-3 h-3" style={{ color: 'var(--text-auth-placeholder)' }} />
+                                                                        <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: 'var(--text-auth-placeholder)' }}>Strategic Reasoning</span>
                                                                     </div>
-                                                                    <p className="text-[11px] text-slate-400 italic leading-relaxed">"{rec.why_this}"</p>
+                                                                    <p className="text-[11px] italic leading-relaxed" style={{ color: 'var(--text-auth-muted)' }}>"{rec.why_this}"</p>
                                                                 </div>
                                                             </motion.div>
                                                         ) : (
@@ -379,8 +414,8 @@ export default function Step09_ProductRecommendations({ formData, gapResult, onC
                                                         className="flex items-center justify-between cursor-pointer group"
                                                         onClick={() => setExpandedBenefits(prev => ({ ...prev, [`health-${idx}`]: !prev[`health-${idx}`] }))}
                                                     >
-                                                        <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest group-hover:text-slate-300">Key Benefits</span>
-                                                        {expandedBenefits[`health-${idx}`] ? <ChevronUp className="w-3.5 h-3.5 text-slate-500" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-500" />}
+                                                        <span className="text-[10px] font-black uppercase tracking-widest group-hover:text-slate-300" style={{ color: 'var(--text-auth-placeholder)' }}>Key Benefits</span>
+                                                        {expandedBenefits[`health-${idx}`] ? <ChevronUp className="w-3.5 h-3.5" style={{ color: 'var(--text-auth-placeholder)' }} /> : <ChevronDown className="w-3.5 h-3.5" style={{ color: 'var(--text-auth-placeholder)' }} />}
                                                     </div>
 
                                                     <AnimatePresence>
@@ -394,7 +429,7 @@ export default function Step09_ProductRecommendations({ formData, gapResult, onC
                                                                 {(rec.key_benefits || []).map((benefit, i) => (
                                                                     <div key={i} className="flex items-start gap-2 mb-2">
                                                                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 mt-0.5" />
-                                                                        <span className="text-xs text-slate-400 font-medium">{benefit}</span>
+                                                                        <span className="text-xs font-medium" style={{ color: 'var(--text-auth-muted)' }}>{benefit}</span>
                                                                     </div>
                                                                 ))}
                                                             </motion.div>
@@ -408,11 +443,17 @@ export default function Step09_ProductRecommendations({ formData, gapResult, onC
                                     <motion.div
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
-                                        className="bg-white/5 border border-dashed border-white/10 rounded-3xl p-8 flex flex-col items-center justify-center text-center opacity-60 h-full min-h-[300px]"
+                                        className="rounded-2xl p-6 flex flex-col items-center justify-center text-center opacity-60 h-full min-h-[200px]"
+                                        style={{
+                                            backgroundColor: 'var(--bg-auth-input)',
+                                            borderWidth: '1px',
+                                            borderStyle: 'dashed',
+                                            borderColor: 'var(--border-auth-card)'
+                                        }}
                                     >
-                                        <CheckCircle2 className="w-12 h-12 text-slate-500 mb-4" />
-                                        <h3 className="text-white font-bold mb-2">Health Cover is Robust</h3>
-                                        <p className="text-xs text-slate-400 max-w-[200px]">Your existing Health Insurance with {formData.health_provider} covers both amount and essential features. You are well projected.</p>
+                                        <CheckCircle2 className="w-12 h-12 mb-4" style={{ color: 'var(--text-auth-placeholder)' }} />
+                                        <h3 className="font-bold mb-2" style={{ color: 'var(--text-auth-primary)' }}>Health Cover is Robust</h3>
+                                        <p className="text-xs max-w-[200px]" style={{ color: 'var(--text-auth-muted)' }}>Your existing Health Insurance with {formData.health_provider} covers both amount and essential features. You are well projected.</p>
                                     </motion.div>
                                 )}
                             </motion.div>
@@ -421,7 +462,7 @@ export default function Step09_ProductRecommendations({ formData, gapResult, onC
                 </div>
             </div>
 
-            <div className="flex flex-col items-center gap-6 pt-8">
+            <div className="flex flex-col items-center gap-4 pt-6">
                 <button
                     onClick={() => onComplete(recommendations)}
                     className="group relative bg-white text-brand-dark px-6 py-3 md:px-10 md:py-4 rounded-xl md:rounded-2xl font-black text-base md:text-lg shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:shadow-[0_0_50px_rgba(255,255,255,0.4)] transition-all hover:scale-105 active:scale-95 overflow-hidden"
@@ -432,16 +473,17 @@ export default function Step09_ProductRecommendations({ formData, gapResult, onC
                     </span>
                     <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-500/10 to-emerald-500/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                 </button>
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Secure. Personalized. Digital.</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.3em]" style={{ color: 'var(--text-auth-placeholder)' }}>Secure. Personalized. Digital.</p>
             </div>
 
             {/* Debug Section (Collapsible) */}
             {
                 recommendations.show_debug && recommendations.prompt_sent && (
-                    <div className="mt-8 border-t border-white/10 pt-8">
+                    <div className="mt-8 pt-8" style={{ borderTopWidth: '1px', borderTopStyle: 'solid', borderTopColor: 'var(--border-auth-card)' }}>
                         <button
                             onClick={() => setShowPrompt(!showPrompt)}
-                            className="flex items-center gap-2 mx-auto text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-white transition-colors group"
+                            className="flex items-center gap-2 mx-auto text-[10px] font-black uppercase tracking-widest hover:text-white transition-colors group"
+                            style={{ color: 'var(--text-auth-placeholder)' }}
                         >
                             <Code className="w-3 h-3 transition-transform group-hover:scale-110" />
                             {showPrompt ? 'Hide Debug Prompt' : 'Show Debug Prompt'}
@@ -456,10 +498,18 @@ export default function Step09_ProductRecommendations({ formData, gapResult, onC
                                     exit={{ height: 0, opacity: 0 }}
                                     className="overflow-hidden"
                                 >
-                                    <div className="mt-4 text-left bg-black/40 border border-white/10 p-4 rounded-xl font-mono text-[10px] max-w-full overflow-x-auto leading-relaxed text-slate-400 whitespace-pre-wrap max-h-64 overflow-y-auto custom-scrollbar">
-                                        <div className="flex items-center justify-between mb-2 pb-2 border-b border-white/5">
+                                    <div className="mt-4 text-left font-mono text-[10px] max-w-full overflow-x-auto leading-relaxed whitespace-pre-wrap max-h-64 overflow-y-auto custom-scrollbar p-4 rounded-xl"
+                                        style={{
+                                            backgroundColor: 'rgba(0, 0, 0, 0.4)',
+                                            borderWidth: '1px',
+                                            borderStyle: 'solid',
+                                            borderColor: 'var(--border-auth-card)',
+                                            color: 'var(--text-auth-muted)'
+                                        }}
+                                    >
+                                        <div className="flex items-center justify-between mb-2 pb-2" style={{ borderBottomWidth: '1px', borderBottomStyle: 'solid', borderBottomColor: 'var(--border-auth-card)' }}>
                                             <span className="text-blue-400 font-bold">RAW PROMPT SENT TO LLM</span>
-                                            <span className="text-[8px] bg-slate-800 px-2 py-0.5 rounded text-slate-500 uppercase">ReadOnly</span>
+                                            <span className="text-[8px] px-2 py-0.5 rounded uppercase" style={{ backgroundColor: '#1e293b', color: 'var(--text-auth-placeholder)' }}>ReadOnly</span>
                                         </div>
                                         {recommendations.prompt_sent}
                                     </div>

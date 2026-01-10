@@ -42,14 +42,14 @@ export default function Step05_HealthSnapshot({ formData, updateField }) {
     return (
         <StepWrapper className="space-y-6 md:space-y-8">
             <div className="text-center">
-                <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Your Most Valuable Asset</h2>
-                <p className="text-sm md:text-base text-slate-400">A few quick questions to understand your health priorities.</p>
+                <h2 className="text-2xl md:text-3xl font-bold mb-2" style={{ color: 'var(--text-auth-primary)' }}>Your Most Valuable Asset</h2>
+                <p className="text-sm md:text-base" style={{ color: 'var(--text-auth-muted)' }}>A few quick questions to understand your health priorities.</p>
             </div>
 
             <div className="space-y-4 md:space-y-6">
                 {/* Tobacco */}
                 <div className="space-y-2 md:space-y-3">
-                    <label className="block text-xs font-semibold text-slate-300 ml-1 flex items-center gap-2">
+                    <label className="block text-xs font-semibold ml-1 flex items-center gap-2" style={{ color: 'var(--text-auth-label)' }}>
                         <Cigarette className="w-3 h-3 text-orange-400" /> Tobacco Usage
                     </label>
                     <div className="grid grid-cols-3 gap-2 md:gap-3">
@@ -57,7 +57,18 @@ export default function Step05_HealthSnapshot({ formData, updateField }) {
                             <button
                                 key={opt.value}
                                 onClick={() => updateField('smoking_status', opt.value)}
-                                className={`p-2 md:p-3 rounded-xl border transition-all duration-200 ${formData.smoking_status === opt.value ? 'bg-brand-accent/20 border-brand-accent text-white' : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'}`}
+                                className={`p-2 md:p-3 rounded-xl border transition-all duration-200 ${
+                                    formData.smoking_status === opt.value 
+                                        ? 'bg-brand-accent/20 border-brand-accent' 
+                                        : 'hover:bg-opacity-10'
+                                }`}
+                                style={formData.smoking_status !== opt.value ? {
+                                    backgroundColor: 'var(--bg-auth-input)',
+                                    borderColor: 'var(--border-auth-card)',
+                                    color: 'var(--text-auth-muted)'
+                                } : {
+                                    color: 'var(--text-auth-primary)'
+                                }}
                             >
                                 <span className="text-[9px] md:text-xs font-bold">{opt.label}</span>
                             </button>
@@ -67,7 +78,7 @@ export default function Step05_HealthSnapshot({ formData, updateField }) {
 
                 {/* Family History */}
                 <div className="space-y-2 md:space-y-3">
-                    <label className="block text-xs font-semibold text-slate-300 ml-1 flex items-center gap-2">
+                    <label className="block text-xs font-semibold ml-1 flex items-center gap-2" style={{ color: 'var(--text-auth-label)' }}>
                         <Stethoscope className="w-3 h-3 text-blue-400" /> Family Health History
                     </label>
                     <div className="grid grid-cols-2 gap-2 md:gap-3">
@@ -75,7 +86,18 @@ export default function Step05_HealthSnapshot({ formData, updateField }) {
                             <button
                                 key={condition}
                                 onClick={() => toggleCondition(condition)}
-                                className={`p-2.5 md:p-4 rounded-xl border text-left transition-all duration-200 ${(formData.family_health_history || []).includes(condition) ? 'bg-blue-500/20 border-blue-500 text-white' : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'}`}
+                                className={`p-2.5 md:p-4 rounded-xl border text-left transition-all duration-200 ${
+                                    (formData.family_health_history || []).includes(condition) 
+                                        ? 'bg-blue-500/20 border-blue-500' 
+                                        : 'hover:bg-opacity-10'
+                                }`}
+                                style={(formData.family_health_history || []).includes(condition) ? {
+                                    color: 'var(--text-auth-primary)'
+                                } : {
+                                    backgroundColor: 'var(--bg-auth-input)',
+                                    borderColor: 'var(--border-auth-card)',
+                                    color: 'var(--text-auth-muted)'
+                                }}
                             >
                                 <span className="text-[9px] md:text-xs font-bold">{condition}</span>
                             </button>
@@ -85,7 +107,7 @@ export default function Step05_HealthSnapshot({ formData, updateField }) {
 
                 {/* Lifestyle */}
                 <div className="space-y-2 md:space-y-3">
-                    <label className="block text-xs font-semibold text-slate-300 ml-1 flex items-center gap-2">
+                    <label className="block text-xs font-semibold ml-1 flex items-center gap-2" style={{ color: 'var(--text-auth-label)' }}>
                         <Shield className="w-3 h-3 text-brand-accent" /> Lifestyle
                     </label>
                     <div className="grid grid-cols-1 gap-2 md:gap-3">
@@ -93,13 +115,30 @@ export default function Step05_HealthSnapshot({ formData, updateField }) {
                             <button
                                 key={opt.value}
                                 onClick={() => updateField('lifestyle', opt.value)}
-                                className={`flex items-center justify-between p-2.5 md:p-4 rounded-xl border transition-all duration-200 ${formData.lifestyle === opt.value ? 'bg-brand-accent/20 border-brand-accent text-white' : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'}`}
+                                className={`flex items-center justify-between p-2.5 md:p-4 rounded-xl border transition-all duration-200 ${
+                                    formData.lifestyle === opt.value 
+                                        ? 'bg-brand-accent/20 border-brand-accent' 
+                                        : 'hover:bg-opacity-10'
+                                }`}
+                                style={formData.lifestyle !== opt.value ? {
+                                    backgroundColor: 'var(--bg-auth-input)',
+                                    borderColor: 'var(--border-auth-card)',
+                                    color: 'var(--text-auth-muted)'
+                                } : {
+                                    color: 'var(--text-auth-primary)'
+                                }}
                             >
                                 <div className="text-left">
                                     <div className="text-[11px] md:text-sm font-bold">{opt.label}</div>
-                                    <div className="text-[8px] md:text-[10px] text-slate-500">{opt.sub}</div>
+                                    <div className="text-[8px] md:text-[10px]" style={{ color: 'var(--text-auth-placeholder)' }}>{opt.sub}</div>
                                 </div>
-                                <Activity className={`w-3 h-3 md:w-4 md:h-4 ${formData.lifestyle === opt.value ? 'text-brand-accent' : 'text-slate-600'}`} />
+                                <Activity className={`w-3 h-3 md:w-4 md:h-4 ${
+                                    formData.lifestyle === opt.value 
+                                        ? 'text-brand-accent' 
+                                        : ''
+                                }`} style={formData.lifestyle !== opt.value ? {
+                                    color: 'var(--text-auth-placeholder)'
+                                } : {}} />
                             </button>
                         ))}
                     </div>

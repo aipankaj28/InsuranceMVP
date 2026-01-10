@@ -58,8 +58,8 @@ export default function Step07_ExistingPolicyDetails({ formData, updateField }) 
         <StepWrapper className="space-y-6 md:space-y-10">
             <div className="text-center space-y-2">
 
-                <h2 className="text-2xl md:text-3xl font-black text-white leading-tight">Share your <span className="text-brand-accent text-italic">policy</span> details</h2>
-                <p className="text-xs md:text-sm text-slate-400 max-w-md mx-auto">
+                <h2 className="text-2xl md:text-3xl font-black leading-tight" style={{ color: 'var(--text-auth-primary)' }}>Share your <span className="text-brand-accent text-italic">policy</span> details</h2>
+                <p className="text-xs md:text-sm max-w-md mx-auto" style={{ color: 'var(--text-auth-muted)' }}>
                     Knowing your provider and policy helps us analyze benefits more accurately.
                 </p>
             </div>
@@ -73,27 +73,32 @@ export default function Step07_ExistingPolicyDetails({ formData, updateField }) 
                             animate={{ opacity: 1, y: 0 }}
                             className="space-y-6"
                         >
-                            <div className="flex items-center gap-3 pb-2 border-b border-white/10">
+                            <div className="flex items-center gap-3 pb-2 border-b" style={{ borderBottomColor: 'var(--border-auth-card)' }}>
                                 <div className="w-8 h-8 rounded-lg bg-pink-500/20 flex items-center justify-center">
                                     <Heart className="w-4 h-4 text-pink-400" />
                                 </div>
-                                <h3 className="text-lg font-bold text-white uppercase tracking-tight">Life Insurance Details</h3>
+                                <h3 className="text-lg font-bold uppercase tracking-tight" style={{ color: 'var(--text-auth-primary)' }}>Life Insurance Details</h3>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
-                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Insurance Provider</label>
+                                    <label className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-auth-placeholder)' }}>Insurance Provider</label>
                                     <div className="relative">
                                         <select
                                             value={formData.life_provider || ""}
                                             onChange={handleLifeProviderChange}
-                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white appearance-none focus:outline-none focus:border-brand-accent transition-colors"
+                                            className="w-full border rounded-xl px-4 py-3 appearance-none focus:outline-none focus:border-brand-accent transition-colors"
+                                            style={{
+                                                backgroundColor: 'var(--bg-auth-input)',
+                                                borderColor: 'var(--border-auth-card)',
+                                                color: 'var(--text-auth-primary)'
+                                            }}
                                         >
-                                            <option value="" className="bg-brand-dark">Select Provider</option>
-                                            {PROVIDERS.life.map(p => <option key={p} value={p} className="bg-brand-dark">{p}</option>)}
-                                            <option value="Other" className="bg-brand-dark">Other</option>
+                                            <option value="" style={{ backgroundColor: 'var(--bg-auth-main)' }}>Select Provider</option>
+                                            {PROVIDERS.life.map(p => <option key={p} value={p} style={{ backgroundColor: 'var(--bg-auth-main)' }}>{p}</option>)}
+                                            <option value="Other" style={{ backgroundColor: 'var(--bg-auth-main)' }}>Other</option>
                                         </select>
-                                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: 'var(--text-auth-placeholder)' }} />
                                     </div>
                                     {formData.life_provider === 'Other' && (
                                         <input
@@ -101,27 +106,37 @@ export default function Step07_ExistingPolicyDetails({ formData, updateField }) 
                                             placeholder="Type Provider Name"
                                             value={formData.life_provider_custom || ""}
                                             onChange={(e) => updateField('life_provider_custom', e.target.value)}
-                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-accent transition-colors mt-2"
+                                            className="w-full border rounded-xl px-4 py-3 focus:outline-none focus:border-brand-accent transition-colors mt-2"
+                                            style={{
+                                                backgroundColor: 'var(--bg-auth-input)',
+                                                borderColor: 'var(--border-auth-card)',
+                                                color: 'var(--text-auth-primary)'
+                                            }}
                                         />
                                     )}
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Policy Name</label>
+                                    <label className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-auth-placeholder)' }}>Policy Name</label>
                                     <div className="relative">
                                         <select
                                             value={formData.life_policy_name || ""}
                                             onChange={(e) => updateField('life_policy_name', e.target.value)}
                                             disabled={formData.life_provider === 'Other'}
-                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white appearance-none focus:outline-none focus:border-brand-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className="w-full border rounded-xl px-4 py-3 appearance-none focus:outline-none focus:border-brand-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                            style={{
+                                                backgroundColor: 'var(--bg-auth-input)',
+                                                borderColor: 'var(--border-auth-card)',
+                                                color: 'var(--text-auth-primary)'
+                                            }}
                                         >
-                                            <option value="" className="bg-brand-dark">Select Policy</option>
+                                            <option value="" style={{ backgroundColor: 'var(--bg-auth-main)' }}>Select Policy</option>
                                             {formData.life_provider && formData.life_provider !== 'Other' && POLICIES[formData.life_provider]?.map(p => (
-                                                <option key={p} value={p} className="bg-brand-dark">{p}</option>
+                                                <option key={p} value={p} style={{ backgroundColor: 'var(--bg-auth-main)' }}>{p}</option>
                                             ))}
-                                            <option value="Other" className="bg-brand-dark">Other</option>
+                                            <option value="Other" style={{ backgroundColor: 'var(--bg-auth-main)' }}>Other</option>
                                         </select>
-                                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: 'var(--text-auth-placeholder)' }} />
                                     </div>
                                     {formData.life_policy_name === 'Other' && (
                                         <input
@@ -129,7 +144,12 @@ export default function Step07_ExistingPolicyDetails({ formData, updateField }) 
                                             placeholder="Type Policy Name"
                                             value={formData.life_policy_name_custom || ""}
                                             onChange={(e) => updateField('life_policy_name_custom', e.target.value)}
-                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-accent transition-colors mt-2"
+                                            className="w-full border rounded-xl px-4 py-3 focus:outline-none focus:border-brand-accent transition-colors mt-2"
+                                            style={{
+                                                backgroundColor: 'var(--bg-auth-input)',
+                                                borderColor: 'var(--border-auth-card)',
+                                                color: 'var(--text-auth-primary)'
+                                            }}
                                         />
                                     )}
                                 </div>
@@ -146,27 +166,32 @@ export default function Step07_ExistingPolicyDetails({ formData, updateField }) 
                             animate={{ opacity: 1, y: 0 }}
                             className="space-y-6"
                         >
-                            <div className="flex items-center gap-3 pb-2 border-b border-white/10">
+                            <div className="flex items-center gap-3 pb-2 border-b" style={{ borderBottomColor: 'var(--border-auth-card)' }}>
                                 <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
                                     <Shield className="w-4 h-4 text-blue-400" />
                                 </div>
-                                <h3 className="text-lg font-bold text-white uppercase tracking-tight">Health Insurance Details</h3>
+                                <h3 className="text-lg font-bold uppercase tracking-tight" style={{ color: 'var(--text-auth-primary)' }}>Health Insurance Details</h3>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
-                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Insurance Provider</label>
+                                    <label className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-auth-placeholder)' }}>Insurance Provider</label>
                                     <div className="relative">
                                         <select
                                             value={formData.health_provider || ""}
                                             onChange={handleHealthProviderChange}
-                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white appearance-none focus:outline-none focus:border-brand-accent transition-colors"
+                                            className="w-full border rounded-xl px-4 py-3 appearance-none focus:outline-none focus:border-brand-accent transition-colors"
+                                            style={{
+                                                backgroundColor: 'var(--bg-auth-input)',
+                                                borderColor: 'var(--border-auth-card)',
+                                                color: 'var(--text-auth-primary)'
+                                            }}
                                         >
-                                            <option value="" className="bg-brand-dark">Select Provider</option>
-                                            {PROVIDERS.health.map(p => <option key={p} value={p} className="bg-brand-dark">{p}</option>)}
-                                            <option value="Other" className="bg-brand-dark">Other</option>
+                                            <option value="" style={{ backgroundColor: 'var(--bg-auth-main)' }}>Select Provider</option>
+                                            {PROVIDERS.health.map(p => <option key={p} value={p} style={{ backgroundColor: 'var(--bg-auth-main)' }}>{p}</option>)}
+                                            <option value="Other" style={{ backgroundColor: 'var(--bg-auth-main)' }}>Other</option>
                                         </select>
-                                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: 'var(--text-auth-placeholder)' }} />
                                     </div>
                                     {formData.health_provider === 'Other' && (
                                         <input
@@ -174,27 +199,37 @@ export default function Step07_ExistingPolicyDetails({ formData, updateField }) 
                                             placeholder="Type Provider Name"
                                             value={formData.health_provider_custom || ""}
                                             onChange={(e) => updateField('health_provider_custom', e.target.value)}
-                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-accent transition-colors mt-2"
+                                            className="w-full border rounded-xl px-4 py-3 focus:outline-none focus:border-brand-accent transition-colors mt-2"
+                                            style={{
+                                                backgroundColor: 'var(--bg-auth-input)',
+                                                borderColor: 'var(--border-auth-card)',
+                                                color: 'var(--text-auth-primary)'
+                                            }}
                                         />
                                     )}
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Policy Name</label>
+                                    <label className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-auth-placeholder)' }}>Policy Name</label>
                                     <div className="relative">
                                         <select
                                             value={formData.health_policy_name || ""}
                                             onChange={(e) => updateField('health_policy_name', e.target.value)}
                                             disabled={formData.health_provider === 'Other'}
-                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white appearance-none focus:outline-none focus:border-brand-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className="w-full border rounded-xl px-4 py-3 appearance-none focus:outline-none focus:border-brand-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                            style={{
+                                                backgroundColor: 'var(--bg-auth-input)',
+                                                borderColor: 'var(--border-auth-card)',
+                                                color: 'var(--text-auth-primary)'
+                                            }}
                                         >
-                                            <option value="" className="bg-brand-dark">Select Policy</option>
+                                            <option value="" style={{ backgroundColor: 'var(--bg-auth-main)' }}>Select Policy</option>
                                             {formData.health_provider && formData.health_provider !== 'Other' && POLICIES[formData.health_provider]?.map(p => (
-                                                <option key={p} value={p} className="bg-brand-dark">{p}</option>
+                                                <option key={p} value={p} style={{ backgroundColor: 'var(--bg-auth-main)' }}>{p}</option>
                                             ))}
-                                            <option value="Other" className="bg-brand-dark">Other</option>
+                                            <option value="Other" style={{ backgroundColor: 'var(--bg-auth-main)' }}>Other</option>
                                         </select>
-                                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: 'var(--text-auth-placeholder)' }} />
                                     </div>
                                     {formData.health_policy_name === 'Other' && (
                                         <input
@@ -202,7 +237,12 @@ export default function Step07_ExistingPolicyDetails({ formData, updateField }) 
                                             placeholder="Type Policy Name"
                                             value={formData.health_policy_name_custom || ""}
                                             onChange={(e) => updateField('health_policy_name_custom', e.target.value)}
-                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-accent transition-colors mt-2"
+                                            className="w-full border rounded-xl px-4 py-3 focus:outline-none focus:border-brand-accent transition-colors mt-2"
+                                            style={{
+                                                backgroundColor: 'var(--bg-auth-input)',
+                                                borderColor: 'var(--border-auth-card)',
+                                                color: 'var(--text-auth-primary)'
+                                            }}
                                         />
                                     )}
                                 </div>
@@ -212,18 +252,17 @@ export default function Step07_ExistingPolicyDetails({ formData, updateField }) 
                 </AnimatePresence>
 
                 {!formData.has_life_insurance && !formData.has_health_insurance && (
-                    <div className="text-center py-10 bg-white/5 rounded-2xl border border-dashed border-white/10">
-                        <p className="text-slate-500">No existing insurance declared.</p>
-                        <p className="text-xs text-slate-600 mt-1">You can go back to declare insurance or proceed to complete.</p>
+                    <div className="text-center py-10 rounded-2xl border border-dashed" style={{ 
+                        backgroundColor: 'var(--bg-auth-input)', 
+                        borderColor: 'var(--border-auth-card)' 
+                    }}>
+                        <p style={{ color: 'var(--text-auth-placeholder)' }}>No existing insurance declared.</p>
+                        <p className="text-xs mt-1" style={{ color: 'var(--text-auth-placeholder)' }}>You can go back to declare insurance or proceed to complete.</p>
                     </div>
                 )}
             </div>
 
-            <div className="pt-6 border-t border-white/10 text-center">
-                <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-black">
-                    Final Step: Secure your safety net
-                </p>
-            </div>
+           
         </StepWrapper>
     );
 }
