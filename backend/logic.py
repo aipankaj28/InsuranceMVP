@@ -158,7 +158,7 @@ def calculate_recommendation_rule(data: dict) -> dict:
 def calculate_policy_recommendations_ai(data: dict) -> dict:
     """AI-powered specific policy recommendations based on gaps and existing policy features"""
     try:
-        from google import genai
+        import google.genai as genai
         import json
         
         api_key = os.getenv("GEMINI_API_KEY")
@@ -290,7 +290,7 @@ Be very specific about product names available in India. Use a FIRST-PERSON NARR
 def calculate_recommendation_ai(data: dict) -> dict:
     """AI-powered recommendation using Google Gemini"""
     try:
-        from google import genai
+        import google.genai as genai
         
         api_key = os.getenv("GEMINI_API_KEY")
         if not api_key:
