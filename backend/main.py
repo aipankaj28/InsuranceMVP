@@ -25,6 +25,7 @@ try:
     from logic import calculate_recommendation
     from auth import generate_otp, store_otp, send_otp_email, verify_otp_logic, create_access_token, decode_access_token
     from database import init_db, get_db, User, Recommendation
+    from policy_service.router import router as policy_router
     log_now("Modules imported successfully.")
 except Exception as e:
     log_now(f"FATAL: Module import failed: {str(e)}")
@@ -80,6 +81,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.include_router(policy_router)
 log_now(f"CORS configured with origins: {origins}")
 log_now("CORS configuration complete.")
 

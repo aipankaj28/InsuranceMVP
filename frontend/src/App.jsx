@@ -1,15 +1,18 @@
 import { useState } from 'react';
 import Wizard from './components/Wizard';
+import FeatureSelector from './components/FeatureSelector';
+import PolicyReviewSession from './components/PolicyReviewSession';
 import Background from './components/Background';
 import Login from './components/Login';
 import ThemeToggle from './components/ThemeToggle';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { Power } from 'lucide-react';
+import { Power, LayoutDashboard } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 function MainApp() {
   const { isAuthenticated, loading } = useAuth();
   const [showLogout, setShowLogout] = useState(false);
+  const [selectedFeature, setSelectedFeature] = useState(null);
 
   if (loading) {
     return (
@@ -28,6 +31,15 @@ function MainApp() {
           <ThemeToggle />
           {isAuthenticated && (
             <>
+              {selectedFeature && (
+                <button
+                  onClick={() => setSelectedFeature(null)}
+                  className="p-2 md:p-3 rounded-full border bg-white/5 border-white/10 text-slate-400 hover:text-white hover:bg-white/10 transition-all shadow-xl backdrop-blur-md"
+                  title="Go to Dashboard"
+                >
+                  <LayoutDashboard className="w-4 h-4 md:w-6 md:h-6" />
+                </button>
+              )}
               <AnimatePresence>
                 {showLogout && (
                   <motion.button
@@ -60,7 +72,16 @@ function MainApp() {
           </h1>
           <p className="text-sm md:text-lg font-medium opacity-80" style={{ color: 'var(--text-auth-muted)' }}>No jargon. Just answers. (MVP v0.3)</p>
         </div>
-        {!isAuthenticated ? <Login /> : <Wizard />}
+
+        {!isAuthenticated ? (
+          <Login />
+        ) : !selectedFeature ? (
+          <FeatureSelector onSelectFeature={setSelectedFeature} />
+        ) : selectedFeature === 'wizard' ? (
+          <Wizard onBack={() => setSelectedFeature(null)} />
+        ) : (
+          <PolicyReviewSession onBack={() => setSelectedFeature(null)} />
+        )}
       </div>
     </>
   );

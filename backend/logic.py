@@ -1,4 +1,4 @@
-import os
+﻿import os
 import json
 from datetime import datetime
 from dotenv import load_dotenv
@@ -45,10 +45,10 @@ def parse_income(income_level: str) -> int:
         "5-10L": 750000,
         "10-20L": 1500000,
         ">20L": 2500000,
-        "Under ₹5 lakhs": 400000,
-        "₹5-10 lakhs": 750000,
-        "₹10-20 lakhs": 1500000,
-        "₹35+ lakhs": 4000000
+        "Under â‚¹5 lakhs": 400000,
+        "â‚¹5-10 lakhs": 750000,
+        "â‚¹10-20 lakhs": 1500000,
+        "â‚¹35+ lakhs": 4000000
     }
     return mapping.get(income_level, 500000)
 
@@ -61,12 +61,12 @@ def calculate_age(dob_str: str) -> int:
         return 30  # Default age if parsing fails
 
 def parse_amount_from_string(amount_str: str) -> int:
-    """Safely derive numeric value from Indian currency strings like '₹1 Crore' or '₹50 Lakhs'"""
+    """Safely derive numeric value from Indian currency strings like 'â‚¹1 Crore' or 'â‚¹50 Lakhs'"""
     if not amount_str:
         return 0
     try:
-        # Clean string: remove ₹, commas, spaces
-        clean_str = amount_str.replace('₹', '').replace(',', '').strip().lower()
+        # Clean string: remove â‚¹, commas, spaces
+        clean_str = amount_str.replace('â‚¹', '').replace(',', '').strip().lower()
         
         multiplier = 1
         if 'crore' in clean_str or 'cr' in clean_str:
@@ -131,8 +131,8 @@ def calculate_recommendation_rule(data: dict) -> dict:
         base_health = int(base_health * (1 + (members_count - 1) * 0.3))
 
     # Format strings
-    life_cover_str = f"₹{life_cover_amount/10000000:.1f} Crore" if life_cover_amount >= 10000000 else f"₹{life_cover_amount/100000:.0f} Lakhs"
-    health_cover_str = f"₹{base_health/100000:.0f} Lakhs"
+    life_cover_str = f"â‚¹{life_cover_amount/10000000:.1f} Crore" if life_cover_amount >= 10000000 else f"â‚¹{life_cover_amount/100000:.0f} Lakhs"
+    health_cover_str = f"â‚¹{base_health/100000:.0f} Lakhs"
     
     details = f"Coverage designed for your profile including {members_count} family members in a {city_tier} city."
     if is_smoker:
@@ -151,23 +151,22 @@ def calculate_recommendation_rule(data: dict) -> dict:
             {"name": "Critical Illness Cover", "reason": "Recommended for long-term health protection."},
             {"name": "No Room Rent Capping", "reason": "Ensures you get any room type during hospitalization."}
         ],
-        "icon": "🚀" if life_cover_amount > 10000000 else "🛡️",
+        "icon": "ðŸš€" if life_cover_amount > 10000000 else "ðŸ›¡ï¸",
         "prompt_sent": "Rule-based logic used."
     }
 
 def calculate_policy_recommendations_ai(data: dict) -> dict:
     """AI-powered specific policy recommendations based on gaps and existing policy features"""
     try:
-        import google.generativeai as genai
+        from google import genai
         import json
         
         api_key = os.getenv("GEMINI_API_KEY")
         if not api_key:
             raise ValueError("GEMINI_API_KEY not found in environment")
         
-        genai.configure(api_key=api_key)
+        client = genai.Client(api_key=api_key)
         model_name = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
-        model = genai.GenerativeModel(model_name)
         
         # Format existing health features if possible
         existing_health_info = ""
@@ -191,8 +190,8 @@ Existing Life Policy:
         life_gap_val = max(0, data.get('recommended_life_cover_val', 0) - data.get('existing_life_cover_val', 0))
         health_gap_val = max(0, data.get('recommended_health_cover_val', 0) - data.get('existing_health_cover_val', 0))
         
-        life_gap_str = f"₹{life_gap_val/10000000:.1f} Crore" if life_gap_val >= 10000000 else f"₹{life_gap_val/100000:.0f} Lakhs"
-        health_gap_str = f"₹{health_gap_val/100000:.0f} Lakhs"
+        life_gap_str = f"â‚¹{life_gap_val/10000000:.1f} Crore" if life_gap_val >= 10000000 else f"â‚¹{life_gap_val/100000:.0f} Lakhs"
+        health_gap_str = f"â‚¹{health_gap_val/100000:.0f} Lakhs"
 
         prompt = f"""You are an expert Indian insurance advisor. Based on the user's profile, gaps identified, and existing policy details, recommend UP TO 3 specific Life Insurance plans and UP TO 3 specific Health Insurance plans available in the Indian market ONLY IF NECESSARY.
 
@@ -239,10 +238,10 @@ Provide recommendations in EXACTLY this JSON format (provide UP TO 3 for each li
 User Context:
 - Name: {data.get('first_name', 'User')}
 - Recommended Ideal Life Cover: {data.get('recommended_life_cover', 'Not calculated')}
-- Existing Life Cover: ₹{data.get('existing_life_cover_val', 0)/10000000 if data.get('existing_life_cover_val', 0) >= 10000000 else data.get('existing_life_cover_val', 0)/100000:.1f} {'Cr' if data.get('existing_life_cover_val', 0) >= 10000000 else 'L'}
+- Existing Life Cover: â‚¹{data.get('existing_life_cover_val', 0)/10000000 if data.get('existing_life_cover_val', 0) >= 10000000 else data.get('existing_life_cover_val', 0)/100000:.1f} {'Cr' if data.get('existing_life_cover_val', 0) >= 10000000 else 'L'}
 - SHORTFALL TO BE COVERED (LIFE): {life_gap_str}
 - Recommended Ideal Health Cover: {data.get('recommended_health_cover', 'Not calculated')}
-- Existing Health Cover: ₹{data.get('existing_health_cover_val', 0)/100000:.1f} Lakhs
+- Existing Health Cover: â‚¹{data.get('existing_health_cover_val', 0)/100000:.1f} Lakhs
 - SHORTFALL TO BE COVERED (HEALTH): {health_gap_str}
 - Recommended Features: {', '.join(data.get('recommended_features', []))}
 {existing_health_info}
@@ -250,7 +249,7 @@ User Context:
 
 Be very specific about product names available in India. Use a FIRST-PERSON NARRATIVE."""
 
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(model=model_name, contents=prompt)
         response_text = response.text.strip()
         
         if "```json" in response_text:
@@ -291,15 +290,14 @@ Be very specific about product names available in India. Use a FIRST-PERSON NARR
 def calculate_recommendation_ai(data: dict) -> dict:
     """AI-powered recommendation using Google Gemini"""
     try:
-        import google.generativeai as genai
+        from google import genai
         
         api_key = os.getenv("GEMINI_API_KEY")
         if not api_key:
             raise ValueError("GEMINI_API_KEY not found in environment")
         
-        genai.configure(api_key=api_key)
+        client = genai.Client(api_key=api_key)
         model_name = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
-        model = genai.GenerativeModel(model_name)
         
         # Build prompt
         age = data.get('age') or calculate_age(data.get('dob', ''))
@@ -309,9 +307,9 @@ def calculate_recommendation_ai(data: dict) -> dict:
 
 Provide a recommendation in EXACTLY this JSON format:
 {{
-  "life_cover": "₹X Crore" or "₹X Lakhs",
+  "life_cover": "â‚¹X Crore" or "â‚¹X Lakhs",
   "life_cover_val": numeric_amount_in_rupees (e.g., 10000000 for 1 Cr, 5000000 for 50L),
-  "health_cover": "₹X Lakhs",
+  "health_cover": "â‚¹X Lakhs",
   "health_cover_val": numeric_amount_in_rupees (e.g., 1000000 for 10L),
   "persona_name": "A creative title (e.g., The Family Anchor, The Rising Star)",
   "tagline": "A short tagline summary (one sentence).",
@@ -322,7 +320,7 @@ Provide a recommendation in EXACTLY this JSON format:
     {{ "name": "Critical Illness Cover", "reason": "Justification based on age/lifestyle." }},
     {{ "name": "No Room Rent Capping", "reason": "Justification based on city tier." }}
   ],
-  "icon": "🚀" or "🛡️" or "💼"
+  "icon": "ðŸš€" or "ðŸ›¡ï¸" or "ðŸ’¼"
 }}
 
 CRITICAL UNIT REMINDER:
@@ -348,7 +346,7 @@ User Context:
 
 Be specific and empathetic. Avoid generic advice. Mention the user's specific career stage or family responsibilities."""
 
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(model=model_name, contents=prompt)
         response_text = response.text.strip()
         
         # Try to extract JSON from response
