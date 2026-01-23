@@ -1,6 +1,6 @@
 import os
 import json
-from google import genai
+import google.genai as genai
 from .schemas import PolicyExtractionResult, PolicyAddOn
 
 class PolicyEngine:
