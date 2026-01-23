@@ -158,14 +158,14 @@ def calculate_recommendation_rule(data: dict) -> dict:
 def calculate_policy_recommendations_ai(data: dict) -> dict:
     """AI-powered specific policy recommendations based on gaps and existing policy features"""
     try:
-        from google import genai
+        from google.genai import Client
         import json
         
         api_key = os.getenv("GEMINI_API_KEY")
         if not api_key:
             raise ValueError("GEMINI_API_KEY not found in environment")
         
-        client = genai.Client(api_key=api_key)
+        client = Client(api_key=api_key)
         model_name = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
         
         # Format existing health features if possible
@@ -290,13 +290,13 @@ Be very specific about product names available in India. Use a FIRST-PERSON NARR
 def calculate_recommendation_ai(data: dict) -> dict:
     """AI-powered recommendation using Google Gemini"""
     try:
-        from google import genai
+        from google.genai import Client
         
         api_key = os.getenv("GEMINI_API_KEY")
         if not api_key:
             raise ValueError("GEMINI_API_KEY not found in environment")
         
-        client = genai.Client(api_key=api_key)
+        client = Client(api_key=api_key)
         model_name = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
         
         # Build prompt

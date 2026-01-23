@@ -1,6 +1,6 @@
 ﻿import os
 import json
-from google import genai
+from google.genai import Client, types
 from .schemas import PolicyExtractionResult, PolicyAddOn
 
 class PolicyEngine:
@@ -9,7 +9,7 @@ class PolicyEngine:
         if not api_key:
             raise ValueError("GEMINI_API_KEY not found in environment")
         
-        self.client = genai.Client(api_key=api_key)
+        self.client = Client(api_key=api_key)
         # Use flash for speed and multimodal support
         self.model_name = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
 
@@ -43,10 +43,6 @@ class PolicyEngine:
             """
 
             # Handle file for Gemini
-            # In the new SDK, we use types.Part.from_bytes or similar but types is not explicitly imported above
-            # Alternatively, we can just pass the data and mime_type in the parts list
-            from google.genai import types
-            
             content_part = types.Part.from_bytes(
                 data=file_content,
                 mime_type=mime_type

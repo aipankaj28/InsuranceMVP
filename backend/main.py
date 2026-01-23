@@ -14,7 +14,19 @@ def log_now(msg):
 
 log_now("--- BACKEND MODULE LOADING ---")
 
+# Diagnostic for Railway import issues
 try:
+    import google
+    log_now(f"Google package found at: {getattr(google, '__path__', 'Unknown')}")
+    from google.genai import Client
+    log_now("Google GenAI Client imported successfully.")
+except Exception as diag_e:
+    log_now(f"DIAGNOSTIC: GenAI import failed early: {diag_e}")
+    try:
+        import pkgutil
+        log_now(f"Google submodules: {[m.name for m in pkgutil.iter_modules(google.__path__)]}")
+    except:
+        pass
     from fastapi import FastAPI, HTTPException, Depends, Header, Request
     from fastapi.exceptions import RequestValidationError
     from fastapi.responses import JSONResponse
