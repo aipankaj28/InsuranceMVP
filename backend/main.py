@@ -27,6 +27,8 @@ except Exception as diag_e:
         log_now(f"Google submodules: {[m.name for m in pkgutil.iter_modules(google.__path__)]}")
     except:
         pass
+
+try:
     from fastapi import FastAPI, HTTPException, Depends, Header, Request
     from fastapi.exceptions import RequestValidationError
     from fastapi.responses import JSONResponse
