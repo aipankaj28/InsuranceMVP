@@ -348,8 +348,12 @@ export default function ReverseGapFlow({ onBack }) {
                                 <label className="text-[10px] font-black uppercase tracking-widest ml-2" style={{ color: 'var(--text-auth-label)' }}>Number of Children</label>
                                 <input
                                     type="number"
+                                    min="0"
                                     value={profile.num_children}
-                                    onChange={(e) => setProfile({ ...profile, num_children: parseInt(e.target.value) || 0 })}
+                                    onChange={(e) => {
+                                        const val = parseInt(e.target.value);
+                                        setProfile({ ...profile, num_children: isNaN(val) ? 0 : Math.max(0, val) });
+                                    }}
                                     className="w-full border rounded-2xl p-4 focus:border-brand-accent outline-none font-bold transition-colors"
                                     style={{ backgroundColor: 'var(--bg-auth-input)', borderColor: 'var(--border-auth-card)', color: 'var(--text-auth-primary)' }}
                                 />
