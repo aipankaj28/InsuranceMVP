@@ -34,14 +34,18 @@ async def extract_multiple_policies(files: List[UploadFile] = File(...)):
     agg_dob = next((r.user_hint.dob for r in results if r.user_hint and r.user_hint.dob), None)
     agg_gender = next((r.user_hint.gender for r in results if r.user_hint and r.user_hint.gender), None)
     agg_city = next((r.user_hint.city for r in results if r.user_hint and r.user_hint.city), None)
+    agg_marital = next((r.user_hint.marital_status for r in results if r.user_hint and r.user_hint.marital_status), None)
+    agg_children = next((r.user_hint.num_children for r in results if r.user_hint and r.user_hint.num_children is not None), None)
     
     from .schemas import UserProfileHint
     aggregated_profile = UserProfileHint(
         full_name=agg_name,
         dob=agg_dob,
         gender=agg_gender,
-        city=agg_city
-    ) if any([agg_name, agg_dob, agg_gender, agg_city]) else None
+        city=agg_city,
+        marital_status=agg_marital,
+        num_children=agg_children
+    ) if any([agg_name, agg_dob, agg_gender, agg_city, agg_marital, agg_children is not None]) else None
 
     import os
     show_debug = os.getenv("SHOW_DEBUG_INFO", "false").lower() == "true"

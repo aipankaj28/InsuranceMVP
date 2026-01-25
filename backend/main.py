@@ -466,6 +466,8 @@ class ProfileSyncRequest(BaseModel):
     existing_health_cover_val: Optional[int] = None
     health_provider: Optional[str] = None
     health_policy_name: Optional[str] = None
+    marital_status: Optional[str] = None
+    num_children: Optional[int] = None
 
 @app.get("/api/user/profile")
 async def get_profile(user_payload = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -513,6 +515,8 @@ async def sync_profile(data: ProfileSyncRequest, user_payload = Depends(get_curr
     if data.dob: user.dob = data.dob
     if data.gender: user.gender = data.gender
     if data.city: user.city = data.city
+    if data.marital_status: user.marital_status = data.marital_status
+    if data.num_children is not None: user.num_children = data.num_children
     
     # Coverage data
     if data.existing_life_cover_val is not None:

@@ -113,7 +113,9 @@ export default function ReverseGapFlow({ onBack }) {
                     first_name: hints.full_name || profile.first_name,
                     dob: hints.dob || profile.dob,
                     gender: hints.gender || profile.gender,
-                    city: hints.city || profile.city
+                    city: hints.city || profile.city,
+                    marital_status: hints.marital_status || profile.marital_status,
+                    num_children: hints.num_children !== null ? hints.num_children : profile.num_children
                 };
                 setProfile(updatedProfile);
 
@@ -129,6 +131,8 @@ export default function ReverseGapFlow({ onBack }) {
                         dob: updatedProfile.dob,
                         gender: updatedProfile.gender,
                         city: updatedProfile.city,
+                        marital_status: updatedProfile.marital_status,
+                        num_children: updatedProfile.num_children,
                         existing_life_cover_val: life,
                         existing_health_cover_val: health
                     })

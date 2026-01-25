@@ -38,7 +38,9 @@ class PolicyEngine:
                     "full_name": "Name of the primary policyholder",
                     "dob": "Date of birth in YYYY-MM-DD format (if found)",
                     "gender": "Male/Female (if found)",
-                    "city": "City of residence mentioned in the policy (if found)"
+                    "city": "City of residence mentioned in the policy (if found)",
+                    "marital_status": "Single/Married (look for spouse names or nominee relations)",
+                    "num_children": numeric_value_of_children_found (e.g. 0, 1, 2)
                 }
             }
             
@@ -51,7 +53,9 @@ class PolicyEngine:
             - 1 Crore = 10,000,000.
             - 1 Lakh = 100,000.
             - If it's not an insurance policy, set is_valid_policy to false.
-            - Look specifically for "Policyholder Name", "Insured Name", "Date of Birth", and "Address" sections to fill user_hint.
+            - Look specifically for "Policyholder Name", "Insured Name", "Date of Birth", "Nominee", and "Address" sections to fill user_hint.
+            - For num_children, look for nominees with relationship 'Son' or 'Daughter'.
+            - For marital_status, check if a spouse is listed as a nominee or co-insured.
             """
 
             # Handle file for Gemini

@@ -10,6 +10,8 @@ class UserProfileHint(BaseModel):
     dob: Optional[str] = None
     gender: Optional[str] = None
     city: Optional[str] = None
+    marital_status: Optional[str] = None
+    num_children: Optional[int] = None
 
 class PolicyExtractionResult(BaseModel):
     filename: str
