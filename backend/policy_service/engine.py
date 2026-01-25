@@ -74,6 +74,7 @@ class PolicyEngine:
             
             data = json.loads(response_text)
             data["filename"] = filename
+            data["prompt_sent"] = prompt
             
             return PolicyExtractionResult(**data)
             

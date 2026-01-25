@@ -26,9 +26,11 @@ class PolicyExtractionResult(BaseModel):
     raw_summary: Optional[str] = None
     policy_type: Optional[str] = "OTHER" # LIFE, HEALTH, OTHER
     user_hint: Optional[UserProfileHint] = None
+    prompt_sent: Optional[str] = None
 
 class BatchExtractionResponse(BaseModel):
     results: List[PolicyExtractionResult]
     total_processed: int
     success_count: int
     aggregated_profile: Optional[UserProfileHint] = None
+    show_debug: bool = False

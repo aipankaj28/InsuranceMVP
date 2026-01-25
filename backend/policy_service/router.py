@@ -43,9 +43,13 @@ async def extract_multiple_policies(files: List[UploadFile] = File(...)):
         city=agg_city
     ) if any([agg_name, agg_dob, agg_gender, agg_city]) else None
 
+    import os
+    show_debug = os.getenv("SHOW_DEBUG_INFO", "false").lower() == "true"
+
     return BatchExtractionResponse(
         results=results,
         total_processed=len(files),
         success_count=success_count,
-        aggregated_profile=aggregated_profile
+        aggregated_profile=aggregated_profile,
+        show_debug=show_debug
     )

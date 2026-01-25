@@ -7,6 +7,7 @@ export default function PolicyReviewSession({ onBack }) {
     const [loading, setLoading] = useState(false);
     const [results, setResults] = useState(null);
     const [error, setError] = useState(null);
+    const [debugData, setDebugData] = useState({ show_debug: false });
 
     const handleFileChange = (e) => {
         const selectedFiles = Array.from(e.target.files);
@@ -43,6 +44,7 @@ export default function PolicyReviewSession({ onBack }) {
 
             const data = await response.json();
             setResults(data.results);
+            setDebugData({ show_debug: data.show_debug });
         } catch (err) {
             setError(err.message);
         } finally {
@@ -237,6 +239,23 @@ export default function PolicyReviewSession({ onBack }) {
                             Upload More Documents
                         </button>
                     </div>
+
+                    {debugData.show_debug && results && (
+                        <div className="mt-12 pt-8 border-t space-y-4" style={{ borderTopColor: 'var(--border-auth-card)' }}>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-center" style={{ color: 'var(--text-auth-placeholder)' }}>Debug: Extraction Prompts</p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {results.map((res, i) => (
+                                    <div key={i} className="p-4 rounded-xl border text-[9px] font-mono overflow-auto max-h-40 relative group"
+                                        style={{ backgroundColor: 'var(--bg-auth-input)', borderColor: 'var(--border-auth-card)' }}>
+                                        <div className="flex justify-between items-center mb-2 pb-2 border-b" style={{ borderBottomColor: 'var(--border-auth-card)' }}>
+                                            <span className="font-black uppercase tracking-tighter text-blue-400">Prompt for: {res.filename}</span>
+                                        </div>
+                                        <pre className="whitespace-pre-wrap opacity-70" style={{ color: 'var(--text-auth-primary)' }}>{res.prompt_sent}</pre>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
         </div>

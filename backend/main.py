@@ -348,6 +348,7 @@ def get_user_profile(user_payload = Depends(get_current_user), db: Session = Dep
             "icon": rec.icon,
             "mode": rec.mode,
             "prompt_sent": rec.prompt_sent,
+            "show_debug": os.getenv("SHOW_DEBUG_INFO", "false").lower() == "true",
             "created_at": rec.created_at.isoformat()
         } for rec in all_recs
     ]

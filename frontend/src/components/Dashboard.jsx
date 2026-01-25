@@ -60,9 +60,9 @@ export default function Dashboard({ userProfile, latestRecommendation, history, 
                     {/* Left Actions (Desktop) */}
                     <div className="hidden md:flex justify-start">
                         {hasProducts && (
-                            <div className="flex p-1 rounded-xl border" style={{ 
-                                backgroundColor: 'var(--bg-auth-input)', 
-                                borderColor: 'var(--border-auth-card)' 
+                            <div className="flex p-1 rounded-xl border" style={{
+                                backgroundColor: 'var(--bg-auth-input)',
+                                borderColor: 'var(--border-auth-card)'
                             }}>
                                 <button
                                     onClick={() => setView('gaps')}
@@ -103,9 +103,9 @@ export default function Dashboard({ userProfile, latestRecommendation, history, 
                 {/* Mobile View Toggle */}
                 {hasProducts && (
                     <div className="flex md:hidden justify-center mt-4">
-                        <div className="flex p-1 rounded-xl border" style={{ 
-                            backgroundColor: 'var(--bg-auth-input)', 
-                            borderColor: 'var(--border-auth-card)' 
+                        <div className="flex p-1 rounded-xl border" style={{
+                            backgroundColor: 'var(--bg-auth-input)',
+                            borderColor: 'var(--border-auth-card)'
                         }}>
                             <button
                                 onClick={() => setView('gaps')}
@@ -138,9 +138,9 @@ export default function Dashboard({ userProfile, latestRecommendation, history, 
                         {/* Gap Analysis Dashboard */}
                         <div className="grid grid-cols-1 gap-6">
                             {/* Life Insurance Gap */}
-                            <div className="border rounded-3xl p-6 relative overflow-hidden group" style={{ 
-                                backgroundColor: 'var(--bg-auth-input)', 
-                                borderColor: 'var(--border-auth-card)' 
+                            <div className="border rounded-3xl p-6 relative overflow-hidden group" style={{
+                                backgroundColor: 'var(--bg-auth-input)',
+                                borderColor: 'var(--border-auth-card)'
                             }}>
                                 <div className="flex justify-between items-start mb-6">
                                     <div>
@@ -160,9 +160,9 @@ export default function Dashboard({ userProfile, latestRecommendation, history, 
                                 </div>
 
                                 <div className="space-y-3">
-                                    <div className="h-3 rounded-full overflow-hidden flex border" style={{ 
-                                        backgroundColor: 'var(--bg-auth-input)', 
-                                        borderColor: 'var(--border-auth-card)' 
+                                    <div className="h-3 rounded-full overflow-hidden flex border" style={{
+                                        backgroundColor: 'var(--bg-auth-input)',
+                                        borderColor: 'var(--border-auth-card)'
                                     }}>
                                         <div
                                             className="h-full bg-pink-500/20 border-r border-pink-500/50 transition-all duration-1000"
@@ -183,9 +183,9 @@ export default function Dashboard({ userProfile, latestRecommendation, history, 
                             </div>
 
                             {/* Health Insurance Gap */}
-                            <div className="border rounded-3xl p-6 relative overflow-hidden group" style={{ 
-                                backgroundColor: 'var(--bg-auth-input)', 
-                                borderColor: 'var(--border-auth-card)' 
+                            <div className="border rounded-3xl p-6 relative overflow-hidden group" style={{
+                                backgroundColor: 'var(--bg-auth-input)',
+                                borderColor: 'var(--border-auth-card)'
                             }}>
                                 <div className="flex justify-between items-start mb-6">
                                     <div>
@@ -205,9 +205,9 @@ export default function Dashboard({ userProfile, latestRecommendation, history, 
                                 </div>
 
                                 <div className="space-y-3">
-                                    <div className="h-3 rounded-full overflow-hidden flex border" style={{ 
-                                        backgroundColor: 'var(--bg-auth-input)', 
-                                        borderColor: 'var(--border-auth-card)' 
+                                    <div className="h-3 rounded-full overflow-hidden flex border" style={{
+                                        backgroundColor: 'var(--bg-auth-input)',
+                                        borderColor: 'var(--border-auth-card)'
                                     }}>
                                         <div
                                             className="h-full bg-blue-500/20 border-r border-blue-500/50 transition-all duration-1000"
@@ -256,9 +256,9 @@ export default function Dashboard({ userProfile, latestRecommendation, history, 
                                             >
                                                 <p className="leading-relaxed italic text-sm font-medium mb-2 mt-2" style={{ color: 'var(--text-auth-label)' }}>"{latestRecommendation.summary || reasoning || details}"</p>
                                                 {(latestRecommendation.summary && reasoning) && (
-                                                    <p className="leading-relaxed text-xs opacity-80 border-t pt-2" style={{ 
-                                                        color: 'var(--text-auth-muted)', 
-                                                        borderTopColor: 'var(--border-auth-card)' 
+                                                    <p className="leading-relaxed text-xs opacity-80 border-t pt-2" style={{
+                                                        color: 'var(--text-auth-muted)',
+                                                        borderTopColor: 'var(--border-auth-card)'
                                                     }}>
                                                         {reasoning}
                                                     </p>
@@ -410,18 +410,18 @@ export default function Dashboard({ userProfile, latestRecommendation, history, 
 
             {/* Profile Context */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="flex items-center gap-3 p-4 rounded-2xl border" style={{ 
-                    color: 'var(--text-auth-label)', 
-                    backgroundColor: 'var(--bg-auth-input)', 
-                    borderColor: 'var(--border-auth-card)' 
+                <div className="flex items-center gap-3 p-4 rounded-2xl border" style={{
+                    color: 'var(--text-auth-label)',
+                    backgroundColor: 'var(--bg-auth-input)',
+                    borderColor: 'var(--border-auth-card)'
                 }}>
                     <MapPin className="w-4 h-4 text-brand-accent" />
                     <span className="text-xs uppercase font-black tracking-widest">City: <strong style={{ color: 'var(--text-auth-primary)' }}>{city}</strong></span>
                 </div>
-                <div className="flex items-center gap-3 p-4 rounded-2xl border" style={{ 
-                    color: 'var(--text-auth-label)', 
-                    backgroundColor: 'var(--bg-auth-input)', 
-                    borderColor: 'var(--border-auth-card)' 
+                <div className="flex items-center gap-3 p-4 rounded-2xl border" style={{
+                    color: 'var(--text-auth-label)',
+                    backgroundColor: 'var(--bg-auth-input)',
+                    borderColor: 'var(--border-auth-card)'
                 }}>
                     <Users className="w-4 h-4 text-brand-accent" />
                     <span className="text-xs uppercase font-black tracking-widest">Family: <strong style={{ color: 'var(--text-auth-primary)' }}>{activeDependents.join(', ') || 'Self Only'}</strong></span>
@@ -432,15 +432,14 @@ export default function Dashboard({ userProfile, latestRecommendation, history, 
             <div className="flex flex-col sm:flex-row gap-3 pt-4">
                 <button
                     onClick={onUpdatePlan}
-                    className={`flex-1 px-4 py-3 md:px-6 md:py-3 rounded-xl font-bold text-sm md:text-base flex items-center justify-center transition-all group active:scale-95 ${
-                        isPhase2Incomplete 
-                            ? 'border' 
+                    className={`flex-1 px-4 py-3 md:px-6 md:py-3 rounded-xl font-bold text-sm md:text-base flex items-center justify-center transition-all group active:scale-95 ${isPhase2Incomplete
+                            ? 'border'
                             : 'bg-white text-brand-dark shadow-xl hover:shadow-white/10'
-                    }`}
-                    style={isPhase2Incomplete ? { 
-                        backgroundColor: 'var(--bg-auth-input)', 
-                        borderColor: 'var(--border-auth-card)', 
-                        color: 'var(--text-auth-muted)' 
+                        }`}
+                    style={isPhase2Incomplete ? {
+                        backgroundColor: 'var(--bg-auth-input)',
+                        borderColor: 'var(--border-auth-card)',
+                        color: 'var(--text-auth-muted)'
                     } : {}}
                 >
                     <RefreshCw className="w-4 h-4 mr-2 group-hover:rotate-180 transition-transform duration-500" />
@@ -457,6 +456,18 @@ export default function Dashboard({ userProfile, latestRecommendation, history, 
                     </button>
                 )}
             </div>
+
+            {latestRecommendation.show_debug && latestRecommendation.prompt_sent && (
+                <div className="mt-8 pt-8 border-t" style={{ borderTopColor: 'var(--border-auth-card)' }}>
+                    <div className="flex justify-center mb-4 text-[10px] font-black uppercase tracking-widest opacity-30" style={{ color: 'var(--text-auth-primary)' }}>
+                        Debug: LLM Prompt Sent
+                    </div>
+                    <div className="p-6 rounded-[1.5rem] border font-mono text-[9px] overflow-auto max-h-60 shadow-inner"
+                        style={{ backgroundColor: 'var(--bg-auth-input)', borderColor: 'var(--border-auth-card)' }}>
+                        <pre className="whitespace-pre-wrap opacity-60 leading-relaxed" style={{ color: 'var(--text-auth-primary)' }}>{latestRecommendation.prompt_sent}</pre>
+                    </div>
+                </div>
+            )}
         </motion.div>
     );
 }

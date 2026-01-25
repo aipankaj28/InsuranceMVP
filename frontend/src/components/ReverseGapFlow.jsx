@@ -100,7 +100,9 @@ export default function ReverseGapFlow({ onBack }) {
             setExtractionSummary({
                 total_life: life,
                 total_health: health,
-                policy_count: data.success_count
+                policy_count: data.success_count,
+                show_debug: data.show_debug,
+                results: data.results
             });
 
             // Update profile with hints if found
@@ -284,6 +286,23 @@ export default function ReverseGapFlow({ onBack }) {
                                 Complete My Profile <ArrowRight className="w-5 h-5" />
                             </button>
                         </div>
+
+                        {extractionSummary.show_debug && extractionSummary.results && (
+                            <div className="mt-12 pt-8 border-t space-y-4" style={{ borderTopColor: 'var(--border-auth-card)' }}>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-center" style={{ color: 'var(--text-auth-placeholder)' }}>Debug: Extraction Prompts</p>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {extractionSummary.results.map((res, i) => (
+                                        <div key={i} className="p-4 rounded-xl border text-[9px] font-mono overflow-auto max-h-40"
+                                            style={{ backgroundColor: 'var(--bg-auth-input)', borderColor: 'var(--border-auth-card)' }}>
+                                            <div className="flex justify-between items-center mb-2 pb-2 border-b" style={{ borderBottomColor: 'var(--border-auth-card)' }}>
+                                                <span className="font-black uppercase tracking-tighter text-blue-400">Prompt for: {res.filename}</span>
+                                            </div>
+                                            <pre className="whitespace-pre-wrap opacity-70" style={{ color: 'var(--text-auth-primary)' }}>{res.prompt_sent}</pre>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </motion.div>
                 )}
 
@@ -466,6 +485,14 @@ export default function ReverseGapFlow({ onBack }) {
                             <p className="leading-relaxed font-medium" style={{ color: 'var(--text-auth-primary)' }}>{idealRec.summary}</p>
                             <p className="mt-4 text-sm italic" style={{ color: 'var(--text-auth-muted)' }}>{idealRec.reasoning}</p>
                         </div>
+
+                        {idealRec.show_debug && idealRec.prompt_sent && (
+                            <div className="mt-6 p-6 rounded-2xl border font-mono text-[10px] overflow-auto max-h-60 shadow-inner"
+                                style={{ backgroundColor: 'var(--bg-auth-input)', borderColor: 'var(--border-auth-card)' }}>
+                                <p className="mb-2 uppercase tracking-widest font-black opacity-50" style={{ color: 'var(--text-auth-primary)' }}>Debug: LLM Prompt Sent</p>
+                                <pre className="whitespace-pre-wrap opacity-70 leading-relaxed" style={{ color: 'var(--text-auth-primary)' }}>{idealRec.prompt_sent}</pre>
+                            </div>
+                        )}
                     </motion.div>
                 )}
             </AnimatePresence>
