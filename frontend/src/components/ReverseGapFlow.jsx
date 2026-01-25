@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, FileText, CheckCircle2, AlertCircle, Loader2, Heart, Shield, ArrowLeft, ArrowRight, TrendingUp, Info } from 'lucide-react';
+import { Upload, FileText, CheckCircle2, AlertCircle, Loader2, Heart, Shield, ArrowLeft, ArrowRight, TrendingUp, Info, Sparkles, User } from 'lucide-react';
 
 const STEPS = {
     UPLOAD: 'UPLOAD',
@@ -35,6 +35,7 @@ export default function ReverseGapFlow({ onBack }) {
         total_health: 0,
         policy_count: 0
     });
+    const [extractedFields, setExtractedFields] = useState([]);
 
     const token = localStorage.getItem('auth_token');
     const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
@@ -108,6 +109,15 @@ export default function ReverseGapFlow({ onBack }) {
             // Update profile with hints if found
             if (data.aggregated_profile) {
                 const hints = data.aggregated_profile;
+                const found = [];
+                if (hints.full_name) found.push('first_name');
+                if (hints.dob) found.push('dob');
+                if (hints.gender) found.push('gender');
+                if (hints.city) found.push('city');
+                if (hints.marital_status) found.push('marital_status');
+                if (hints.num_children !== null) found.push('num_children');
+                setExtractedFields(found);
+
                 const updatedProfile = {
                     ...profile,
                     first_name: hints.full_name || profile.first_name,
@@ -312,82 +322,182 @@ export default function ReverseGapFlow({ onBack }) {
 
                 {step === STEPS.MISSING_INFO && (
                     <motion.div key="form"
-                        className="max-w-3xl mx-auto rounded-[3rem] p-10 border shadow-3xl"
+                        className="max-w-4xl mx-auto backdrop-blur-xl rounded-[3rem] p-8 md:p-12 border shadow-3xl"
                         style={{ backgroundColor: 'var(--bg-auth-card)', borderColor: 'var(--border-auth-card)' }}
                     >
                         <div className="mb-10 text-center">
-                            <h2 className="text-3xl font-black mb-2" style={{ color: 'var(--text-auth-primary)' }}>Final Details</h2>
-                            <p style={{ color: 'var(--text-auth-muted)' }}>These details help us calculate your ideal coverage.</p>
+                            <div className="bg-brand-accent/10 border border-brand-accent/20 px-4 py-1.5 rounded-full inline-flex items-center gap-2 mb-4">
+                                <Sparkles className="w-4 h-4 text-brand-accent" />
+                                <span className="text-[10px] font-black uppercase tracking-widest text-brand-accent">Confirm Your AI-Extracted Profile</span>
+                            </div>
+                            <h2 className="text-3xl font-black mb-3" style={{ color: 'var(--text-auth-primary)' }}>Final Details</h2>
+                            <p style={{ color: 'var(--text-auth-muted)' }}>We've pre-filled what we found. Please review and complete the rest.</p>
                         </div>
 
-                        <form onSubmit={handleFormSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest ml-2" style={{ color: 'var(--text-auth-label)' }}>Monthly Income</label>
-                                <select
-                                    value={profile.income_level}
-                                    onChange={(e) => setProfile({ ...profile, income_level: e.target.value })}
-                                    required
-                                    className="w-full border rounded-2xl p-4 focus:border-brand-accent outline-none font-bold transition-colors"
-                                    style={{ backgroundColor: 'var(--bg-auth-input)', borderColor: 'var(--border-auth-card)', color: 'var(--text-auth-primary)' }}
-                                >
-                                    <option value="">Select Range</option>
-                                    <option value="Below 5 Lakhs">Below ₹5 Lakhs</option>
-                                    <option value="5-10 Lakhs">₹5 - ₹10 Lakhs</option>
-                                    <option value="10-25 Lakhs">₹10 - ₹25 Lakhs</option>
-                                    <option value="25-50 Lakhs">₹25 - ₹50 Lakhs</option>
-                                    <option value="Above 50 Lakhs">Above ₹50 Lakhs</option>
-                                </select>
+                        <form onSubmit={handleFormSubmit} className="space-y-8">
+                            {/* Personal Details Section */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <label className="flex items-center justify-between px-2">
+                                        <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: 'var(--text-auth-label)' }}>Full Name</span>
+                                        {extractedFields.includes('first_name') && <Sparkles className="w-3 h-3 text-brand-accent animate-pulse" />}
+                                    </label>
+                                    <div className="relative group">
+                                        <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-30 group-focus-within:opacity-100 transition-opacity" style={{ color: 'var(--text-auth-primary)' }} />
+                                        <input
+                                            type="text"
+                                            value={profile.first_name}
+                                            onChange={(e) => setProfile({ ...profile, first_name: e.target.value })}
+                                            placeholder="Enter your name"
+                                            className={`w-full border rounded-2xl p-4 pl-12 focus:border-brand-accent outline-none font-bold transition-all ${extractedFields.includes('first_name') ? 'border-brand-accent/30' : ''}`}
+                                            style={{ backgroundColor: 'var(--bg-auth-input)', borderColor: extractedFields.includes('first_name') ? 'var(--brand-accent)' : 'var(--border-auth-card)', color: 'var(--text-auth-primary)' }}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="flex items-center justify-between px-2">
+                                        <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: 'var(--text-auth-label)' }}>Date of Birth</span>
+                                        {extractedFields.includes('dob') && <Sparkles className="w-3 h-3 text-brand-accent animate-pulse" />}
+                                    </label>
+                                    <input
+                                        type="date"
+                                        value={profile.dob}
+                                        onChange={(e) => setProfile({ ...profile, dob: e.target.value })}
+                                        className={`w-full border rounded-2xl p-4 focus:border-brand-accent outline-none font-bold transition-all ${extractedFields.includes('dob') ? 'border-brand-accent/30' : ''}`}
+                                        style={{ backgroundColor: 'var(--bg-auth-input)', borderColor: extractedFields.includes('dob') ? 'var(--brand-accent)' : 'var(--border-auth-card)', color: 'var(--text-auth-primary)' }}
+                                    />
+                                </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest ml-2" style={{ color: 'var(--text-auth-label)' }}>Do you Smoke?</label>
-                                <select
-                                    value={profile.smoking_status}
-                                    onChange={(e) => setProfile({ ...profile, smoking_status: e.target.value })}
-                                    className="w-full border rounded-2xl p-4 focus:border-brand-accent outline-none font-bold transition-colors"
-                                    style={{ backgroundColor: 'var(--bg-auth-input)', borderColor: 'var(--border-auth-card)', color: 'var(--text-auth-primary)' }}
-                                >
-                                    <option value="Never">Never</option>
-                                    <option value="Occasionally">Occasionally</option>
-                                    <option value="Regularly">Regularly</option>
-                                </select>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div className="space-y-2">
+                                    <label className="flex items-center justify-between px-2">
+                                        <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: 'var(--text-auth-label)' }}>Gender</span>
+                                        {extractedFields.includes('gender') && <Sparkles className="w-3 h-3 text-brand-accent animate-pulse" />}
+                                    </label>
+                                    <select
+                                        value={profile.gender}
+                                        onChange={(e) => setProfile({ ...profile, gender: e.target.value })}
+                                        className={`w-full border rounded-2xl p-4 focus:border-brand-accent outline-none font-bold transition-all ${extractedFields.includes('gender') ? 'border-brand-accent/30' : ''}`}
+                                        style={{ backgroundColor: 'var(--bg-auth-input)', borderColor: extractedFields.includes('gender') ? 'var(--brand-accent)' : 'var(--border-auth-card)', color: 'var(--text-auth-primary)' }}
+                                    >
+                                        <option value="">Select</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="flex items-center justify-between px-2">
+                                        <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: 'var(--text-auth-label)' }}>City</span>
+                                        {extractedFields.includes('city') && <Sparkles className="w-3 h-3 text-brand-accent animate-pulse" />}
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={profile.city}
+                                        onChange={(e) => setProfile({ ...profile, city: e.target.value })}
+                                        placeholder="e.g. Mumbai"
+                                        className={`w-full border rounded-2xl p-4 focus:border-brand-accent outline-none font-bold transition-all ${extractedFields.includes('city') ? 'border-brand-accent/30' : ''}`}
+                                        style={{ backgroundColor: 'var(--bg-auth-input)', borderColor: extractedFields.includes('city') ? 'var(--brand-accent)' : 'var(--border-auth-card)', color: 'var(--text-auth-primary)' }}
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="flex items-center justify-between px-2">
+                                        <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: 'var(--text-auth-label)' }}>Marital Status</span>
+                                        {extractedFields.includes('marital_status') && <Sparkles className="w-3 h-3 text-brand-accent animate-pulse" />}
+                                    </label>
+                                    <select
+                                        value={profile.marital_status}
+                                        onChange={(e) => setProfile({ ...profile, marital_status: e.target.value })}
+                                        className={`w-full border rounded-2xl p-4 focus:border-brand-accent outline-none font-bold transition-all ${extractedFields.includes('marital_status') ? 'border-brand-accent/30' : ''}`}
+                                        style={{ backgroundColor: 'var(--bg-auth-input)', borderColor: extractedFields.includes('marital_status') ? 'var(--brand-accent)' : 'var(--border-auth-card)', color: 'var(--text-auth-primary)' }}
+                                    >
+                                        <option value="Single">Single</option>
+                                        <option value="Married">Married</option>
+                                    </select>
+                                </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest ml-2" style={{ color: 'var(--text-auth-label)' }}>Lifestyle</label>
-                                <select
-                                    value={profile.lifestyle}
-                                    onChange={(e) => setProfile({ ...profile, lifestyle: e.target.value })}
-                                    className="w-full border rounded-2xl p-4 focus:border-brand-accent outline-none font-bold transition-colors"
-                                    style={{ backgroundColor: 'var(--bg-auth-input)', borderColor: 'var(--border-auth-card)', color: 'var(--text-auth-primary)' }}
-                                >
-                                    <option value="Sedentary">Sedentary (Office Work)</option>
-                                    <option value="Active">Active (Exercise/Field Work)</option>
-                                    <option value="Extreme">Extreme (Physical/Adventure)</option>
-                                </select>
-                            </div>
+                            {/* Lifestyle & Financials Section */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t" style={{ borderTopColor: 'var(--border-auth-card)' }}>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black uppercase tracking-widest ml-2" style={{ color: 'var(--text-auth-label)' }}>Monthly Income</label>
+                                    <select
+                                        value={profile.income_level}
+                                        onChange={(e) => setProfile({ ...profile, income_level: e.target.value })}
+                                        required
+                                        className="w-full border rounded-2xl p-4 focus:border-brand-accent outline-none font-bold transition-colors"
+                                        style={{ backgroundColor: 'var(--bg-auth-input)', borderColor: 'var(--border-auth-card)', color: 'var(--text-auth-primary)' }}
+                                    >
+                                        <option value="">Select Range</option>
+                                        <option value="Below 5 Lakhs">Below ₹5 Lakhs</option>
+                                        <option value="5-10 Lakhs">₹5 - ₹10 Lakhs</option>
+                                        <option value="10-25 Lakhs">₹10 - ₹25 Lakhs</option>
+                                        <option value="25-50 Lakhs">₹25 - ₹50 Lakhs</option>
+                                        <option value="Above 50 Lakhs">Above ₹50 Lakhs</option>
+                                    </select>
+                                </div>
 
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest ml-2" style={{ color: 'var(--text-auth-label)' }}>Number of Children</label>
-                                <input
-                                    type="number"
-                                    min="0"
-                                    value={profile.num_children}
-                                    onChange={(e) => {
-                                        const val = parseInt(e.target.value);
-                                        setProfile({ ...profile, num_children: isNaN(val) ? 0 : Math.max(0, val) });
-                                    }}
-                                    className="w-full border rounded-2xl p-4 focus:border-brand-accent outline-none font-bold transition-colors"
-                                    style={{ backgroundColor: 'var(--bg-auth-input)', borderColor: 'var(--border-auth-card)', color: 'var(--text-auth-primary)' }}
-                                />
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black uppercase tracking-widest ml-2" style={{ color: 'var(--text-auth-label)' }}>Lifestyle Habit</label>
+                                    <select
+                                        value={profile.smoking_status}
+                                        onChange={(e) => setProfile({ ...profile, smoking_status: e.target.value })}
+                                        className="w-full border rounded-2xl p-4 focus:border-brand-accent outline-none font-bold transition-colors"
+                                        style={{ backgroundColor: 'var(--bg-auth-input)', borderColor: 'var(--border-auth-card)', color: 'var(--text-auth-primary)' }}
+                                    >
+                                        <option value="Never">Non-Smoker</option>
+                                        <option value="Occasionally">Occasional Smoker</option>
+                                        <option value="Regularly">Regular Smoker</option>
+                                    </select>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black uppercase tracking-widest ml-2" style={{ color: 'var(--text-auth-label)' }}>Activity Level</label>
+                                    <select
+                                        value={profile.lifestyle}
+                                        onChange={(e) => setProfile({ ...profile, lifestyle: e.target.value })}
+                                        className="w-full border rounded-2xl p-4 focus:border-brand-accent outline-none font-bold transition-colors"
+                                        style={{ backgroundColor: 'var(--bg-auth-input)', borderColor: 'var(--border-auth-card)', color: 'var(--text-auth-primary)' }}
+                                    >
+                                        <option value="Sedentary">Sedentary (Office Work)</option>
+                                        <option value="Active">Active (Exercise/Field Work)</option>
+                                        <option value="Extreme">Extreme (Physical/Adventure)</option>
+                                    </select>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="flex items-center justify-between px-2">
+                                        <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: 'var(--text-auth-label)' }}>Number of Children</span>
+                                        {extractedFields.includes('num_children') && <Sparkles className="w-3 h-3 text-brand-accent animate-pulse" />}
+                                    </label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        value={profile.num_children}
+                                        onChange={(e) => {
+                                            const val = parseInt(e.target.value);
+                                            setProfile({ ...profile, num_children: isNaN(val) ? 0 : Math.max(0, val) });
+                                        }}
+                                        className={`w-full border rounded-2xl p-4 focus:border-brand-accent outline-none font-bold transition-all ${extractedFields.includes('num_children') ? 'border-brand-accent/30' : ''}`}
+                                        style={{ backgroundColor: 'var(--bg-auth-input)', borderColor: extractedFields.includes('num_children') ? 'var(--brand-accent)' : 'var(--border-auth-card)', color: 'var(--text-auth-primary)' }}
+                                    />
+                                </div>
                             </div>
 
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="md:col-span-2 mt-4 bg-gradient-to-r from-brand-accent to-indigo-600 text-white font-black py-5 rounded-2xl shadow-xl hover:scale-[1.02] flex items-center justify-center gap-3 transition-all"
+                                className="w-full bg-gradient-to-r from-brand-accent to-indigo-600 text-white font-black py-5 rounded-2xl shadow-xl hover:scale-[1.02] flex items-center justify-center gap-3 transition-all mt-6"
                             >
-                                {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : 'Compare My Coverage'}
+                                {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : (
+                                    <>
+                                        Compare My Coverage <ArrowRight className="w-5 h-5" />
+                                    </>
+                                )}
                             </button>
                         </form>
                     </motion.div>
