@@ -6,6 +6,7 @@ from email.mime.multipart import MIMEMultipart
 from datetime import datetime, timedelta
 import jwt
 from dotenv import load_dotenv
+from fastapi import Header, HTTPException
 
 load_dotenv()
 
@@ -190,3 +191,25 @@ def decode_access_token(token: str):
         return None
     except jwt.InvalidTokenError:
         return None
+
+# Dependency to verify JWT
+async def get_current_user(authorization: str = Header(None)):
+    if not authorization:
+        log_now("AUTH ERROR: Missing Authorization header")
+        raise HTTPException(status_code=401, detail="Missing authorization header")
+        
+    if not authorization.startswith("Bearer "):
+        log_now(f"AUTH ERROR: Invalid header format: {authorization[:20]}...")
+        raise HTTPException(status_code=401, detail="Invalid token format")
+    
+    token = authorization.split(" ")[1]
+    if token == "null" or token == "undefined" or not token:
+        log_now(f"AUTH ERROR: Token is literal '{token}'")
+        raise HTTPException(status_code=401, detail="Invalid token value")
+
+    payload = decode_access_token(token)
+    if not payload:
+        log_now("AUTH ERROR: Token decoding failed (expired or invalid signature)")
+        raise HTTPException(status_code=401, detail="Token expired or invalid")
+        
+    return payload

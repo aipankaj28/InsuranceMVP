@@ -178,26 +178,7 @@ class PolicyRecommendationRequest(BaseModel):
     city: Optional[str] = ""
 
 # Dependency to verify JWT
-async def get_current_user(authorization: str = Header(None)):
-    if not authorization:
-        log_now("AUTH ERROR: Missing Authorization header")
-        raise HTTPException(status_code=401, detail="Missing authorization header")
-        
-    if not authorization.startswith("Bearer "):
-        log_now(f"AUTH ERROR: Invalid header format: {authorization[:20]}...")
-        raise HTTPException(status_code=401, detail="Invalid token format")
-    
-    token = authorization.split(" ")[1]
-    if token == "null" or token == "undefined" or not token:
-        log_now(f"AUTH ERROR: Token is literal '{token}'")
-        raise HTTPException(status_code=401, detail="Invalid token value")
-
-    payload = decode_access_token(token)
-    if not payload:
-        log_now("AUTH ERROR: Token decoding failed (expired or invalid signature)")
-        raise HTTPException(status_code=401, detail="Token expired or invalid")
-        
-    return payload
+from auth import generate_otp, store_otp, send_otp_email, verify_otp_logic, create_access_token, decode_access_token, get_current_user
 
 @app.get("/")
 def read_root():
@@ -468,6 +449,9 @@ class ProfileSyncRequest(BaseModel):
     health_policy_name: Optional[str] = None
     marital_status: Optional[str] = None
     num_children: Optional[int] = None
+    income_level: Optional[str] = None
+    smoking_status: Optional[str] = None
+    lifestyle: Optional[str] = None
 
 @app.get("/api/user/profile")
 async def get_profile(user_payload = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -517,6 +501,9 @@ async def sync_profile(data: ProfileSyncRequest, user_payload = Depends(get_curr
     if data.city: user.city = data.city
     if data.marital_status: user.marital_status = data.marital_status
     if data.num_children is not None: user.num_children = data.num_children
+    if data.income_level: user.income_level = data.income_level
+    if data.smoking_status: user.smoking_status = data.smoking_status
+    if data.lifestyle: user.lifestyle = data.lifestyle
     
     # Coverage data
     if data.existing_life_cover_val is not None:

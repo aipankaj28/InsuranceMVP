@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, FileText, CheckCircle2, AlertCircle, Loader2, Heart, Shield, ArrowLeft, ArrowRight, TrendingUp, Info, Sparkles, User } from 'lucide-react';
+import { Upload, FileText, CheckCircle2, AlertCircle, Loader2, Heart, Shield, ArrowLeft, ArrowRight, TrendingUp, Info, Sparkles, User, Lock, Unlock } from 'lucide-react';
+import Step09_ProductRecommendations from './steps/Step09_ProductRecommendations';
 
 const STEPS = {
     UPLOAD: 'UPLOAD',
     EXTRACTING: 'EXTRACTING',
     REVIEW: 'REVIEW',
     MISSING_INFO: 'MISSING_INFO',
-    REPORT: 'REPORT'
+    REPORT: 'REPORT',
+    RECOMMENDATIONS: 'RECOMMENDATIONS'
 };
 
 export default function ReverseGapFlow({ onBack }) {
@@ -22,9 +25,9 @@ export default function ReverseGapFlow({ onBack }) {
         gender: '',
         city: '',
         income_level: '',
-        smoking_status: 'Never',
+        smoking_status: '',
         marital_status: 'Single',
-        lifestyle: 'Sedentary',
+        lifestyle: '',
         career_stage: 'Starting Out',
         num_children: 0,
         support_parents: false
@@ -36,8 +39,10 @@ export default function ReverseGapFlow({ onBack }) {
         policy_count: 0
     });
     const [extractedFields, setExtractedFields] = useState([]);
+    const [filePasswords, setFilePasswords] = useState({}); // { filename: 'pwd' }
 
-    const token = localStorage.getItem('auth_token');
+    const { user, logout } = useAuth();
+    const token = user?.token;
     const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
     const API_BASE_URL = rawBaseUrl.startsWith('http') ? rawBaseUrl : `https://${rawBaseUrl}`;
 
@@ -67,12 +72,22 @@ export default function ReverseGapFlow({ onBack }) {
 
     const handleUpload = async () => {
         if (files.length === 0) return;
+
+        // Optimization: Filter to only send files that aren't already successfully processed
+        const successfullyProcessed = extractionSummary.results?.filter(r => r.is_valid_policy && !r.is_locked).map(r => r.filename) || [];
+        const filesToUpload = files.filter(f => !successfullyProcessed.includes(f.name));
+
+        if (filesToUpload.length === 0) return;
+
         setStep(STEPS.EXTRACTING);
         setLoading(true);
         setError(null);
 
         const formData = new FormData();
-        files.forEach(file => formData.append('files', file));
+        filesToUpload.forEach(file => formData.append('files', file));
+        if (Object.keys(filePasswords).length > 0) {
+            formData.append('passwords', JSON.stringify(filePasswords));
+        }
 
         try {
             const response = await fetch(`${API_BASE_URL}/api/policy/extract-multiple`, {
@@ -81,16 +96,34 @@ export default function ReverseGapFlow({ onBack }) {
                 body: formData
             });
 
+            if (response.status === 401) {
+                logout();
+                return;
+            }
             if (!response.ok) throw new Error('Extraction failed');
 
             const data = await response.json();
-            setResults(data.results);
 
-            // Calculate totals
+            // Merge newly extracted results with existing successful ones
+            const existingSuccessful = extractionSummary.results?.filter(r => r.is_valid_policy && !r.is_locked) || [];
+            const mergedResults = [...existingSuccessful];
+
+            data.results.forEach(newRes => {
+                const idx = mergedResults.findIndex(r => r.filename === newRes.filename);
+                if (idx > -1) {
+                    mergedResults[idx] = newRes;
+                } else {
+                    mergedResults.push(newRes);
+                }
+            });
+
+            setResults(mergedResults);
+
+            // Calculate totals from merged results
             let life = 0;
             let health = 0;
-            data.results.forEach(r => {
-                if (r.is_valid_policy) {
+            mergedResults.forEach(r => {
+                if (r.is_valid_policy && !r.is_locked) {
                     if (r.policy_type === 'LIFE') {
                         life += r.coverage_amount_val;
                     } else if (r.policy_type === 'HEALTH') {
@@ -98,61 +131,72 @@ export default function ReverseGapFlow({ onBack }) {
                     }
                 }
             });
-            setExtractionSummary({
+
+            const newExtractionSummary = {
                 total_life: life,
                 total_health: health,
-                policy_count: data.success_count,
+                policy_count: mergedResults.filter(r => r.is_valid_policy && !r.is_locked).length,
                 show_debug: data.show_debug,
-                results: data.results
+                results: mergedResults
+            };
+            setExtractionSummary(newExtractionSummary);
+
+            // Update profile with hints aggregated from all successful results
+            const aggHints = {
+                full_name: mergedResults.find(r => r.user_hint?.full_name)?.user_hint.full_name,
+                dob: mergedResults.find(r => r.user_hint?.dob)?.user_hint.dob,
+                gender: mergedResults.find(r => r.user_hint?.gender)?.user_hint.gender,
+                city: mergedResults.find(r => r.user_hint?.city)?.user_hint.city,
+                marital_status: mergedResults.find(r => r.user_hint?.marital_status)?.user_hint.marital_status,
+                num_children: mergedResults.find(r => r.user_hint?.num_children !== undefined && r.user_hint?.num_children !== null)?.user_hint.num_children
+            };
+
+            const found = [];
+            if (aggHints.full_name) found.push('first_name');
+            if (aggHints.dob) found.push('dob');
+            if (aggHints.gender) found.push('gender');
+            if (aggHints.city) found.push('city');
+            if (aggHints.marital_status) found.push('marital_status');
+            if (aggHints.num_children !== undefined && aggHints.num_children !== null) found.push('num_children');
+            setExtractedFields(found);
+
+            const updatedProfile = {
+                ...profile,
+                first_name: aggHints.full_name || profile.first_name,
+                dob: aggHints.dob || profile.dob,
+                gender: aggHints.gender || profile.gender,
+                city: aggHints.city || profile.city,
+                marital_status: aggHints.marital_status || profile.marital_status,
+                num_children: aggHints.num_children !== undefined && aggHints.num_children !== null ? aggHints.num_children : profile.num_children
+            };
+            setProfile(updatedProfile);
+
+            // Sync with backend
+            await fetch(`${API_BASE_URL}/api/user/sync-profile`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    first_name: updatedProfile.first_name,
+                    dob: updatedProfile.dob,
+                    gender: updatedProfile.gender,
+                    city: updatedProfile.city,
+                    marital_status: updatedProfile.marital_status,
+                    num_children: updatedProfile.num_children,
+                    income_level: updatedProfile.income_level,
+                    smoking_status: updatedProfile.smoking_status,
+                    lifestyle: updatedProfile.lifestyle,
+                    existing_life_cover_val: life,
+                    existing_health_cover_val: health
+                })
             });
-
-            // Update profile with hints if found
-            if (data.aggregated_profile) {
-                const hints = data.aggregated_profile;
-                const found = [];
-                if (hints.full_name) found.push('first_name');
-                if (hints.dob) found.push('dob');
-                if (hints.gender) found.push('gender');
-                if (hints.city) found.push('city');
-                if (hints.marital_status) found.push('marital_status');
-                if (hints.num_children !== null) found.push('num_children');
-                setExtractedFields(found);
-
-                const updatedProfile = {
-                    ...profile,
-                    first_name: hints.full_name || profile.first_name,
-                    dob: hints.dob || profile.dob,
-                    gender: hints.gender || profile.gender,
-                    city: hints.city || profile.city,
-                    marital_status: hints.marital_status || profile.marital_status,
-                    num_children: hints.num_children !== null ? hints.num_children : profile.num_children
-                };
-                setProfile(updatedProfile);
-
-                // Sync with DB
-                await fetch(`${API_BASE_URL}/api/user/sync-profile`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        first_name: updatedProfile.first_name,
-                        dob: updatedProfile.dob,
-                        gender: updatedProfile.gender,
-                        city: updatedProfile.city,
-                        marital_status: updatedProfile.marital_status,
-                        num_children: updatedProfile.num_children,
-                        existing_life_cover_val: life,
-                        existing_health_cover_val: health
-                    })
-                });
-            }
 
             setStep(STEPS.REVIEW);
         } catch (err) {
             setError(err.message);
-            setStep(STEPS.UPLOAD);
+            setStep(STEPS.REVIEW);
         } finally {
             setLoading(false);
         }
@@ -166,13 +210,36 @@ export default function ReverseGapFlow({ onBack }) {
             // Note: We need to map our simple state to the UserData schema
             const userData = {
                 ...profile,
-                is_smoker: profile.smoking_status !== 'Never',
+                is_smoker: profile.smoking_status === 'Regularly' || profile.smoking_status === 'Occasionally',
                 dependents: {
                     "Spouse": profile.marital_status === 'Married',
                     "Children": profile.num_children > 0
                 }
             };
 
+            // 1. Sync all fields to DB first to ensure persistence
+            await fetch(`${API_BASE_URL}/api/user/sync-profile`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    first_name: profile.first_name,
+                    dob: profile.dob,
+                    gender: profile.gender,
+                    city: profile.city,
+                    marital_status: profile.marital_status,
+                    num_children: profile.num_children,
+                    income_level: profile.income_level,
+                    smoking_status: profile.smoking_status,
+                    lifestyle: profile.lifestyle,
+                    existing_life_cover_val: extractionSummary.total_life,
+                    existing_health_cover_val: extractionSummary.total_health
+                })
+            });
+
+            // 2. Get recommendations
             const response = await fetch(`${API_BASE_URL}/api/recommend`, {
                 method: 'POST',
                 headers: {
@@ -182,6 +249,10 @@ export default function ReverseGapFlow({ onBack }) {
                 body: JSON.stringify(userData)
             });
 
+            if (response.status === 401) {
+                logout();
+                return;
+            }
             if (!response.ok) throw new Error('Recommendation failed');
             const data = await response.json();
             setIdealRec(data);
@@ -259,7 +330,7 @@ export default function ReverseGapFlow({ onBack }) {
                 {step === STEPS.EXTRACTING && (
                     <motion.div key="extracting" className="text-center py-20">
                         <Loader2 className="w-16 h-16 text-brand-accent animate-spin mx-auto mb-8" />
-                        <h2 className="text-4xl font-black mb-4" style={{ color: 'var(--text-auth-primary)' }}>AI is Scanning Your Policies...</h2>
+                        <h2 className="text-4xl font-black mb-4" style={{ color: 'var(--text-auth-primary)' }}>Scanning Your Policies...</h2>
                         <p style={{ color: 'var(--text-auth-muted)' }}>We are extracting coverage amounts and policyholder details.</p>
                     </motion.div>
                 )}
@@ -285,6 +356,46 @@ export default function ReverseGapFlow({ onBack }) {
                                 <p className="text-3xl font-black" style={{ color: 'var(--text-auth-primary)' }}>{profile.first_name || 'N/A'}</p>
                             </div>
                         </div>
+
+                        {extractionSummary.results?.some(r => r.is_locked) && (
+                            <div className="p-8 rounded-[2.5rem] border border-amber-500/30 bg-amber-500/5 backdrop-blur-md">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="p-2 bg-amber-500/20 rounded-xl">
+                                        <Lock className="w-6 h-6 text-amber-500" />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-black text-xl" style={{ color: 'var(--text-auth-primary)' }}>Locked Documents</h3>
+                                        <p className="text-sm opacity-70">Some policies need a password to be analyzed.</p>
+                                    </div>
+                                </div>
+                                <div className="space-y-4">
+                                    {extractionSummary.results.filter(r => r.is_locked).map((res, i) => (
+                                        <div key={i} className="flex flex-col md:flex-row items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/10">
+                                            <div className="flex-1 flex items-center gap-3">
+                                                <FileText className="w-5 h-5 text-amber-500" />
+                                                <span className="font-bold text-sm truncate max-w-[200px]">{res.filename}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2 w-full md:w-auto">
+                                                <input
+                                                    type="password"
+                                                    placeholder="Enter password"
+                                                    value={filePasswords[res.filename] || ''}
+                                                    onChange={(e) => setFilePasswords({ ...filePasswords, [res.filename]: e.target.value })}
+                                                    className="w-full md:w-48 bg-white/5 border border-white/10 rounded-xl px-4 py-2 outline-none focus:border-amber-500 transition-all font-mono"
+                                                />
+                                                <button
+                                                    onClick={handleUpload}
+                                                    className="p-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl transition-all shadow-lg"
+                                                    title="Decrypt & Retry"
+                                                >
+                                                    <Unlock className="w-5 h-5" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
 
                         <div className="flex justify-center flex-col items-center gap-4">
                             <p className="text-sm opacity-70">To confirm your gap, we need a few more life details.</p>
@@ -449,6 +560,7 @@ export default function ReverseGapFlow({ onBack }) {
                                         className="w-full border rounded-2xl p-4 focus:border-brand-accent outline-none font-bold transition-colors"
                                         style={{ backgroundColor: 'var(--bg-auth-input)', borderColor: 'var(--border-auth-card)', color: 'var(--text-auth-primary)' }}
                                     >
+                                        <option value="">Select</option>
                                         <option value="Never">Non-Smoker</option>
                                         <option value="Occasionally">Occasional Smoker</option>
                                         <option value="Regularly">Regular Smoker</option>
@@ -463,6 +575,7 @@ export default function ReverseGapFlow({ onBack }) {
                                         className="w-full border rounded-2xl p-4 focus:border-brand-accent outline-none font-bold transition-colors"
                                         style={{ backgroundColor: 'var(--bg-auth-input)', borderColor: 'var(--border-auth-card)', color: 'var(--text-auth-primary)' }}
                                     >
+                                        <option value="">Select</option>
                                         <option value="Sedentary">Sedentary (Office Work)</option>
                                         <option value="Active">Active (Exercise/Field Work)</option>
                                         <option value="Extreme">Extreme (Physical/Adventure)</option>
@@ -592,22 +705,42 @@ export default function ReverseGapFlow({ onBack }) {
                             </div>
                         </div>
 
-                        <div className="backdrop-blur-xl rounded-[2rem] p-8 border" style={{ backgroundColor: 'var(--bg-auth-card)', borderColor: 'var(--border-auth-card)' }}>
-                            <h4 className="text-lg font-black mb-4 flex items-center gap-2">
-                                <Shield className="w-5 h-5 text-brand-accent" /> AI Advice
-                            </h4>
-                            <p className="leading-relaxed font-medium" style={{ color: 'var(--text-auth-primary)' }}>{idealRec.summary}</p>
-                            <p className="mt-4 text-sm italic" style={{ color: 'var(--text-auth-muted)' }}>{idealRec.reasoning}</p>
+                        <div className="flex flex-col items-center gap-6 pt-10">
+                            {((idealRec.life_cover_val > extractionSummary.total_life) || (idealRec.health_cover_val > extractionSummary.total_health)) ? (
+                                <button
+                                    onClick={() => setStep(STEPS.RECOMMENDATIONS)}
+                                    className="group relative bg-indigo-600 text-white px-12 py-5 rounded-[2rem] font-black text-xl shadow-[0_0_50px_rgba(99,102,241,0.2)] hover:shadow-[0_0_80px_rgba(99,102,241,0.4)] transition-all hover:scale-105 active:scale-95 overflow-hidden"
+                                >
+                                    <span className="relative z-10 flex items-center gap-3">
+                                        Fix My Gaps <Sparkles className="w-6 h-6 text-white animate-pulse" />
+                                    </span>
+                                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={onBack}
+                                    className="px-10 py-5 bg-white/5 border border-white/10 rounded-2xl font-black hover:bg-white/10 transition-all flex items-center gap-3"
+                                >
+                                    Return to Dashboard <ArrowRight className="w-5 h-5" />
+                                </button>
+                            )}
+                            <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-30">AI GAP ANALYSIS COMPLETE</p>
                         </div>
-
-                        {idealRec.show_debug && idealRec.prompt_sent && (
-                            <div className="mt-6 p-6 rounded-2xl border font-mono text-[10px] overflow-auto max-h-60 shadow-inner"
-                                style={{ backgroundColor: 'var(--bg-auth-input)', borderColor: 'var(--border-auth-card)' }}>
-                                <p className="mb-2 uppercase tracking-widest font-black opacity-50" style={{ color: 'var(--text-auth-primary)' }}>Debug: LLM Prompt Sent</p>
-                                <pre className="whitespace-pre-wrap opacity-70 leading-relaxed" style={{ color: 'var(--text-auth-primary)' }}>{idealRec.prompt_sent}</pre>
-                            </div>
-                        )}
                     </motion.div>
+                )}
+
+                {step === STEPS.RECOMMENDATIONS && (
+                    <Step09_ProductRecommendations
+                        formData={{
+                            ...profile,
+                            has_life_insurance: extractionSummary.total_life > 0,
+                            existing_life_cover_val: extractionSummary.total_life,
+                            has_health_insurance: extractionSummary.total_health > 0,
+                            existing_health_cover_val: extractionSummary.total_health
+                        }}
+                        gapResult={idealRec}
+                        onComplete={() => onBack()}
+                    />
                 )}
             </AnimatePresence>
         </div>

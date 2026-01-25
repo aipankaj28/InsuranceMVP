@@ -1,7 +1,13 @@
 ﻿import os
 import json
+import io
 from google.genai import Client, types
 from .schemas import PolicyExtractionResult, PolicyAddOn
+
+try:
+    import pikepdf
+except ImportError:
+    pikepdf = None
 
 class PolicyEngine:
     def __init__(self):
@@ -13,9 +19,66 @@ class PolicyEngine:
         # Use flash for speed and multimodal support
         self.model_name = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
 
-    async def extract_details(self, file_content: bytes, filename: str, mime_type: str) -> PolicyExtractionResult:
+    async def extract_details(self, file_content: bytes, filename: str, mime_type: str, password: str = None) -> PolicyExtractionResult:
         try:
-            # Prepare multimodal prompt
+            current_content = file_content
+            is_locked = False
+            
+            # log for debugging
+            import sys
+            def debug_log(msg):
+                print(f"--- [ENGINE LOG] {filename}: {msg}", file=sys.stdout, flush=True)
+
+            debug_log(f"Starting extraction. MIME: {mime_type}, pikepdf available: {pikepdf is not None}")
+            
+            # 1. Handle PDF Encryption if applicable
+            if mime_type == "application/pdf" and pikepdf:
+                try:
+                    # Check if file is encrypted
+                    debug_log("Checking for encryption...")
+                    with pikepdf.open(io.BytesIO(file_content)) as pdf:
+                        debug_log("File is NOT encrypted or successfully opened without password.")
+                except pikepdf.PasswordError:
+                    # It's locked!
+                    debug_log("File is ENCRYPTED.")
+                    if not password:
+                        debug_log("No password provided, returning is_locked=True")
+                        return PolicyExtractionResult(
+                            filename=filename,
+                            is_locked=True,
+                            is_valid_policy=True,
+                            raw_summary="File is password protected.",
+                            confidence_score=0.0
+                        )
+                    else:
+                        # Try to decrypt with provided password
+                        try:
+                            debug_log(f"Attempting decryption with password (length: {len(password)})...")
+                            with pikepdf.open(io.BytesIO(file_content), password=password) as pdf:
+                                # Create a fresh PDF and copy pages to ensure it's "clean" and decrypted
+                                new_pdf = pikepdf.Pdf.new()
+                                for page in pdf.pages:
+                                    new_pdf.pages.append(page)
+                                
+                                out = io.BytesIO()
+                                new_pdf.save(out)
+                                current_content = out.getvalue()
+                                debug_log(f"Decryption successful. Decrypted size: {len(current_content)} bytes.")
+                        except pikepdf.PasswordError:
+                            debug_log("Incorrect password provided.")
+                            return PolicyExtractionResult(
+                                filename=filename,
+                                is_locked=True,
+                                is_valid_policy=True,
+                                raw_summary="Incorrect password provided.",
+                                confidence_score=0.0
+                            )
+                except Exception as e:
+                    debug_log(f"Unexpected error during PDF check: {str(e)}")
+            elif mime_type == "application/pdf" and not pikepdf:
+                debug_log("WARNING: pikepdf NOT INSTALLED. Encryption check skipped.")
+
+            # 2. Prepare multimodal prompt
             prompt = """
             You are an expert Indian insurance document parser. 
             Analyze the provided insurance policy document and extract details into a structured JSON format.
@@ -58,9 +121,9 @@ class PolicyEngine:
             - For marital_status, check if a spouse is listed as a nominee or co-insured.
             """
 
-            # Handle file for Gemini
+            # 3. Send to Gemini
             content_part = types.Part.from_bytes(
-                data=file_content,
+                data=current_content,
                 mime_type=mime_type
             )
             
@@ -79,6 +142,7 @@ class PolicyEngine:
             data = json.loads(response_text)
             data["filename"] = filename
             data["prompt_sent"] = prompt
+            data["is_locked"] = False # Successfully processed
             
             return PolicyExtractionResult(**data)
             
@@ -88,7 +152,8 @@ class PolicyEngine:
                 filename=filename,
                 is_valid_policy=False,
                 raw_summary=f"Error: {str(e)}",
-                confidence_score=0.0
+                confidence_score=0.0,
+                is_locked=False
             )
 
 policy_engine = PolicyEngine()

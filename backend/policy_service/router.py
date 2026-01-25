@@ -1,18 +1,33 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
-from typing import List
+from typing import List, Optional
+import json
 from .engine import policy_engine
 from .schemas import BatchExtractionResponse, PolicyExtractionResult
 import asyncio
+from auth import get_current_user
 
 router = APIRouter(prefix="/api/policy", tags=["Policy Service"])
 
+# Protected extraction endpoint
 @router.post("/extract-multiple", response_model=BatchExtractionResponse)
-async def extract_multiple_policies(files: List[UploadFile] = File(...)):
+async def extract_multiple_policies(
+    files: List[UploadFile] = File(...),
+    passwords: Optional[str] = File(None), # Optional JSON string: {"filename": "password"}
+    user_payload: dict = Depends(get_current_user)
+):
     """
     Extract details from multiple policy documents in parallel.
     """
     if not files:
         raise HTTPException(status_code=400, detail="No files provided")
+
+    # Parse passwords if provided
+    password_map = {}
+    if passwords:
+        try:
+            password_map = json.loads(passwords)
+        except Exception:
+            pass
 
     tasks = []
     for file in files:
@@ -21,8 +36,11 @@ async def extract_multiple_policies(files: List[UploadFile] = File(...)):
         mime_type = file.content_type
         filename = file.filename
         
-        # Schedule extraction
-        tasks.append(policy_engine.extract_details(content, filename, mime_type))
+        # Get password for this specific file if it exists
+        pw = password_map.get(filename)
+        
+        # Schedule extraction with optional password
+        tasks.append(policy_engine.extract_details(content, filename, mime_type, password=pw))
 
     # Execute all extractions in parallel
     results = await asyncio.gather(*tasks)

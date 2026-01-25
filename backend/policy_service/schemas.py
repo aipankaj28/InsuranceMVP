@@ -28,6 +28,7 @@ class PolicyExtractionResult(BaseModel):
     raw_summary: Optional[str] = None
     policy_type: Optional[str] = "OTHER" # LIFE, HEALTH, OTHER
     user_hint: Optional[UserProfileHint] = None
+    is_locked: bool = False
     prompt_sent: Optional[str] = None
 
 class BatchExtractionResponse(BaseModel):
