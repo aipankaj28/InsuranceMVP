@@ -217,8 +217,8 @@ export default function ReverseGapFlow({ onBack }) {
                                 style={{ borderColor: 'var(--border-auth-card)' }}>
                                 <input type="file" multiple onChange={handleFileChange} className="hidden" accept=".pdf,image/*" />
                                 <div className="flex flex-col items-center gap-4">
-                                    <div className="p-4 bg-white/5 rounded-2xl group-hover:scale-110 transition-transform">
-                                        <FileText className="w-8 h-8 text-slate-400" />
+                                    <div className="p-4 rounded-2xl group-hover:scale-110 transition-transform" style={{ backgroundColor: 'var(--bg-auth-input)' }}>
+                                        <FileText className="w-8 h-8 opacity-50" style={{ color: 'var(--text-auth-primary)' }} />
                                     </div>
                                     <div>
                                         <p className="font-bold text-lg" style={{ color: 'var(--text-auth-primary)' }}>
@@ -274,8 +274,12 @@ export default function ReverseGapFlow({ onBack }) {
                             <p className="text-sm opacity-70">To confirm your gap, we need a few more life details.</p>
                             <button
                                 onClick={() => setStep(STEPS.MISSING_INFO)}
-                                className="px-10 py-5 bg-white/5 hover:bg-white/10 rounded-2xl font-black flex items-center gap-3 transition-all"
-                                style={{ color: 'var(--text-auth-primary)', border: '1px solid var(--border-auth-card)' }}
+                                className="px-10 py-5 hover:opacity-80 rounded-2xl font-black flex items-center gap-3 transition-all"
+                                style={{
+                                    color: 'var(--text-auth-primary)',
+                                    background: 'var(--bg-auth-input)',
+                                    border: '1px solid var(--border-auth-card)'
+                                }}
                             >
                                 Complete My Profile <ArrowRight className="w-5 h-5" />
                             </button>
@@ -284,20 +288,24 @@ export default function ReverseGapFlow({ onBack }) {
                 )}
 
                 {step === STEPS.MISSING_INFO && (
-                    <motion.div key="form" className="max-w-3xl mx-auto bg-[#0a0f1e] rounded-[3rem] p-10 border border-white/10 shadow-3xl">
+                    <motion.div key="form"
+                        className="max-w-3xl mx-auto rounded-[3rem] p-10 border shadow-3xl"
+                        style={{ backgroundColor: 'var(--bg-auth-card)', borderColor: 'var(--border-auth-card)' }}
+                    >
                         <div className="mb-10 text-center">
-                            <h2 className="text-3xl font-black text-white mb-2">Final Details</h2>
-                            <p className="text-slate-400">These details help us calculate your ideal coverage.</p>
+                            <h2 className="text-3xl font-black mb-2" style={{ color: 'var(--text-auth-primary)' }}>Final Details</h2>
+                            <p style={{ color: 'var(--text-auth-muted)' }}>These details help us calculate your ideal coverage.</p>
                         </div>
 
                         <form onSubmit={handleFormSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-2">Monthly Income</label>
+                                <label className="text-[10px] font-black uppercase tracking-widest ml-2" style={{ color: 'var(--text-auth-label)' }}>Monthly Income</label>
                                 <select
                                     value={profile.income_level}
                                     onChange={(e) => setProfile({ ...profile, income_level: e.target.value })}
                                     required
-                                    className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:border-brand-accent outline-none font-bold"
+                                    className="w-full border rounded-2xl p-4 focus:border-brand-accent outline-none font-bold transition-colors"
+                                    style={{ backgroundColor: 'var(--bg-auth-input)', borderColor: 'var(--border-auth-card)', color: 'var(--text-auth-primary)' }}
                                 >
                                     <option value="">Select Range</option>
                                     <option value="Below 5 Lakhs">Below ₹5 Lakhs</option>
@@ -309,11 +317,12 @@ export default function ReverseGapFlow({ onBack }) {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-2">Do you Smoke?</label>
+                                <label className="text-[10px] font-black uppercase tracking-widest ml-2" style={{ color: 'var(--text-auth-label)' }}>Do you Smoke?</label>
                                 <select
                                     value={profile.smoking_status}
                                     onChange={(e) => setProfile({ ...profile, smoking_status: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:border-brand-accent outline-none font-bold"
+                                    className="w-full border rounded-2xl p-4 focus:border-brand-accent outline-none font-bold transition-colors"
+                                    style={{ backgroundColor: 'var(--bg-auth-input)', borderColor: 'var(--border-auth-card)', color: 'var(--text-auth-primary)' }}
                                 >
                                     <option value="Never">Never</option>
                                     <option value="Occasionally">Occasionally</option>
@@ -322,11 +331,12 @@ export default function ReverseGapFlow({ onBack }) {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-2">Lifestyle</label>
+                                <label className="text-[10px] font-black uppercase tracking-widest ml-2" style={{ color: 'var(--text-auth-label)' }}>Lifestyle</label>
                                 <select
                                     value={profile.lifestyle}
                                     onChange={(e) => setProfile({ ...profile, lifestyle: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:border-brand-accent outline-none font-bold"
+                                    className="w-full border rounded-2xl p-4 focus:border-brand-accent outline-none font-bold transition-colors"
+                                    style={{ backgroundColor: 'var(--bg-auth-input)', borderColor: 'var(--border-auth-card)', color: 'var(--text-auth-primary)' }}
                                 >
                                     <option value="Sedentary">Sedentary (Office Work)</option>
                                     <option value="Active">Active (Exercise/Field Work)</option>
@@ -335,12 +345,13 @@ export default function ReverseGapFlow({ onBack }) {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-2">Number of Children</label>
+                                <label className="text-[10px] font-black uppercase tracking-widest ml-2" style={{ color: 'var(--text-auth-label)' }}>Number of Children</label>
                                 <input
                                     type="number"
                                     value={profile.num_children}
                                     onChange={(e) => setProfile({ ...profile, num_children: parseInt(e.target.value) || 0 })}
-                                    className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:border-brand-accent outline-none font-bold"
+                                    className="w-full border rounded-2xl p-4 focus:border-brand-accent outline-none font-bold transition-colors"
+                                    style={{ backgroundColor: 'var(--bg-auth-input)', borderColor: 'var(--border-auth-card)', color: 'var(--text-auth-primary)' }}
                                 />
                             </div>
 
@@ -444,12 +455,12 @@ export default function ReverseGapFlow({ onBack }) {
                             </div>
                         </div>
 
-                        <div className="backdrop-blur-xl rounded-[2rem] p-8 border border-white/10 bg-white/5">
+                        <div className="backdrop-blur-xl rounded-[2rem] p-8 border" style={{ backgroundColor: 'var(--bg-auth-card)', borderColor: 'var(--border-auth-card)' }}>
                             <h4 className="text-lg font-black mb-4 flex items-center gap-2">
                                 <Shield className="w-5 h-5 text-brand-accent" /> AI Advice
                             </h4>
-                            <p className="text-slate-300 leading-relaxed font-medium">{idealRec.summary}</p>
-                            <p className="mt-4 text-slate-400 text-sm italic">{idealRec.reasoning}</p>
+                            <p className="leading-relaxed font-medium" style={{ color: 'var(--text-auth-primary)' }}>{idealRec.summary}</p>
+                            <p className="mt-4 text-sm italic" style={{ color: 'var(--text-auth-muted)' }}>{idealRec.reasoning}</p>
                         </div>
                     </motion.div>
                 )}
