@@ -13,11 +13,11 @@ export default function FeatureSelector({ onSelectFeature }) {
         },
         {
             id: 'policy_review',
-            title: 'Smart Policy Review',
-            description: 'Already have insurance? Upload your documents and let AI extract and analyze your coverage gaps.',
+            title: 'Policy Gap Analysis',
+            description: 'Upload your documents and let AI extract your profile and identify missing coverage gaps instantly.',
             icon: <FileSearch className="w-8 h-8 text-brand-accent" />,
             color: 'brand',
-            badge: 'Instant Analysis'
+            badge: 'AI Powered'
         }
     ];
 

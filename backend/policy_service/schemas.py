@@ -5,6 +5,12 @@ class PolicyAddOn(BaseModel):
     name: str
     description: str
 
+class UserProfileHint(BaseModel):
+    full_name: Optional[str] = None
+    dob: Optional[str] = None
+    gender: Optional[str] = None
+    city: Optional[str] = None
+
 class PolicyExtractionResult(BaseModel):
     filename: str
     provider_name: Optional[str] = None
@@ -18,8 +24,11 @@ class PolicyExtractionResult(BaseModel):
     is_valid_policy: bool = False
     confidence_score: float = 0.0
     raw_summary: Optional[str] = None
+    policy_type: Optional[str] = "OTHER" # LIFE, HEALTH, OTHER
+    user_hint: Optional[UserProfileHint] = None
 
 class BatchExtractionResponse(BaseModel):
     results: List[PolicyExtractionResult]
     total_processed: int
     success_count: int
+    aggregated_profile: Optional[UserProfileHint] = None

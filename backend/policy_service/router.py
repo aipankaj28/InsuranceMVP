@@ -29,8 +29,23 @@ async def extract_multiple_policies(files: List[UploadFile] = File(...)):
 
     success_count = sum(1 for r in results if r.is_valid_policy)
     
+    # Simple logic to aggregate profile hints: take the first non-null values found
+    agg_name = next((r.user_hint.full_name for r in results if r.user_hint and r.user_hint.full_name), None)
+    agg_dob = next((r.user_hint.dob for r in results if r.user_hint and r.user_hint.dob), None)
+    agg_gender = next((r.user_hint.gender for r in results if r.user_hint and r.user_hint.gender), None)
+    agg_city = next((r.user_hint.city for r in results if r.user_hint and r.user_hint.city), None)
+    
+    from .schemas import UserProfileHint
+    aggregated_profile = UserProfileHint(
+        full_name=agg_name,
+        dob=agg_dob,
+        gender=agg_gender,
+        city=agg_city
+    ) if any([agg_name, agg_dob, agg_gender, agg_city]) else None
+
     return BatchExtractionResponse(
         results=results,
         total_processed=len(files),
-        success_count=success_count
+        success_count=success_count,
+        aggregated_profile=aggregated_profile
     )

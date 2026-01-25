@@ -451,8 +451,83 @@ def save_progress(request: ProgressRequest, user_payload = Depends(get_current_u
         db.rollback()
         log_now(f"Failed to commit progress for {email}: {str(e)}")
         raise HTTPException(status_code=500, detail="Database error")
-
+    
     return {"message": "Progress saved successfully"}
+
+class ProfileSyncRequest(BaseModel):
+    first_name: Optional[str] = None
+    dob: Optional[str] = None
+    gender: Optional[str] = None
+    city: Optional[str] = None
+    existing_life_cover_val: Optional[int] = None
+    life_provider: Optional[str] = None
+    life_policy_name: Optional[str] = None
+    existing_health_cover_val: Optional[int] = None
+    health_provider: Optional[str] = None
+    health_policy_name: Optional[str] = None
+
+@app.get("/api/user/profile")
+async def get_profile(user_payload = Depends(get_current_user), db: Session = Depends(get_db)):
+    email = user_payload.get("sub")
+    user = db.query(User).filter(User.email == email).first()
+    if not user:
+        return {}
+    
+    return {
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "dob": user.dob,
+        "mobile": user.mobile,
+        "income_level": user.income_level,
+        "city": user.city,
+        "gender": user.gender,
+        "marital_status": user.marital_status,
+        "support_parents": user.support_parents,
+        "career_stage": user.career_stage,
+        "employment_type": user.employment_type,
+        "lifestyle": user.lifestyle,
+        "smoking_status": user.smoking_status,
+        "family_health_history": user.family_health_history,
+        "is_smoker": user.is_smoker,
+        "num_children": user.num_children,
+        "has_life_insurance": user.has_life_insurance,
+        "existing_life_cover_val": user.existing_life_cover_val,
+        "life_provider": user.life_provider,
+        "life_policy_name": user.life_policy_name,
+        "has_health_insurance": user.has_health_insurance,
+        "existing_health_cover_val": user.existing_health_cover_val,
+        "health_provider": user.health_provider,
+        "health_policy_name": user.health_policy_name
+    }
+
+@app.post("/api/user/sync-profile")
+async def sync_profile(data: ProfileSyncRequest, user_payload = Depends(get_current_user), db: Session = Depends(get_db)):
+    email = user_payload.get("sub")
+    user = db.query(User).filter(User.email == email).first()
+    if not user:
+        user = User(email=email)
+        db.add(user)
+    
+    if data.first_name: user.first_name = data.first_name
+    if data.dob: user.dob = data.dob
+    if data.gender: user.gender = data.gender
+    if data.city: user.city = data.city
+    
+    # Coverage data
+    if data.existing_life_cover_val is not None:
+        user.existing_life_cover_val = data.existing_life_cover_val
+        user.has_life_insurance = True
+    if data.life_provider: user.life_provider = data.life_provider
+    if data.life_policy_name: user.life_policy_name = data.life_policy_name
+    
+    if data.existing_health_cover_val is not None:
+        user.existing_health_cover_val = data.existing_health_cover_val
+        user.has_health_insurance = True
+    if data.health_provider: user.health_provider = data.health_provider
+    if data.health_policy_name: user.health_policy_name = data.health_policy_name
+    
+    db.commit()
+    return {"message": "Profile synced successfully"}
 
 if __name__ == "__main__":
     import uvicorn

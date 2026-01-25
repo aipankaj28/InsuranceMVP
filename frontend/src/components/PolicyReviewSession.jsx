@@ -177,7 +177,14 @@ export default function PolicyReviewSession({ onBack }) {
                                 {res.is_valid_policy ? (
                                     <div className="space-y-6">
                                         <div>
-                                            <h3 className="text-lg font-black" style={{ color: 'var(--text-auth-primary)' }}>{res.policy_name || 'Individual Policy'}</h3>
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <h3 className="text-lg font-black" style={{ color: 'var(--text-auth-primary)' }}>{res.policy_name || 'Individual Policy'}</h3>
+                                                {res.policy_type && (
+                                                    <span className={`text-[8px] font-black px-2 py-0.5 rounded-md uppercase tracking-tighter ${res.policy_type === 'LIFE' ? 'bg-blue-500/20 text-blue-400' : 'bg-green-500/20 text-green-400'}`}>
+                                                        {res.policy_type}
+                                                    </span>
+                                                )}
+                                            </div>
                                             <p className="text-sm font-bold text-brand-accent">{res.provider_name}</p>
                                         </div>
 

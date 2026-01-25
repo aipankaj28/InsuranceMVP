@@ -32,14 +32,26 @@ class PolicyEngine:
                 "premium_amount": numeric_premium_value,
                 "is_valid_policy": true/false (false if it's not an insurance document),
                 "confidence_score": 0.0 to 1.0,
-                "raw_summary": "A 2-sentence summary of the policy"
+                "raw_summary": "A 2-sentence summary of the policy",
+                "policy_type": "LIFE or HEALTH or OTHER",
+                "user_hint": {
+                    "full_name": "Name of the primary policyholder",
+                    "dob": "Date of birth in YYYY-MM-DD format (if found)",
+                    "gender": "Male/Female (if found)",
+                    "city": "City of residence mentioned in the policy (if found)"
+                }
             }
             
             IMPORTANT:
             - If "Sum Assured" or "Sum Insured" is found, use that for coverage_amount_val.
+            - policy_type categorization:
+              - "LIFE": For Life Insurance, Term Plan, Endowment, Whole Life, and ULIPs.
+              - "HEALTH": For Health Insurance, Mediclaim, Critical Illness, and Personal Accident.
+              - "OTHER": For non-insurance or general insurance (Motor, Travel, Home).
             - 1 Crore = 10,000,000.
             - 1 Lakh = 100,000.
             - If it's not an insurance policy, set is_valid_policy to false.
+            - Look specifically for "Policyholder Name", "Insured Name", "Date of Birth", and "Address" sections to fill user_hint.
             """
 
             # Handle file for Gemini

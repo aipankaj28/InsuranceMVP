@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Wizard from './components/Wizard';
 import FeatureSelector from './components/FeatureSelector';
-import PolicyReviewSession from './components/PolicyReviewSession';
+import ReverseGapFlow from './components/ReverseGapFlow';
 import Background from './components/Background';
 import Login from './components/Login';
 import ThemeToggle from './components/ThemeToggle';
@@ -80,7 +80,7 @@ function MainApp() {
         ) : selectedFeature === 'wizard' ? (
           <Wizard onBack={() => setSelectedFeature(null)} />
         ) : (
-          <PolicyReviewSession onBack={() => setSelectedFeature(null)} />
+          <ReverseGapFlow onBack={() => setSelectedFeature(null)} />
         )}
       </div>
     </>
