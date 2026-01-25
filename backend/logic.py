@@ -151,7 +151,7 @@ def calculate_recommendation_rule(data: dict) -> dict:
             {"name": "Critical Illness Cover", "reason": "Recommended for long-term health protection."},
             {"name": "No Room Rent Capping", "reason": "Ensures you get any room type during hospitalization."}
         ],
-        "icon": "🚀" if life_cover_amount > 10000000 else "🛡️",
+        "icon": "\U0001F680" if life_cover_amount > 10000000 else "\U0001F6E1\uFE0F",
         "prompt_sent": "Rule-based logic used."
     }
 
@@ -190,8 +190,8 @@ Existing Life Policy:
         life_gap_val = max(0, data.get('recommended_life_cover_val', 0) - data.get('existing_life_cover_val', 0))
         health_gap_val = max(0, data.get('recommended_health_cover_val', 0) - data.get('existing_health_cover_val', 0))
         
-        life_gap_str = f"₹{life_gap_val/10000000:.1f} Crore" if life_gap_val >= 10000000 else f"₹{life_gap_val/100000:.0f} Lakhs"
-        health_gap_str = f"₹{health_gap_val/100000:.0f} Lakhs"
+        life_gap_str = f"\u20B9{life_gap_val/10000000:.1f} Crore" if life_gap_val >= 10000000 else f"\u20B9{life_gap_val/100000:.0f} Lakhs"
+        health_gap_str = f"\u20B9{health_gap_val/100000:.0f} Lakhs"
 
         prompt = f"""You are an expert Indian insurance advisor. Based on the user's profile, gaps identified, and existing policy details, recommend UP TO 3 specific Life Insurance plans and UP TO 3 specific Health Insurance plans available in the Indian market ONLY IF NECESSARY.
 
@@ -238,10 +238,10 @@ Provide recommendations in EXACTLY this JSON format (provide UP TO 3 for each li
 User Context:
 - Name: {data.get('first_name', 'User')}
 - Recommended Ideal Life Cover: {data.get('recommended_life_cover', 'Not calculated')}
-- Existing Life Cover: ₹{data.get('existing_life_cover_val', 0)/10000000 if data.get('existing_life_cover_val', 0) >= 10000000 else data.get('existing_life_cover_val', 0)/100000:.1f} {'Cr' if data.get('existing_life_cover_val', 0) >= 10000000 else 'L'}
+- Existing Life Cover: \u20B9{data.get('existing_life_cover_val', 0)/10000000 if data.get('existing_life_cover_val', 0) >= 10000000 else data.get('existing_life_cover_val', 0)/100000:.1f} {'Cr' if data.get('existing_life_cover_val', 0) >= 10000000 else 'L'}
 - SHORTFALL TO BE COVERED (LIFE): {life_gap_str}
 - Recommended Ideal Health Cover: {data.get('recommended_health_cover', 'Not calculated')}
-- Existing Health Cover: ₹{data.get('existing_health_cover_val', 0)/100000:.1f} Lakhs
+- Existing Health Cover: \u20B9{data.get('existing_health_cover_val', 0)/100000:.1f} Lakhs
 - SHORTFALL TO BE COVERED (HEALTH): {health_gap_str}
 - Recommended Features: {', '.join(data.get('recommended_features', []))}
 {existing_health_info}
@@ -320,7 +320,7 @@ Provide a recommendation in EXACTLY this JSON format:
     {{ "name": "Critical Illness Cover", "reason": "Justification based on age/lifestyle." }},
     {{ "name": "No Room Rent Capping", "reason": "Justification based on city tier." }}
   ],
-  "icon": "🚀" or "🛡️" or "💼"
+  "icon": "\U0001F680" or "\U0001F6E1\uFE0F" or "\U0001F4BC"
 }}
 
 CRITICAL UNIT REMINDER:
